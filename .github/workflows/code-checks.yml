@@ -12,6 +12,7 @@ concurrency:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -20,6 +21,8 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Workflow timeouts
+        run: node scripts/check-workflow-timeouts.mjs
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck

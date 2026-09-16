@@ -14,10 +14,22 @@ permissions:
 jobs:
   scan:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
+      # The gitleaks scanner itself is MIT and free. Only the Action wrapper
+      # requires a paid licence once the repo is organisation-owned, which it
+      # became on the move to the cteic org. Running the binary directly keeps
+      # the identical scan, needs no licence, and drops a third-party action
+      # from the supply chain.
+      - name: Install gitleaks
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_VERSION: 8.30.1
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            | tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+      - name: Scan for secrets
+        run: gitleaks git --verbose --redact --no-color --exit-code 1 .
