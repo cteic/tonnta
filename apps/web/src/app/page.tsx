@@ -1,16 +1,9 @@
-import { AppFooter } from '@/components/app-footer';
-import { HomeView } from '@/components/home-view';
-import { loadSpotConditions } from '@/lib/conditions';
+import { DEFAULT_SPOT_ID } from '@tonnta/data';
+
+import { SpotScreen } from '@/components/spot-screen';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const conditions = await loadSpotConditions();
-
-  return (
-    <main>
-      <HomeView conditions={conditions} />
-      <AppFooter />
-    </main>
-  );
+  return <SpotScreen spotId={DEFAULT_SPOT_ID} />;
 }

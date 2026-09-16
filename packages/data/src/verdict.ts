@@ -1,4 +1,11 @@
-import type { Board, HourlyConditions, Spot, VerdictResult, WindState } from '@tonnta/types';
+import type {
+  Board,
+  HourlyConditions,
+  Spot,
+  VerdictResult,
+  VerdictThresholds,
+  WindState,
+} from '@tonnta/types';
 
 /**
  * The verdict engine — Tonnta's whole point in ~100 lines.
@@ -8,18 +15,7 @@ import type { Board, HourlyConditions, Spot, VerdictResult, WindState } from '@t
  * settings later, so everything routes through `VerdictThresholds`.
  */
 
-export interface VerdictThresholds {
-  /** Below this the sea is flat (m). */
-  flatBelowM: number;
-  /** At or above this it's rideable (m). */
-  goFromM: number;
-  /** Max wind for a clean GO (km/h). */
-  maxWindKmh: number;
-  /** Wind allowance when it's blowing offshore (km/h). */
-  maxWindOffshoreKmh: number;
-  /** Onshore wind above this kills the day regardless of waves (km/h). */
-  blownOnshoreKmh: number;
-}
+export type { VerdictThresholds };
 
 export const DEFAULT_THRESHOLDS: VerdictThresholds = {
   flatBelowM: 0.3,
@@ -83,22 +79,28 @@ function formatWave(heightM: number): string {
   return `${heightM.toFixed(1)}m`;
 }
 
+/** Effective thresholds for a spot — its own tuning, else the defaults. */
+export function spotThresholds(spot: Spot): VerdictThresholds {
+  return spot.thresholds ?? DEFAULT_THRESHOLDS;
+}
+
 export function assessHour(
   hour: HourlyConditions,
   spot: Spot,
-  thresholds: VerdictThresholds = DEFAULT_THRESHOLDS
+  thresholds?: VerdictThresholds
 ): VerdictResult {
+  const resolved = thresholds ?? spotThresholds(spot);
   const windState = classifyWind(hour.windDirectionDeg, hour.windSpeedKmh, spot);
   const { waveHeightM, windSpeedKmh } = hour;
 
-  if (isOn(windState) && windSpeedKmh > thresholds.blownOnshoreKmh) {
+  if (isOn(windState) && windSpeedKmh > resolved.blownOnshoreKmh) {
     return {
       verdict: 'blown',
       reason: `Onshore ${Math.round(windSpeedKmh)}km/h has it blown out — save it for another day.`,
     };
   }
 
-  if (waveHeightM < thresholds.flatBelowM) {
+  if (waveHeightM < resolved.flatBelowM) {
     const board = pickBoard(hour);
     if (board === 'sup' && windState === 'glassy') {
       return {
@@ -110,8 +112,8 @@ export function assessHour(
     return { verdict: 'flat', reason: 'Under 0.3m — nothing to ride today.' };
   }
 
-  const windCap = isOff(windState) ? thresholds.maxWindOffshoreKmh : thresholds.maxWindKmh;
-  const rideable = waveHeightM >= thresholds.goFromM;
+  const windCap = isOff(windState) ? resolved.maxWindOffshoreKmh : resolved.maxWindKmh;
+  const rideable = waveHeightM >= resolved.goFromM;
 
   if (rideable && windSpeedKmh <= windCap) {
     const board = pickBoard(hour);
