@@ -1,0 +1,12 @@
+# Home screen smoke: the app launches and the verdict heading renders once
+# the forecast has loaded. Run with `maestro test .maestro` from apps/app
+# against a booted iOS simulator that has the app installed.
+appId: ie.tonnta.app
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: 'verdict-heading'
+    timeout: 20000
+- assertVisible:
+    id: 'verdict-heading'

@@ -2,6 +2,7 @@
   "extends": "./packages/tsconfig-config/tsconfig.base.json",
   "files": [],
   "references": [
+    { "path": "./apps/app/tsconfig.json" },
     { "path": "./apps/web/tsconfig.json" },
     { "path": "./apps/worker/tsconfig.json" },
     { "path": "./packages/data/tsconfig.json" },
