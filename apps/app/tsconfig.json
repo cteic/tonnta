@@ -8,5 +8,5 @@
     "declaration": false,
     "declarationMap": false
   },
-  "include": ["app", "src", "app.json", "expo-env.d.ts", "tamagui.config.ts"]
+  "include": ["app", "src", "app.json", "tamagui.config.ts"]
 }
