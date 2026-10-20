@@ -1,4 +1,5 @@
 export { SPOTS, DEFAULT_SPOT_ID, getSpot } from './spots';
+export { currentHour } from './current-hour';
 export { DEFAULT_THRESHOLDS, assessHour, classifyWind, spotThresholds } from './verdict';
 export type { VerdictThresholds } from './verdict';
 export { findGoodWindows, isSessionTime, nextGoodWindow, summarizeDays } from './summary';

@@ -13,9 +13,12 @@
     "test:unit": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@modelcontextprotocol/server": "2.0.0",
     "@tonnta/data": "workspace:*",
     "@tonnta/types": "workspace:*",
-    "web-push": "^3.6.7"
+    "agents": "0.21.0",
+    "web-push": "^3.6.7",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@amiceli/vitest-cucumber": "4.7.0",

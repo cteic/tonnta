@@ -9,6 +9,7 @@ import {
 } from '@tonnta/data';
 import type { Spot } from '@tonnta/types';
 
+import { handleMcp } from './mcp';
 import { handleConfirm, handleFounderCount, handleRestore } from './pro';
 
 export interface Env {
@@ -184,8 +185,9 @@ async function checkAndAlert(env: Env): Promise<void> {
 }
 
 const worker = {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
+    if (url.pathname === '/mcp') return handleMcp(request, env.CACHE, ctx);
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders(env) });
     }
