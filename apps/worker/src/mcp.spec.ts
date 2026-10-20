@@ -98,3 +98,37 @@ it('routes MCP preflight separately from the website endpoints', async () => {
   expect(response.status).toBe(204);
   expect(response.headers.has('Access-Control-Allow-Origin')).toBe(false);
 });
+
+it('rejects spot arguments and unknown tools without fetching forecasts', async () => {
+  const fetchImpl = vi.fn<typeof fetch>();
+  vi.stubGlobal('fetch', fetchImpl);
+  try {
+    const invalid = await rpc('tools/call', { name: 'surf_verdict', arguments: { spot: 'other' } });
+    expect(invalid.parsed).toMatchObject({ error: { code: -32602 } });
+    const unknown = await rpc('tools/call', { name: 'unknown', arguments: {} });
+    expect(unknown.parsed).toMatchObject({ error: { code: -32602 } });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});
+
+it('returns a tool error when the forecast service is unavailable', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn<typeof fetch>(async () => new Response(null, { status: 503 }))
+  );
+  try {
+    const result = await rpc('tools/call', { name: 'surf_verdict', arguments: {} });
+    expect(result.parsed).toMatchObject({
+      result: {
+        isError: true,
+        content: [
+          { type: 'text', text: 'The surf forecast is unavailable. Please try again later.' },
+        ],
+      },
+    });
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});
