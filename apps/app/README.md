@@ -88,6 +88,23 @@ server closes the stream (every 15 minutes), and backs off on failure.
 Point a dev build at a local worker with `EXPO_PUBLIC_LIVE_URL`, the same way
 as the widget's `EXPO_PUBLIC_VERDICT_URL`.
 
+## CI and releases
+
+| What                                            | Where                              | When                                       |
+| ----------------------------------------------- | ---------------------------------- | ------------------------------------------ |
+| Expo doctor, iOS and Android bundle export      | `.github/workflows/mobile.yml`     | Every PR touching the app or packages      |
+| Preview builds (iOS simulator app, Android APK) | `.eas/workflows/preview-build.yml` | Label a PR `preview-build`                 |
+| Over-the-air update to the `preview` channel    | `.eas/workflows/deploy-update.yml` | Push to `dev` touching the app or packages |
+
+Updates use a fingerprint runtime version: an update reaches only the builds
+whose native code it matches. A native change (a new native module, an
+`app.json` plugin change) needs a new build, and the fingerprint makes that
+explicit instead of shipping JavaScript that crashes on old binaries.
+
+The EAS workflows run once the GitHub repository is connected to the Expo
+project. Maestro jobs on EAS need a paid Expo plan; until then, run the flows
+locally with `pnpm test:ui`.
+
 ## UI smoke test (Maestro)
 
 With the app installed on a booted simulator (`pnpm ios` leaves it running):

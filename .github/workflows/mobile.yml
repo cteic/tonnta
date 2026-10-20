@@ -1,0 +1,36 @@
+name: Mobile
+
+on:
+  pull_request:
+    paths:
+      - 'apps/app/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-bundles:
+    name: Expo doctor and native bundles
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Expo doctor
+        working-directory: apps/app
+        run: pnpm dlx expo-doctor@latest
+      # Bundling for iOS and Android catches Metro resolution errors that the
+      # web export and tsc both miss, without spending an EAS build.
+      - name: Export iOS and Android bundles
+        working-directory: apps/app
+        env:
+          TAMAGUI_TARGET: native
+        run: pnpm exec expo export --platform ios --platform android --output-dir "$RUNNER_TEMP/export"
