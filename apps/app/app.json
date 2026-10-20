@@ -2,6 +2,7 @@
   "expo": {
     "name": "Tonnta",
     "slug": "tonnta",
+    "owner": "cteic",
     "version": "0.1.0",
     "scheme": "tonnta",
     "orientation": "portrait",
