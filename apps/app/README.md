@@ -74,6 +74,20 @@ Two things to know:
 - Metro started with `CI=1` does not watch files. A widget layout edit then
   never reaches the device; restart Metro without it.
 
+## Live tide
+
+The home screen streams the spot's tide gauge (Skerries Harbour for Donabate)
+from the worker's `GET /live`, a Server-Sent Events stream: a snapshot of the
+last hour, then each new reading as the gauge reports every 5 minutes.
+
+React Native has no `EventSource`, so `src/live/` reads the stream with
+`expo/fetch` and parses it with its own SSE parser (`sse.ts`). The hook holds
+the connection only while the app is in the foreground, reconnects when the
+server closes the stream (every 15 minutes), and backs off on failure.
+
+Point a dev build at a local worker with `EXPO_PUBLIC_LIVE_URL`, the same way
+as the widget's `EXPO_PUBLIC_VERDICT_URL`.
+
 ## UI smoke test (Maestro)
 
 With the app installed on a booted simulator (`pnpm ios` leaves it running):
