@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 
-import { ScrollViewStyleReset } from 'expo-router/html';
+import { ScrollViewStyleReset, useServerDocumentContext } from 'expo-router/html';
 
 import { colors, tamaguiConfig } from '@tonnta/ui';
 
@@ -14,8 +14,9 @@ body { margin: 0; background: ${colors.harbour}; color: ${colors.fog}; overflow-
  * here so the pre-rendered page is themed on first paint.
  */
 export default function Root({ children }: PropsWithChildren) {
+  const { htmlAttributes, bodyAttributes, headNodes, bodyNodes } = useServerDocumentContext();
   return (
-    <html lang="en">
+    <html lang="en" {...htmlAttributes}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -27,11 +28,13 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="theme-color" content={colors.harbour} />
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: BASE_STYLES }} />
-        <style
-          dangerouslySetInnerHTML={{ __html: tamaguiConfig.getCSS({ exclude: 'design-system' }) }}
-        />
+        <style dangerouslySetInnerHTML={{ __html: tamaguiConfig.getCSS() }} />
+        {headNodes}
       </head>
-      <body>{children}</body>
+      <body {...bodyAttributes}>
+        {children}
+        {bodyNodes}
+      </body>
     </html>
   );
 }
