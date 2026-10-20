@@ -104,7 +104,7 @@ it('rejects spot arguments and unknown tools without fetching forecasts', async 
   vi.stubGlobal('fetch', fetchImpl);
   try {
     const invalid = await rpc('tools/call', { name: 'surf_verdict', arguments: { spot: 'other' } });
-    expect(invalid.parsed).toMatchObject({ error: { code: -32602 } });
+    expect(invalid.parsed).toMatchObject({ result: { isError: true } });
     const unknown = await rpc('tools/call', { name: 'unknown', arguments: {} });
     expect(unknown.parsed).toMatchObject({ error: { code: -32602 } });
     expect(fetchImpl).not.toHaveBeenCalled();
