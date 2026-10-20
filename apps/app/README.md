@@ -48,6 +48,32 @@ pnpm dlx eas-cli@latest build -p ios --profile preview
 pnpm dlx eas-cli@latest build:run -p ios --latest     # install the simulator build
 ```
 
+## Home-screen widget
+
+`src/widgets/` holds a verdict widget for both platforms, built with
+`expo-widgets`: SwiftUI on iOS (small and medium), Glance on Android (2x2,
+resizable). The layouts are `verdict-widget.ios.tsx` and
+`verdict-widget.android.tsx`; they run outside the app, so they may only read
+their props.
+
+Data comes from the worker's `GET /verdict`. The app refreshes the widget on
+open, on return to the foreground, and from an hourly background task. iOS gets
+the whole day as a timeline; Android gets the current hour.
+
+To point a dev build at a local worker, run `pnpm dev:worker` and start Metro
+with the worker's LAN address, which both the simulator and the emulator reach:
+
+```sh
+cd apps/app
+EXPO_PUBLIC_VERDICT_URL=http://<lan-ip>:8787/verdict pnpm ios
+```
+
+Two things to know:
+
+- Android widgets are behind the plugin's `enableAndroid` flag in `app.json`.
+- Metro started with `CI=1` does not watch files. A widget layout edit then
+  never reaches the device; restart Metro without it.
+
 ## UI smoke test (Maestro)
 
 With the app installed on a booted simulator (`pnpm ios` leaves it running):
