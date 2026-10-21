@@ -95,6 +95,7 @@ as the widget's `EXPO_PUBLIC_VERDICT_URL`.
 | Expo doctor, iOS and Android bundle export      | `.github/workflows/mobile.yml`     | Every PR touching the app or packages      |
 | Preview builds (iOS simulator app, Android APK) | `.eas/workflows/preview-build.yml` | Label a PR `preview-build`                 |
 | Over-the-air update to the `preview` channel    | `.eas/workflows/deploy-update.yml` | Push to `dev` touching the app or packages |
+| Maestro flows on an Android emulator            | `.github/workflows/e2e.yml`        | Label a PR `e2e`                           |
 
 Updates use a fingerprint runtime version: an update reaches only the builds
 whose native code it matches. A native change (a new native module, an
@@ -102,8 +103,8 @@ whose native code it matches. A native change (a new native module, an
 explicit instead of shipping JavaScript that crashes on old binaries.
 
 The EAS workflows run once the GitHub repository is connected to the Expo
-project. Maestro jobs on EAS need a paid Expo plan; until then, run the flows
-locally with `pnpm test:ui`.
+project. Maestro runs in GitHub Actions rather than EAS: the repository is
+public, so the runner minutes cost nothing, where EAS charges per Maestro job.
 
 ## UI smoke test (Maestro)
 
@@ -116,6 +117,14 @@ maestro test .maestro        # launches the app and waits for the verdict headin
 
 The flow is `.maestro/home.yaml`. It asserts on `testID="verdict-heading"`,
 so it passes whatever the sea is doing.
+
+To run it headless, with no simulator window, boot the device without the
+Simulator app or start the emulator with no window:
+
+```sh
+xcrun simctl boot "iPhone 18 Pro"                  # iOS: boots without opening Simulator.app
+emulator -avd <avd-name> -no-window -no-audio &    # Android
+```
 
 ## Placeholder assets
 
