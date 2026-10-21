@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# Validate the commit message against .commitlintrc.js (conventional +
+# scope-enum). Local gate only — CI re-checks every commit on the PR range,
+# so `--no-verify` here buys nothing past the push.
+pnpm exec commitlint --edit "$1"
