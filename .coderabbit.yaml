@@ -17,10 +17,14 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
-    # Both, deliberately. `dev` is the integration branch, but `hotfix/*`
-    # branches off `main` and those PRs go straight to production — the
-    # last place to skip a review.
-    base_branches: [dev, main]
+    # Every base branch, so stacked PRs (one feature branch on another) get
+    # reviewed too, not only PRs into dev and main. `hotfix/*` PRs go
+    # straight to main and production, the last place to skip a review.
+    base_branches: ['.*']
+    # One review when a PR opens, then on request with `@coderabbitai review`.
+    # Re-reviewing every push burns the free plan's hourly limit on a stack.
+    auto_incremental_review: false
+    ignore_title_keywords: ['wip', 'do not review']
   path_filters:
     - '!**/pnpm-lock.yaml'
     - '!**/package-lock.json'
@@ -28,6 +32,9 @@ reviews:
     - '!**/.next/**'
     - '!**/.turbo/**'
     - '!**/*.snap'
+    - '!apps/app/ios/**'
+    - '!apps/app/android/**'
+    - '!apps/web/next-env.d.ts'
   path_instructions:
     - path: '**/*.{ts,tsx}'
       instructions: >-
@@ -50,11 +57,53 @@ reviews:
         in a server route or proxy; the client calls same-origin.
         Flag API-sourced or user-supplied values accepted with a cast instead
         of a type guard, and any input validated only on the client.
+    - path: 'packages/**'
+      instructions: >-
+        Packages never import from `apps/`. Domain logic (verdicts, tide and
+        forecast maths) belongs in `packages/data`, not in a route handler,
+        worker route, or screen. Flag a package that gains a runtime
+        dependency on React Native, Next.js, or a Workers-only API.
+    - path: 'apps/app/**'
+      instructions: >-
+        Expo Router universal app (iOS, Android, web) styled only with
+        Tamagui. Flag other styling libraries and inline style objects where
+        a Tamagui prop exists. Flag browser-only APIs (`window`, `document`,
+        `EventSource`, `localStorage`) outside a `.web.tsx` file or a
+        platform check. Flag subscriptions, timers, or network streams opened
+        in an effect without cleanup, and work that keeps running while the
+        app is in the background.
+    - path: 'apps/app/src/widgets/**'
+      instructions: >-
+        Files with the `'widget'` directive are serialised and run outside
+        the app: they may read only their props. Flag any reference to
+        module scope, imports used at render time, or hooks in those files.
+    - path: 'apps/app/app.json'
+      instructions: >-
+        Runtime versions use the fingerprint policy. Point out when a change
+        here (a plugin, a native permission, a native module) needs a new
+        native build and cannot ship as an over-the-air update.
+    - path: 'apps/worker/**'
+      instructions: >-
+        Cloudflare Worker. Flag floating promises (work after the response
+        that is not passed to `ctx.waitUntil`), module-level mutable state
+        used as a cache (use KV), unbounded upstream fetches without a cache
+        key and TTL, and responses missing an explicit `Cache-Control`.
+        Upstream JSON must pass a type guard before use. A failed cache read
+        or write must degrade to an upstream fetch, never fail the request.
     - path: '**/*.{test,spec}.{ts,tsx}'
       instructions: >-
         Tests must assert observable behaviour, not implementation details.
         Flag assertions on internal state, mock call counts standing in for
         behaviour, and tests that would pass without the change under review.
+    - path: '**/*.feature'
+      instructions: >-
+        Gherkin scenarios describe behaviour in the user's or caller's terms.
+        Flag steps that name functions, mocks, or internal data structures.
+    - path: 'docs/adr/**'
+      instructions: >-
+        An ADR records one decision: context, the decision, the options
+        rejected and why, and the consequences. Flag an ADR that edits an
+        accepted decision in place instead of superseding it with a new one.
     - path: '**/*.{yml,yaml}'
       instructions: >-
         For CI workflows, flag actions pinned to a mutable tag rather than a
@@ -68,5 +117,11 @@ chat:
   auto_reply: true
 
 knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - 'AGENTS.md'
+      - 'DESIGN.md'
+      - 'docs/adr/*.md'
   learnings:
     scope: local
