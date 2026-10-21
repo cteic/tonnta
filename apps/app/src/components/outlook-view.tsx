@@ -114,7 +114,7 @@ export function OutlookView({ outlook }: OutlookViewProps) {
   return (
     <>
       <VerdictHero verdict={now} hour={currentHour} />
-      <ConditionsChart hours={hours} timezone={spot.timezone} />
+      <ConditionsChart spotId={spot.id} hours={hours} timezone={spot.timezone} />
       <YStack gap="$4">
         <Eyebrow>Next good window</Eyebrow>
         {nextWindow !== undefined ? (

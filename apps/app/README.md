@@ -88,6 +88,25 @@ server closes the stream (every 15 minutes), and backs off on failure.
 Point a dev build at a local worker with `EXPO_PUBLIC_LIVE_URL`, the same way
 as the widget's `EXPO_PUBLIC_VERDICT_URL`.
 
+## Analytics and error tracking
+
+PostHog (US cloud, project 678247) through `posthog-react-native`, set up in
+`src/lib/analytics.tsx`:
+
+- screen views, app lifecycle events, and the named events in
+  `src/lib/analytics-events.ts` (`outlook_viewed`, `chart_scrubbed`)
+- uncaught exceptions, unhandled promise rejections and render errors. These
+  also need exception autocapture switched on in the PostHog project's error
+  tracking settings, which override the SDK
+- no session replay, no touch autocapture, nothing that identifies a person
+
+Development builds send nothing. To check events from a dev build, start Metro
+with `EXPO_PUBLIC_POSTHOG_DEV=1`, and add `EXPO_PUBLIC_POSTHOG_DEBUG=1` to log
+each capture and flush to the Metro console.
+
+Stack traces are minified until source maps are uploaded at build time, which
+needs `posthog-cli` and a personal API key in the build environment.
+
 ## CI and releases
 
 | What                                            | Where                              | When                                       |

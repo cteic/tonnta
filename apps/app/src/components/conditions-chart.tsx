@@ -11,6 +11,8 @@ import { colors } from '@tonnta/ui/theme';
 
 import type { ChartBox } from '@/chart/chart-geometry';
 import { buildChartGeometry, hourIndexAt, longestGoRun } from '@/chart/chart-geometry';
+import { useAnalytics } from '@/lib/analytics';
+import { chartScrubbed } from '@/lib/analytics-events';
 import type { ChartHour } from '@/lib/conditions';
 import { BOARD_LABEL, VERDICT_LABEL, formatDayName, formatHour } from '@/lib/format';
 
@@ -27,6 +29,7 @@ const BAND_COLOUR: Record<Verdict, string> = {
 };
 
 interface ConditionsChartProps {
+  spotId: string;
   hours: ChartHour[];
   timezone: string;
 }
@@ -35,7 +38,8 @@ interface ConditionsChartProps {
  * The next 24 hours: wave height over verdict-coloured bands, wind as a
  * second line. Drag across it to read any hour.
  */
-export function ConditionsChart({ hours, timezone }: ConditionsChartProps) {
+export function ConditionsChart({ spotId, hours, timezone }: ConditionsChartProps) {
+  const { track } = useAnalytics();
   const [width, setWidth] = useState(0);
   const [selected, setSelected] = useState(0);
   // Page x of the chart's left edge, taken when a touch starts. Move events
@@ -67,6 +71,10 @@ export function ConditionsChart({ hours, timezone }: ConditionsChartProps) {
   };
   const moveScrub = (event: GestureResponderEvent) => {
     select(event.nativeEvent.pageX - originX.current);
+  };
+  const endScrub = () => {
+    const event = chartScrubbed(spotId, hours, selected);
+    if (event !== undefined) track('chart_scrubbed', event);
   };
 
   return (
@@ -100,6 +108,7 @@ export function ConditionsChart({ hours, timezone }: ConditionsChartProps) {
         onMoveShouldSetResponder={() => true}
         onResponderGrant={startScrub}
         onResponderMove={moveScrub}
+        onResponderRelease={endScrub}
         style={{ height: HEIGHT }}
       >
         {width > 0 ? (
