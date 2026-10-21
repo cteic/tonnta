@@ -7,15 +7,16 @@ import type { HourlyConditions, Spot } from '@tonnta/types';
 import type { SpotConditions } from './conditions';
 import type { JsonRpcResponse } from './mcp';
 import { MCP_PROTOCOL_VERSION, SURF_TOOL_NAME, handleMcpRequest } from './mcp';
+import { SITE_URL } from './site';
 
 const feature = await loadFeature('./mcp.feature');
 
 const NOW = new Date('2026-08-18T09:00:00.000Z');
 
-function donabate(): Spot {
-  const spot = getSpot('donabate');
+function spotNamed(id: string): Spot {
+  const spot = getSpot(id);
   if (spot === undefined) {
-    throw new Error('the spot registry no longer has donabate');
+    throw new Error(`the spot registry no longer has ${id}`);
   }
   return spot;
 }
@@ -34,7 +35,7 @@ const CURRENT_HOUR: HourlyConditions = {
 
 function conditionsFixture(): SpotConditions {
   return {
-    spot: donabate(),
+    spot: spotNamed('donabate'),
     now: {
       verdict: 'go',
       board: 'longboard',
@@ -164,6 +165,40 @@ describeFeature(feature, ({ Scenario }) => {
         },
         tide: { state: 'rising' },
         spot: { id: 'donabate', latitude: 53.487, longitude: -6.107 },
+      });
+    });
+  });
+
+  Scenario('A spot outside Ireland is named with its own country', ({ Given, When, Then, And }) => {
+    let body: unknown;
+    let response: JsonRpcResponse | undefined;
+
+    Given('conditions at El Cotillo, Fuerteventura', () => {
+      body = {
+        jsonrpc: '2.0',
+        id: 8,
+        method: 'tools/call',
+        params: { name: SURF_TOOL_NAME, arguments: { spot_id: 'el-cotillo' } },
+      };
+    });
+    When('the agent calls get_surf_conditions for that spot', async () => {
+      const conditions = conditionsFixture();
+      conditions.spot = spotNamed('el-cotillo');
+      response = await handleMcpRequest(body, dependencies(conditions));
+    });
+    Then('the summary places it in Spain, not Ireland', () => {
+      const text = firstText(resultOf(response).content);
+      expect(text).toContain('El Cotillo, Fuerteventura, Spain');
+      expect(text).not.toContain('Ireland');
+      expect(resultOf(response).structuredContent).toMatchObject({
+        spot: { id: 'el-cotillo', country: 'ES' },
+      });
+    });
+    And("it links to that spot's own page rather than the home page", () => {
+      const text = firstText(resultOf(response).content);
+      expect(text).toContain('/s/el-cotillo');
+      expect(resultOf(response).structuredContent).toMatchObject({
+        source: `${SITE_URL}/s/el-cotillo`,
       });
     });
   });

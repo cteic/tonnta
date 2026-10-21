@@ -1,5 +1,5 @@
-import { DEFAULT_SPOT_ID, getSpot, isRecord } from '@tonnta/data';
-import type { TideEvent } from '@tonnta/types';
+import { DEFAULT_SPOT_ID, SPOTS, getSpot, isRecord } from '@tonnta/data';
+import type { Spot, TideEvent } from '@tonnta/types';
 
 import type { SpotConditions } from '@/lib/conditions';
 import {
@@ -18,12 +18,16 @@ import { SITE_NAME, SITE_URL } from '@/lib/site';
  * framework would be more code than the thing it wraps.
  *
  * One tool, deliberately: the question an agent actually gets asked about
- * this site is "is it worth surfing in Donabate today?", and that is what
+ * this site is "is it worth surfing today?", and that is what
  * `get_surf_conditions` answers — in prose first, numbers second.
+ * It takes a spot id, so every spot in the registry is reachable.
  */
 
 export const MCP_PROTOCOL_VERSION = '2026-07-28';
 export const SURF_TOOL_NAME = 'get_surf_conditions';
+
+/** Advertised in the tool schema so an agent need not guess a spot id. */
+const SPOT_IDS: readonly string[] = SPOTS.map((spot) => spot.id);
 
 export const JSON_RPC_INVALID_REQUEST = -32600;
 export const JSON_RPC_METHOD_NOT_FOUND = -32601;
@@ -77,13 +81,13 @@ export const SURF_TOOL: McpTool = {
   name: SURF_TOOL_NAME,
   title: 'Get surf conditions',
   description:
-    'Answer "is it worth surfing in Donabate today?" for Donabate beach, County Dublin, Ireland. Returns the current verdict (GO, MAYBE, FLAT or BLOWN OUT), wave height and period, wind speed, direction and whether it is onshore or offshore, the tide state, sea temperature, and the board call (SUP, foamie or longboard) with the reasoning.',
+    'Answer "is it worth surfing today?" for a Tonnta surf spot, defaulting to Donabate beach, County Dublin, Ireland. Returns the current verdict (GO, MAYBE, FLAT or BLOWN OUT), wave height and period, wind speed, direction and whether it is onshore or offshore, the tide state, sea temperature, and the board call (SUP, foamie or longboard) with the reasoning.',
   inputSchema: {
     type: 'object',
     properties: {
       spot_id: {
         type: 'string',
-        description: 'Spot identifier. Donabate is the only live spot today.',
+        description: `Spot identifier. One of: ${SPOT_IDS.join(', ')}.`,
         default: DEFAULT_SPOT_ID,
       },
     },
@@ -151,6 +155,17 @@ function nextTide(tides: TideEvent[], now: Date): TideEvent | undefined {
   return tides.find((tide) => tide.time >= iso);
 }
 
+/** Spoken country name per registry country code. */
+const COUNTRY_NAME: Record<Spot['country'], string> = {
+  IE: 'Ireland',
+  ES: 'Spain',
+};
+
+/** The page a reader should open for a spot: `/` serves the default one. */
+function spotUrl(spot: Spot): string {
+  return spot.id === DEFAULT_SPOT_ID ? `${SITE_URL}/` : `${SITE_URL}/s/${spot.id}`;
+}
+
 /**
  * The prose half of the tool result. Agents quote sentences far more
  * reliably than they quote JSON, so this is what leads the response.
@@ -159,7 +174,7 @@ export function buildConditionsSummary(conditions: SpotConditions, now: Date): s
   const { spot, now: verdict, currentHour } = conditions;
   const label = VERDICT_LABEL[verdict.verdict];
   const lines: string[] = [
-    `${spot.name}, ${spot.region}, Ireland — ${label.english} (${label.irish}).`,
+    `${spot.name}, ${spot.region}, ${COUNTRY_NAME[spot.country]} — ${label.english} (${label.irish}).`,
     verdict.reason,
   ];
 
@@ -194,7 +209,7 @@ export function buildConditionsSummary(conditions: SpotConditions, now: Date): s
     lines.push(conditions.warnings.join(' '));
   }
 
-  lines.push(`Full picture: ${SITE_URL}/`);
+  lines.push(`Full picture: ${spotUrl(spot)}`);
   return lines.join('\n');
 }
 
@@ -211,6 +226,7 @@ export function buildConditionsPayload(
       id: spot.id,
       name: spot.name,
       region: spot.region,
+      country: spot.country,
       latitude: spot.latitude,
       longitude: spot.longitude,
       timezone: spot.timezone,
@@ -220,7 +236,7 @@ export function buildConditionsPayload(
     reason: conditions.now.reason,
     swimVerdict: conditions.swimNow.verdict,
     warnings: conditions.warnings,
-    source: `${SITE_URL}/`,
+    source: spotUrl(spot),
   };
 
   if (conditions.now.board !== undefined) {
@@ -288,7 +304,7 @@ async function callTool(
     return failure(id, JSON_RPC_INVALID_PARAMS, 'spot_id must be a non-empty string.');
   }
   if (getSpot(args.spotId) === undefined) {
-    return toolError(id, `No such spot: ${args.spotId}. Donabate is the only live spot today.`);
+    return toolError(id, `No such spot: ${args.spotId}. Known spots: ${SPOT_IDS.join(', ')}.`);
   }
 
   try {
@@ -324,7 +340,7 @@ export async function handleMcpRequest(
         capabilities: { tools: { listChanged: false } },
         serverInfo: { name: SITE_NAME.toLowerCase(), title: SITE_NAME, version: '1.0.0' },
         instructions:
-          'Call get_surf_conditions to find out whether it is worth surfing at Donabate beach, County Dublin right now.',
+          'Call get_surf_conditions to find out whether it is worth surfing right now. It defaults to Donabate beach, County Dublin; pass spot_id for another spot.',
       });
     case 'tools/list':
       return success(request.id, { tools: MCP_TOOLS });

@@ -16,6 +16,12 @@ Feature: The Tonnta MCP endpoint
     Then the result leads with a readable summary naming the verdict and the board
     And the result also carries the numbers as structured content
 
+  Scenario: A spot outside Ireland is named with its own country
+    Given conditions at El Cotillo, Fuerteventura
+    When the agent calls get_surf_conditions for that spot
+    Then the summary places it in Spain, not Ireland
+    And it links to that spot's own page rather than the home page
+
   Scenario: An unknown method is a JSON-RPC error
     Given a JSON-RPC request for a method that does not exist
     When the endpoint handles it
