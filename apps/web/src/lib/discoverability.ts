@@ -1,5 +1,7 @@
 import type { Metadata, MetadataRoute } from 'next';
 
+import { DEFAULT_SPOT_ID, SPOTS } from '@tonnta/data';
+
 /**
  * Crawler-facing artefacts: the robots.txt body and the sitemap entries.
  *
@@ -29,12 +31,36 @@ const TRAINING_ONLY_CRAWLERS: readonly string[] = [
   'Applebot-Extended',
 ];
 
-/** Public routes, in the order a reader would meet them. */
-const PUBLIC_PATHS: readonly { path: string; priority: number }[] = [
-  { path: '/', priority: 1 },
-  { path: '/log', priority: 0.6 },
-  { path: '/pro', priority: 0.5 },
+interface PublicPath {
+  path: string;
+  priority: number;
+  changeFrequency: 'hourly' | 'monthly';
+}
+
+/** Fixed public routes, in the order a reader would meet them. */
+const FIXED_PATHS: readonly PublicPath[] = [
+  { path: '/', priority: 1, changeFrequency: 'hourly' },
+  { path: '/log', priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/pro', priority: 0.5, changeFrequency: 'monthly' },
 ];
+
+/**
+ * One `/s/<id>` entry per spot in the registry, minus the default spot: `/`
+ * already serves Donabate, so listing `/s/donabate` too would offer crawlers
+ * two URLs for one page. Driving this off `SPOTS` means a new spot reaches
+ * the sitemap as a registry entry, not a sitemap edit.
+ */
+function spotPaths(): PublicPath[] {
+  return SPOTS.filter((spot) => spot.id !== DEFAULT_SPOT_ID).map((spot) => ({
+    path: `/s/${spot.id}`,
+    priority: 0.8,
+    changeFrequency: 'hourly',
+  }));
+}
+
+export function publicPaths(): PublicPath[] {
+  return [...FIXED_PATHS, ...spotPaths()];
+}
 
 export interface RobotsOptions {
   /** Absolute origin used for the Sitemap: line, no trailing slash. */
@@ -106,10 +132,10 @@ export function buildRobotsTxt({ siteUrl, indexable }: RobotsOptions): string {
 /** Every public route, newest-modified first is irrelevant here — order is stable. */
 export function buildSitemapEntries(siteUrl: string, lastModified: Date): MetadataRoute.Sitemap {
   const origin = trimOrigin(siteUrl);
-  return PUBLIC_PATHS.map(({ path, priority }) => ({
+  return publicPaths().map(({ path, priority, changeFrequency }) => ({
     url: path === '/' ? `${origin}/` : `${origin}${path}`,
     lastModified,
-    changeFrequency: path === '/' ? 'hourly' : 'monthly',
+    changeFrequency,
     priority,
   }));
 }
@@ -118,10 +144,10 @@ export function buildSitemapEntries(siteUrl: string, lastModified: Date): Metada
  * The `<meta name="robots">` directives for a host.
  *
  * This is applied per public page rather than in the root layout on purpose:
- * reading the request host in the root layout would opt `/_not-found` into
- * dynamic rendering, which @cloudflare/next-on-pages refuses to build. Every
+ * reading the request host in the root layout opts the whole tree, including
+ * `/_not-found`, into dynamic rendering, so nothing can be prerendered. Every
  * URL in the sitemap goes through a page that calls this, so the coverage is
- * the same.
+ * the same at a far lower cost.
  */
 export function buildRobotsMetadata(indexable: boolean): Metadata['robots'] {
   if (!indexable) {

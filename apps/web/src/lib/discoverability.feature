@@ -16,13 +16,13 @@ Feature: Crawler-facing artefacts
     And the wildcard group still allows the site
 
   Scenario: A preview deployment is closed to crawlers
-    Given a Cloudflare Pages preview host
+    Given a Workers versioned preview host
     When I build the robots.txt body
     Then it disallows everything
     And it carries no Content-Signal line and no sitemap
 
   Scenario: Only the live domain counts as production
-    Given the hosts tonnta.surf, www.tonnta.surf, tonnta.pages.dev and localhost:3000
+    Given the live domain, the workers.dev alias, a preview host and localhost
     When I check each for production
     Then only the two tonnta.surf hosts are production
 
@@ -30,6 +30,7 @@ Feature: Crawler-facing artefacts
     Given the production origin
     When I build the sitemap entries
     Then it lists the home page, the session log and the Pro page as absolute URLs
+    And it lists a spot route for every spot except the default one
     And the home page is the highest priority entry
 
   Scenario: Robots meta directives follow the host

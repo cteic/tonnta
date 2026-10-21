@@ -3,6 +3,8 @@ import type { Metadata, MetadataRoute } from 'next';
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
+import { DEFAULT_SPOT_ID, SPOTS } from '@tonnta/data';
+
 import { buildRobotsMetadata, buildRobotsTxt, buildSitemapEntries } from './discoverability';
 import { PRODUCTION_ORIGIN, isProductionHost } from './site';
 
@@ -121,8 +123,8 @@ describeFeature(feature, ({ Scenario }) => {
     let indexable = true;
     let body = '';
 
-    Given('a Cloudflare Pages preview host', () => {
-      indexable = isProductionHost('feat-agent-discoverability.tonnta.pages.dev');
+    Given('a Workers versioned preview host', () => {
+      indexable = isProductionHost('428de8dc-tonnta-web.pete-9c4.workers.dev');
       expect(indexable).toBe(false);
     });
     When('I build the robots.txt body', () => {
@@ -143,14 +145,21 @@ describeFeature(feature, ({ Scenario }) => {
     let hosts: string[] = [];
     let results: boolean[] = [];
 
-    Given('the hosts tonnta.surf, www.tonnta.surf, tonnta.pages.dev and localhost:3000', () => {
-      hosts = ['tonnta.surf', 'WWW.Tonnta.Surf', 'tonnta.pages.dev', 'localhost:3000'];
+    Given('the live domain, the workers.dev alias, a preview host and localhost', () => {
+      hosts = [
+        'tonnta.surf',
+        'WWW.Tonnta.Surf',
+        'tonnta-web.pete-9c4.workers.dev',
+        '428de8dc-tonnta-web.pete-9c4.workers.dev',
+        'tonnta.pages.dev',
+        'localhost:3000',
+      ];
     });
     When('I check each for production', () => {
       results = hosts.map((host) => isProductionHost(host));
     });
     Then('only the two tonnta.surf hosts are production', () => {
-      expect(results).toEqual([true, true, false, false]);
+      expect(results).toEqual([true, true, false, false, false, false]);
       expect(isProductionHost(null)).toBe(false);
       expect(isProductionHost(undefined)).toBe(false);
       expect(isProductionHost('')).toBe(false);
@@ -170,12 +179,21 @@ describeFeature(feature, ({ Scenario }) => {
       entries = buildSitemapEntries(origin, lastModified);
     });
     Then('it lists the home page, the session log and the Pro page as absolute URLs', () => {
-      expect(entries.map((entry) => entry.url)).toEqual([
+      expect(entries.slice(0, 3).map((entry) => entry.url)).toEqual([
         `${origin}/`,
         `${origin}/log`,
         `${origin}/pro`,
       ]);
       expect(entries.every((entry) => entry.lastModified === lastModified)).toBe(true);
+      expect(entries.every((entry) => entry.url.startsWith(`${origin}/`))).toBe(true);
+    });
+    And('it lists a spot route for every spot except the default one', () => {
+      const expected = SPOTS.filter((spot) => spot.id !== DEFAULT_SPOT_ID).map(
+        (spot) => `${origin}/s/${spot.id}`
+      );
+      expect(expected.length).toBeGreaterThan(0);
+      expect(entries.slice(3).map((entry) => entry.url)).toEqual(expected);
+      expect(entries.map((entry) => entry.url)).not.toContain(`${origin}/s/${DEFAULT_SPOT_ID}`);
     });
     And('the home page is the highest priority entry', () => {
       expect(entries[0]?.priority).toBe(1);
@@ -188,7 +206,7 @@ describeFeature(feature, ({ Scenario }) => {
     let directives: Metadata['robots'][] = [];
 
     Given('the production host and a preview host', () => {
-      hosts = ['tonnta.surf', 'feat-agent-discoverability.tonnta.pages.dev'];
+      hosts = ['tonnta.surf', '428de8dc-tonnta-web.pete-9c4.workers.dev'];
     });
     When('I build the robots meta for each', () => {
       directives = hosts.map((host) => buildRobotsMetadata(isProductionHost(host)));
