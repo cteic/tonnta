@@ -6,7 +6,6 @@ import { loadSpotConditions } from '@/lib/conditions';
 import type { SessionConditions } from '@/lib/diary';
 import { indexingMetadata } from '@/lib/page-metadata';
 
-export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 const BASE_METADATA: Metadata = {

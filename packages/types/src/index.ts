@@ -11,6 +11,7 @@ export type {
   SwimVerdictResult,
   Verdict,
   VerdictResult,
+  VerdictThresholds,
   WaterQualityAlert,
   WindState,
 } from './conditions';

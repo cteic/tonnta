@@ -9,6 +9,20 @@
 
 export type SpotId = string;
 
+/** Per-spot verdict tuning — what counts as flat/go differs per coast. */
+export interface VerdictThresholds {
+  /** Below this the sea is flat (m). */
+  flatBelowM: number;
+  /** At or above this it's rideable (m). */
+  goFromM: number;
+  /** Max wind for a clean GO (km/h). */
+  maxWindKmh: number;
+  /** Wind allowance when it's blowing offshore (km/h). */
+  maxWindOffshoreKmh: number;
+  /** Onshore wind above this kills the day regardless of waves (km/h). */
+  blownOnshoreKmh: number;
+}
+
 export interface Spot {
   id: SpotId;
   name: string;
@@ -27,6 +41,8 @@ export interface Spot {
   tideStationId?: string;
   /** EPA bathing-water beach id (data.epa.ie), where the spot is a bathing water. */
   epaBeachId?: string;
+  /** Verdict tuning for this coast; defaults apply when omitted. */
+  thresholds?: VerdictThresholds;
 }
 
 export type WindState = 'offshore' | 'cross-off' | 'cross' | 'cross-on' | 'onshore' | 'glassy';

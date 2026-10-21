@@ -4,8 +4,6 @@ import { indexingMetadata } from '@/lib/page-metadata';
 
 import { ProClient } from './pro-client';
 
-export const runtime = 'edge';
-
 const BASE_METADATA: Metadata = {
   title: 'Tonnta Pro',
   description:

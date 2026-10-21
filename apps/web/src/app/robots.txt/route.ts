@@ -1,7 +1,6 @@
 import { buildRobotsTxt } from '@/lib/discoverability';
 import { SITE_URL, isProductionHost } from '@/lib/site';
 
-export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 export function GET(request: Request): Response {

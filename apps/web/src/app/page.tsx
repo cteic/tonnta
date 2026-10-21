@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
 
-import { AppFooter } from '@/components/app-footer';
-import { HomeView } from '@/components/home-view';
+import { DEFAULT_SPOT_ID, getSpot } from '@tonnta/data';
+
 import { JsonLd } from '@/components/json-ld';
+import { SpotScreen } from '@/components/spot-screen';
 import { WebMcpTools } from '@/components/webmcp-tools';
-import { loadSpotConditions } from '@/lib/conditions';
 import { indexingMetadata } from '@/lib/page-metadata';
 import { buildHomeGraph } from '@/lib/structured-data';
 
-export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 const BASE_METADATA: Metadata = {
@@ -23,13 +22,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const conditions = await loadSpotConditions();
+  const spot = getSpot(DEFAULT_SPOT_ID);
 
   return (
     <>
-      <HomeView conditions={conditions} />
-      <AppFooter />
-      <JsonLd data={buildHomeGraph(conditions.spot, new Date())} />
+      <SpotScreen spotId={DEFAULT_SPOT_ID} />
+      {spot === undefined ? null : <JsonLd data={buildHomeGraph(spot, new Date())} />}
       <WebMcpTools />
     </>
   );

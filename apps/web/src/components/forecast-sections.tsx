@@ -11,6 +11,7 @@ import {
   formatDayDate,
   formatDayName,
   formatHour,
+  formatWindowRange,
 } from '@/lib/format';
 import type { ThemeTokens } from '@/themes/registry';
 import { useAppTheme } from '@/themes/theme-context';
@@ -18,8 +19,8 @@ import { useAppTheme } from '@/themes/theme-context';
 function cardStyle(tokens: ThemeTokens): React.CSSProperties {
   return {
     background: tokens.surface,
-    border: `1px solid ${tokens.border}`,
-    borderRadius: 16,
+    border: `${tokens.cardBorderPx ?? 1}px solid ${tokens.border}`,
+    borderRadius: tokens.cardRadiusPx ?? 16,
     padding: 20,
   };
 }
@@ -55,8 +56,8 @@ export function NextWindowCard({ window, spot }: { window: GoodWindow; spot: Spo
           color: tokens.accent,
         }}
       >
-        {formatDayName(window.start, spot.timezone)} {formatHour(window.start, spot.timezone)}–
-        {formatHour(window.end, spot.timezone)}
+        {formatDayName(window.start, spot.timezone)}{' '}
+        {formatWindowRange(window.start, window.end, spot.timezone)}
       </p>
       {first !== undefined ? (
         <p style={{ ...MONO, margin: 0, fontSize: 13, color: tokens.textSoft }}>

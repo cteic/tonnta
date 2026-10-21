@@ -1,7 +1,6 @@
 import { loadSpotConditions } from '@/lib/conditions';
 import { handleMcpRequest } from '@/lib/mcp';
 
-export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 const JSON_HEADERS = {
