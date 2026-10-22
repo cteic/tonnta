@@ -7,6 +7,8 @@ export type {
   Spot,
   SpotId,
   TideEvent,
+  TideGaugeReading,
+  TideTrend,
   SwimVerdict,
   SwimVerdictResult,
   Verdict,
