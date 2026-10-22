@@ -20,9 +20,17 @@ export const LIVE_URL =
  * foreground. The server closes the stream every 15 minutes and the hook
  * reconnects; failures back off exponentially up to 30 seconds.
  */
-export function useLiveTide(spotId: string): { state: LiveTideState; status: LiveStatus } {
+export interface LiveTide {
+  state: LiveTideState;
+  status: LiveStatus;
+  /** When the stream last delivered anything, heartbeats included. */
+  lastActivityAt?: number;
+}
+
+export function useLiveTide(spotId: string): LiveTide {
   const [state, dispatch] = useReducer(applyLiveMessage, EMPTY_LIVE_TIDE);
   const [status, setStatus] = useState<LiveStatus>('connecting');
+  const [lastActivityAt, setLastActivityAt] = useState<number>();
 
   useEffect(() => {
     const connection = createLiveConnection({
@@ -30,6 +38,7 @@ export function useLiveTide(spotId: string): { state: LiveTideState; status: Liv
       fetchImpl: fetch,
       onMessage: dispatch,
       onStatus: setStatus,
+      onActivity: setLastActivityAt,
     });
     if (AppState.currentState === 'active') connection.resume();
     const subscription = AppState.addEventListener('change', (next) => {
@@ -46,5 +55,7 @@ export function useLiveTide(spotId: string): { state: LiveTideState; status: Liv
     };
   }, [spotId]);
 
-  return { state, status };
+  const live: LiveTide = { state, status };
+  if (lastActivityAt !== undefined) live.lastActivityAt = lastActivityAt;
+  return live;
 }

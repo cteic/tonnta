@@ -2,7 +2,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
 import type { LiveTideState } from './live-tide';
-import { EMPTY_LIVE_TIDE, applyLiveMessage, formatLevel } from './live-tide';
+import { EMPTY_LIVE_TIDE, applyLiveMessage, formatLevel, formatSince } from './live-tide';
 import type { SseMessage, SseParser } from './sse';
 import { createSseParser } from './sse';
 
@@ -133,5 +133,16 @@ describeFeature(feature, ({ Scenario }) => {
       expect(formatLevel(0.439)).toBe('+0.44 m');
       expect(formatLevel(-0.12)).toBe('−0.12 m');
     });
+  });
+
+  Scenario('The status line says how long ago the stream last spoke', ({ Then }) => {
+    Then(
+      '2 seconds prints as "just now", 18 seconds as "18s ago" and 150 seconds as "2 min ago"',
+      () => {
+        expect(formatSince(2_000)).toBe('just now');
+        expect(formatSince(18_000)).toBe('18s ago');
+        expect(formatSince(150_000)).toBe('2 min ago');
+      }
+    );
   });
 });

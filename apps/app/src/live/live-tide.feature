@@ -29,3 +29,6 @@ Feature: Following the live tide gauge stream
 
   Scenario: Levels print signed, like a tide table
     Then 0.439 prints as "+0.44 m" and -0.12 prints as "−0.12 m"
+
+  Scenario: The status line says how long ago the stream last spoke
+    Then 2 seconds prints as "just now", 18 seconds as "18s ago" and 150 seconds as "2 min ago"
