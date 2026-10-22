@@ -6,6 +6,10 @@ on:
       - 'apps/app/**'
       - 'packages/**'
       - 'pnpm-lock.yaml'
+      - '.github/workflows/mobile.yml'
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
