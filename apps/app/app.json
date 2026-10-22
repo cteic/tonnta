@@ -38,7 +38,31 @@
           "backgroundColor": "#0B161E",
           "imageWidth": 200
         }
-      ]
+      ],
+      [
+        "expo-widgets",
+        {
+          "enableAndroid": true,
+          "widgets": [
+            {
+              "name": "TonntaVerdict",
+              "displayName": "Tonnta",
+              "description": "Is it worth going down? The verdict for this hour.",
+              "ios": {
+                "supportedFamilies": ["systemSmall", "systemMedium"],
+                "initialLayout": "./src/widgets/verdict-widget.ios.tsx"
+              },
+              "android": {
+                "targetCellWidth": 2,
+                "targetCellHeight": 2,
+                "resizeMode": "both",
+                "initialLayout": "./src/widgets/verdict-widget.android.tsx"
+              }
+            }
+          ]
+        }
+      ],
+      "expo-background-task"
     ],
     "extra": {
       "eas": {
