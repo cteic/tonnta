@@ -126,7 +126,7 @@ export async function loadSpotConditions(
   if (currentHour !== undefined) {
     result.currentHour = currentHour;
   }
-  const window = nextGoodWindow(hours, spot);
+  const window = nextGoodWindow(hours, spot, Date.now());
   if (window !== undefined) {
     result.nextWindow = window;
   }
