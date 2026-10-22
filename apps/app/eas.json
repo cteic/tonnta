@@ -33,7 +33,9 @@
   },
   "submit": {
     "production": {
-      "ios": {},
+      "ios": {
+        "companyName": "Comhairle Teicneolaiochta Teoranta"
+      },
       "android": {
         "track": "internal",
         "releaseStatus": "draft"
