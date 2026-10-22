@@ -62,7 +62,8 @@
           ]
         }
       ],
-      "expo-background-task"
+      "expo-background-task",
+      "expo-status-bar"
     ],
     "extra": {
       "eas": {
