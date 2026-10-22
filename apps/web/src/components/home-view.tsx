@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import { AlertCard } from '@/components/alert-card';
+import { DarkHero } from '@/components/dark-hero';
 import {
   BuoyCard,
   DayStrip,
@@ -132,6 +133,29 @@ export function HomeView({ conditions }: { conditions: SpotConditions }) {
     surfHero = <PostaerHero spot={spot} verdict={conditions.now} hour={conditions.currentHour} />;
   }
 
+  const { headline } = conditions;
+  const isDark = headline.kind === 'dark';
+  const swimHero = (
+    <SnamhHero
+      swim={conditions.swimNow}
+      hour={conditions.currentHour}
+      waterQuality={conditions.waterQuality}
+    />
+  );
+  const hero =
+    headline.kind === 'dark' ? (
+      <DarkHero
+        spot={spot}
+        mode={mode}
+        sunrise={headline.sunrise}
+        firstLightTime={headline.firstLight?.hour.time}
+        surf={headline.firstLight?.result}
+        swim={conditions.swimFirstLight}
+      />
+    ) : (
+      <>{mode === 'surf' ? surfHero : swimHero}</>
+    );
+
   return (
     <>
       <div style={{ background: tokens.nav }}>
@@ -177,15 +201,7 @@ export function HomeView({ conditions }: { conditions: SpotConditions }) {
       </div>
 
       <main>
-        {mode === 'surf' ? (
-          surfHero
-        ) : (
-          <SnamhHero
-            swim={conditions.swimNow}
-            hour={conditions.currentHour}
-            waterQuality={conditions.waterQuality}
-          />
-        )}
+        {hero}
 
         <div
           style={{
@@ -199,7 +215,8 @@ export function HomeView({ conditions }: { conditions: SpotConditions }) {
           <Warnings warnings={conditions.warnings} />
           {mode === 'surf' ? (
             <>
-              {conditions.nextWindow !== undefined && conditions.now.verdict !== 'go' ? (
+              {conditions.nextWindow !== undefined &&
+              (isDark || conditions.now.verdict !== 'go') ? (
                 <NextWindowCard window={conditions.nextWindow} spot={spot} />
               ) : null}
               <DayStrip days={conditions.days} spot={spot} />
