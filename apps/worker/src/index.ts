@@ -9,6 +9,7 @@ import {
 } from '@tonnta/data';
 import type { Spot } from '@tonnta/types';
 
+import { handleLive } from './live';
 import { handleConfirm, handleFounderCount, handleRestore } from './pro';
 import { handleVerdict } from './verdict';
 
@@ -185,7 +186,7 @@ async function checkAndAlert(env: Env): Promise<void> {
 }
 
 const worker = {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders(env) });
@@ -201,6 +202,9 @@ const worker = {
     }
     if (url.pathname === '/subscribe' && request.method === 'DELETE') {
       return handleUnsubscribe(request, env);
+    }
+    if (url.pathname === '/live' && request.method === 'GET') {
+      return handleLive(url, env.CACHE, (promise) => ctx.waitUntil(promise));
     }
     const respond = (body: unknown, status: number): Response => json(body, status, env);
     if (url.pathname === '/pro/founder-count' && request.method === 'GET') {

@@ -6,6 +6,7 @@ import { WIND_STATE_LABEL, compassPoint } from '@/lib/format';
 import { useAppTheme } from '@/themes/theme-context';
 
 import { SeaBands } from './sea-hero';
+import { SeaTempCard } from './sea-temp';
 
 /**
  * The Snámh hero — the same living sea, read the other way around. Calm
@@ -112,20 +113,6 @@ export function SnamhHero({ swim, hour, waterQuality }: SnamhHeroProps) {
               marginTop: 22,
             }}
           >
-            {hour?.seaTempC !== undefined ? (
-              <span
-                style={{
-                  fontFamily: "'Clash Display', sans-serif",
-                  fontWeight: 600,
-                  fontSize: 44,
-                  letterSpacing: -1,
-                  color: tokens.text,
-                }}
-              >
-                {hour.seaTempC.toFixed(1)}
-                <span style={{ fontSize: 20, color: tokens.textSoft }}>°C sea</span>
-              </span>
-            ) : null}
             {hour !== undefined ? (
               <span
                 style={{
@@ -140,6 +127,8 @@ export function SnamhHero({ swim, hour, waterQuality }: SnamhHeroProps) {
               </span>
             ) : null}
           </div>
+
+          {hour?.seaTempC !== undefined ? <SeaTempCard seaTempC={hour.seaTempC} /> : null}
 
           {restricted ? (
             <p

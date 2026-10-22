@@ -1,10 +1,17 @@
+import { useEffect, useState } from 'react';
+
+import { Pressable } from 'react-native';
+
 import { Link } from 'expo-router';
 
 import { DEFAULT_SPOT_ID } from '@tonnta/data';
 import { Text, XStack, YStack } from '@tonnta/ui';
 
+import { LiveTideCard } from '@/components/live-tide-card';
 import { OutlookView } from '@/components/outlook-view';
 import { Body, Eyebrow, Screen } from '@/components/screen';
+import { useAnalytics } from '@/lib/analytics';
+import { outlookViewed } from '@/lib/analytics-events';
 import type { OutlookState } from '@/lib/use-spot-outlook';
 import { useSpotOutlook } from '@/lib/use-spot-outlook';
 
@@ -14,11 +21,65 @@ const NAV_LINKS: { href: '/log' | '/pro' | '/s/donabate'; label: string }[] = [
   { href: '/s/donabate', label: 'Spot' },
 ];
 
-interface OutlookBodyProps {
-  state: OutlookState;
+type Mode = 'surf' | 'swim';
+
+const MODES: { mode: Mode; label: string }[] = [
+  { mode: 'surf', label: 'Tonn · surf' },
+  { mode: 'swim', label: 'Snámh · swim' },
+];
+
+interface ModeToggleProps {
+  mode: Mode;
+  onChange: (mode: Mode) => void;
 }
 
-function OutlookBody({ state }: OutlookBodyProps) {
+function ModeToggle({ mode, onChange }: ModeToggleProps) {
+  return (
+    <XStack
+      alignSelf="flex-start"
+      padding="$1"
+      borderRadius="$7"
+      backgroundColor="$surfaceRaised"
+      accessibilityRole="tablist"
+    >
+      {MODES.map((option) => {
+        const selected = option.mode === mode;
+        return (
+          <Pressable
+            key={option.mode}
+            accessibilityRole="tab"
+            accessibilityState={{ selected }}
+            testID={`mode-${option.mode}`}
+            onPress={() => onChange(option.mode)}
+          >
+            <XStack
+              paddingHorizontal="$6"
+              paddingVertical="$3"
+              borderRadius="$7"
+              backgroundColor={selected ? '$accent' : 'transparent'}
+            >
+              <Text
+                fontFamily="$body"
+                fontSize="$3"
+                fontWeight="600"
+                color={selected ? '$background' : '$color'}
+              >
+                {option.label}
+              </Text>
+            </XStack>
+          </Pressable>
+        );
+      })}
+    </XStack>
+  );
+}
+
+interface OutlookBodyProps {
+  state: OutlookState;
+  mode: Mode;
+}
+
+function OutlookBody({ state, mode }: OutlookBodyProps) {
   if (state.status === 'loading') {
     return <Body muted>Reading the sea…</Body>;
   }
@@ -30,11 +91,19 @@ function OutlookBody({ state }: OutlookBodyProps) {
       </YStack>
     );
   }
-  return <OutlookView outlook={state.outlook} />;
+  return <OutlookView outlook={state.outlook} mode={mode} />;
 }
 
 export default function HomeScreen() {
   const state = useSpotOutlook(DEFAULT_SPOT_ID);
+  const [mode, setMode] = useState<Mode>('surf');
+  const { track } = useAnalytics();
+  const outlook = state.status === 'ready' ? state.outlook : undefined;
+
+  useEffect(() => {
+    if (outlook === undefined) return;
+    track('outlook_viewed', outlookViewed(outlook));
+  }, [outlook, track]);
 
   return (
     <Screen>
@@ -62,7 +131,9 @@ export default function HomeScreen() {
         </XStack>
       </XStack>
 
-      <OutlookBody state={state} />
+      <ModeToggle mode={mode} onChange={setMode} />
+      <OutlookBody state={state} mode={mode} />
+      <LiveTideCard spotId={DEFAULT_SPOT_ID} />
     </Screen>
   );
 }

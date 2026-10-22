@@ -39,6 +39,8 @@ export interface Spot {
   buoyStationId?: string;
   /** Nearest tide-prediction station on ERDDAP (e.g. "Skerries"). */
   tideStationId?: string;
+  /** Nearest live tide gauge on the Irish National Tide Gauge Network (e.g. "Skerries Harbour"). */
+  tideGaugeId?: string;
   /** EPA bathing-water beach id (data.epa.ie), where the spot is a bathing water. */
   epaBeachId?: string;
   /** Verdict tuning for this coast; defaults apply when omitted. */
@@ -57,6 +59,8 @@ export interface HourlyConditions {
   windDirectionDeg: number;
   windState: WindState;
   seaTempC?: number;
+  /** WMO weather code from the forecast, for example 95 for a thunderstorm. */
+  weatherCode?: number;
 }
 
 export type Verdict = 'go' | 'maybe' | 'flat' | 'blown';
@@ -98,6 +102,14 @@ export interface DailySummary {
   /** Best surfable window in spot-local time, when one exists. */
   bestWindow?: { start: string; end: string };
 }
+
+/** One observed water level from a tide gauge. Heights are metres above OD Malin, roughly mean sea level. */
+export interface TideGaugeReading {
+  time: string; // ISO 8601, UTC
+  levelM: number;
+}
+
+export type TideTrend = 'rising' | 'falling' | 'slack';
 
 export interface TideEvent {
   time: string; // ISO 8601, UTC
