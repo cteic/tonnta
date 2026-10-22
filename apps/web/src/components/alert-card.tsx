@@ -124,7 +124,7 @@ export function AlertCard({ spotId }: { spotId: string }) {
         borderColor: tokens.accentBorder,
       }}
     >
-      <p
+      <h2
         style={{
           margin: 0,
           fontSize: 11,
@@ -135,7 +135,7 @@ export function AlertCard({ spotId }: { spotId: string }) {
         }}
       >
         Fógraí · Alerts
-      </p>
+      </h2>
       <p style={{ margin: '10px 0 14px', fontSize: 14, lineHeight: 1.55, color: tokens.textMuted }}>
         {copy[state]}
       </p>

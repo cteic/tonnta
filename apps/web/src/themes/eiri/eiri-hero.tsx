@@ -197,6 +197,7 @@ export function EiriHero({
               textShadow: isGo ? `0 0 60px rgba(232, 163, 61, ${0.2 + scene.glow * 0.25})` : 'none',
             }}
           >
+            <span className="tonnta-visually-hidden">Donabate surf today — </span>
             {label.english}
           </h1>
           <p
