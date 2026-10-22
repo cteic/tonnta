@@ -7,6 +7,7 @@ import type {
 } from '@tonnta/types';
 
 import { isDaylightHour } from './daylight';
+import { THUNDERSTORM_REASON, isThunderstorm } from './weather';
 
 /**
  * The Snámh engine — the surf verdict inverted. Flat, calm water is a bad
@@ -33,27 +34,39 @@ export const DEFAULT_SWIM_THRESHOLDS: SwimThresholds = {
 };
 
 const HIGH_TIDE_WINDOW_MS = 2 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
 
 export interface SwimWindow {
   start: string; // ISO time of first swimmable hour (UTC)
   end: string; // ISO time of last swimmable hour (UTC)
   hours: HourlyConditions[];
-  /** Any hour of the window falls within ±2h of a high tide. */
+  /** Every hour of the window falls within ±2h of the same high tide. */
   nearHighTide: boolean;
+  /** That high tide, ISO, when `nearHighTide`. */
+  highTide?: string;
+}
+
+/** The high tide within ±2h of `isoTime`, closest first. */
+export function highTideNear(isoTime: string, tides: TideEvent[]): TideEvent | undefined {
+  const time = Date.parse(isoTime);
+  if (Number.isNaN(time)) {
+    return undefined;
+  }
+  let best: TideEvent | undefined;
+  let bestGap = Number.POSITIVE_INFINITY;
+  for (const tide of tides) {
+    if (tide.kind !== 'high') continue;
+    const gap = Math.abs(Date.parse(tide.time) - time);
+    if (gap <= HIGH_TIDE_WINDOW_MS && gap < bestGap) {
+      best = tide;
+      bestGap = gap;
+    }
+  }
+  return best;
 }
 
 export function isNearHighTide(isoTime: string, tides: TideEvent[]): boolean {
-  const time = new Date(isoTime).getTime();
-  if (Number.isNaN(time)) {
-    return false;
-  }
-  return tides.some((tide) => {
-    if (tide.kind !== 'high') {
-      return false;
-    }
-    const tideTime = new Date(tide.time).getTime();
-    return !Number.isNaN(tideTime) && Math.abs(tideTime - time) <= HIGH_TIDE_WINDOW_MS;
-  });
+  return highTideNear(isoTime, tides) !== undefined;
 }
 
 function formatTemp(seaTempC: number | undefined): string {
@@ -66,6 +79,9 @@ export function assessSwimHour(
   thresholds: SwimThresholds = DEFAULT_SWIM_THRESHOLDS
 ): SwimVerdictResult {
   const nearHighTide = isNearHighTide(hour.time, tides);
+  if (isThunderstorm(hour)) {
+    return { verdict: 'no', reason: THUNDERSTORM_REASON, nearHighTide };
+  }
   const { waveHeightM, windSpeedKmh } = hour;
 
   if (windSpeedKmh < thresholds.greatWindKmh && waveHeightM <= thresholds.greatWaveM) {
@@ -111,43 +127,53 @@ export function applyWaterQuality(
 }
 
 /**
- * Contiguous swimmable (GREAT/OK) runs within session hours, high-tide
- * windows first, then chronological.
+ * Swimmable (GREAT/OK) daylight runs from the hour in progress at `now`. Donabate
+ * is shallow, so a run splits where it enters or leaves the ±2h band around
+ * a high tide: a calm day reads as its high-tide window plus the low-water
+ * stretches either side, never one all-day window labelled "high tide".
+ * High-tide windows first, then chronological.
  */
 export function findSwimWindows(
   hours: HourlyConditions[],
   tides: TideEvent[],
   spot: Spot,
+  now: number,
   thresholds: SwimThresholds = DEFAULT_SWIM_THRESHOLDS
 ): SwimWindow[] {
   const windows: SwimWindow[] = [];
   let current: HourlyConditions[] = [];
+  let currentTide: TideEvent | undefined;
 
   const flush = (): void => {
-    if (current.length === 0) {
-      return;
-    }
     const first = current[0];
-    const last = current[current.length - 1];
+    const last = current.at(-1);
     if (first !== undefined && last !== undefined) {
-      windows.push({
+      const window: SwimWindow = {
         start: first.time,
         end: last.time,
         hours: [...current],
-        nearHighTide: current.some((hour) => isNearHighTide(hour.time, tides)),
-      });
+        nearHighTide: currentTide !== undefined,
+      };
+      if (currentTide !== undefined) window.highTide = currentTide.time;
+      windows.push(window);
     }
     current = [];
+    currentTide = undefined;
   };
 
-  for (const hour of hours) {
+  // Hours already over are not offered, so a window in progress starts now.
+  const upcoming = hours.filter((hour) => Date.parse(hour.time) + HOUR_MS > now);
+  for (const hour of upcoming) {
     const swimmable =
       isDaylightHour(hour.time, spot) && assessSwimHour(hour, tides, thresholds).verdict !== 'no';
-    if (swimmable) {
-      current.push(hour);
-    } else {
+    if (!swimmable) {
       flush();
+      continue;
     }
+    const tide = highTideNear(hour.time, tides);
+    if (current.length > 0 && tide?.time !== currentTide?.time) flush();
+    if (current.length === 0) currentTide = tide;
+    current.push(hour);
   }
   flush();
 

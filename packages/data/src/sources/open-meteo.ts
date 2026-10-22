@@ -39,6 +39,13 @@ function parseHourly(payload: unknown, keys: string[]): HourlySeries {
   return { time: hourly.time, series };
 }
 
+/** A series the verdict can do without: missing or malformed gives undefined, not an error. */
+function optionalSeries(payload: unknown, key: string): (number | null)[] | undefined {
+  if (!isRecord(payload) || !isRecord(payload.hourly)) return undefined;
+  const values = payload.hourly[key];
+  return isNullableNumberArray(values) ? values : undefined;
+}
+
 function seriesValue(data: HourlySeries, key: string, index: number): number | undefined {
   return data.series.get(key)?.[index] ?? undefined;
 }
@@ -57,7 +64,7 @@ export async function fetchHourlyConditions(
   const windParams = new URLSearchParams({
     latitude: String(spot.latitude),
     longitude: String(spot.longitude),
-    hourly: 'wind_speed_10m,wind_direction_10m,wind_gusts_10m',
+    hourly: 'wind_speed_10m,wind_direction_10m,wind_gusts_10m,weather_code',
     wind_speed_unit: 'kmh',
     timezone: 'UTC',
     forecast_days: '7',
@@ -80,11 +87,9 @@ export async function fetchHourlyConditions(
     'wave_direction',
     'sea_surface_temperature',
   ]);
-  const wind = parseHourly(await windRes.json(), [
-    'wind_speed_10m',
-    'wind_direction_10m',
-    'wind_gusts_10m',
-  ]);
+  const windPayload: unknown = await windRes.json();
+  const wind = parseHourly(windPayload, ['wind_speed_10m', 'wind_direction_10m', 'wind_gusts_10m']);
+  const weatherCodes = optionalSeries(windPayload, 'weather_code');
 
   const windIndexByTime = new Map(wind.time.map((time, index) => [time, index]));
 
@@ -126,6 +131,8 @@ export async function fetchHourlyConditions(
     };
     const seaTempC = seriesValue(marine, 'sea_surface_temperature', i);
     if (seaTempC !== undefined) hour.seaTempC = seaTempC;
+    const weatherCode = weatherCodes?.[windIndex];
+    if (typeof weatherCode === 'number') hour.weatherCode = weatherCode;
     hours.push(hour);
   }
   return hours;

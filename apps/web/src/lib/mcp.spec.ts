@@ -2,7 +2,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
 import { getSpot, isRecord } from '@tonnta/data';
-import type { HourlyConditions, Spot } from '@tonnta/types';
+import type { HourlyConditions, Spot, VerdictResult } from '@tonnta/types';
 
 import type { SpotConditions } from './conditions';
 import type { JsonRpcResponse } from './mcp';
@@ -33,14 +33,17 @@ const CURRENT_HOUR: HourlyConditions = {
   seaTempC: 15.2,
 };
 
+const NOW_VERDICT: VerdictResult = {
+  verdict: 'go',
+  board: 'longboard',
+  reason: '0.6m at 5s and the wind is clean — worth going down.',
+};
+
 function conditionsFixture(): SpotConditions {
   return {
     spot: spotNamed('donabate'),
-    now: {
-      verdict: 'go',
-      board: 'longboard',
-      reason: '0.6m at 5s and the wind is clean — worth going down.',
-    },
+    now: NOW_VERDICT,
+    headline: { kind: 'verdict', hour: CURRENT_HOUR, result: NOW_VERDICT },
     currentHour: CURRENT_HOUR,
     days: [],
     hours: [CURRENT_HOUR],

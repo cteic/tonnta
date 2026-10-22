@@ -57,3 +57,8 @@ Feature: Donabate verdict engine
     Given 0.5m waves at 4s with 12km/h wind at El Cotillo, which goes flat below 0.6m
     When I assess the hour for El Cotillo
     Then the verdict should be flat because it is under 0.6m
+
+  Scenario: A thunderstorm blocks a GO
+    Given clean GO waves under a thunderstorm at Donabate
+    When I assess the hour for Donabate
+    Then the verdict should not be GO and the reason should name the lightning
