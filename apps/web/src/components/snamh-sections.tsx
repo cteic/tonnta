@@ -36,7 +36,7 @@ export function SwimWindowsCard({ windows, spot }: { windows: SwimWindow[]; spot
   const { tokens } = theme;
   return (
     <section style={{ ...cardStyle(tokens), borderColor: 'rgba(143,193,181,0.4)' }}>
-      <p style={eyebrowStyle(tokens)}>Fuinneoga snámha · Swim windows</p>
+      <h2 style={eyebrowStyle(tokens)}>Fuinneoga snámha · Swim windows</h2>
       {windows.length === 0 ? (
         <p style={{ margin: '10px 0 0', fontSize: 14, color: tokens.textMuted }}>
           No swimmable windows in the next few days — the sea needs to settle first.

@@ -176,40 +176,42 @@ export function HomeView({ conditions }: { conditions: SpotConditions }) {
         </nav>
       </div>
 
-      {mode === 'surf' ? (
-        surfHero
-      ) : (
-        <SnamhHero
-          swim={conditions.swimNow}
-          hour={conditions.currentHour}
-          waterQuality={conditions.waterQuality}
-        />
-      )}
-
-      <div
-        style={{
-          maxWidth: 720,
-          margin: '0 auto',
-          padding: '28px 24px 8px',
-          display: 'grid',
-          gap: 16,
-        }}
-      >
-        <Warnings warnings={conditions.warnings} />
+      <main>
         {mode === 'surf' ? (
-          <>
-            {conditions.nextWindow !== undefined && conditions.now.verdict !== 'go' ? (
-              <NextWindowCard window={conditions.nextWindow} spot={spot} />
-            ) : null}
-            <DayStrip days={conditions.days} spot={spot} />
-          </>
+          surfHero
         ) : (
-          <SwimWindowsCard windows={conditions.swimWindows} spot={spot} />
+          <SnamhHero
+            swim={conditions.swimNow}
+            hour={conditions.currentHour}
+            waterQuality={conditions.waterQuality}
+          />
         )}
-        {conditions.buoy !== undefined ? <BuoyCard buoy={conditions.buoy} spot={spot} /> : null}
-        <TideCard tides={conditions.tides} spot={spot} />
-        {mode === 'surf' ? <AlertCard spotId={spot.id} /> : null}
-      </div>
+
+        <div
+          style={{
+            maxWidth: 720,
+            margin: '0 auto',
+            padding: '28px 24px 8px',
+            display: 'grid',
+            gap: 16,
+          }}
+        >
+          <Warnings warnings={conditions.warnings} />
+          {mode === 'surf' ? (
+            <>
+              {conditions.nextWindow !== undefined && conditions.now.verdict !== 'go' ? (
+                <NextWindowCard window={conditions.nextWindow} spot={spot} />
+              ) : null}
+              <DayStrip days={conditions.days} spot={spot} />
+            </>
+          ) : (
+            <SwimWindowsCard windows={conditions.swimWindows} spot={spot} />
+          )}
+          {conditions.buoy !== undefined ? <BuoyCard buoy={conditions.buoy} spot={spot} /> : null}
+          <TideCard tides={conditions.tides} spot={spot} />
+          {mode === 'surf' ? <AlertCard spotId={spot.id} /> : null}
+        </div>
+      </main>
     </>
   );
 }
