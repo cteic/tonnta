@@ -46,7 +46,7 @@ export function NextWindowCard({ window, spot }: { window: GoodWindow; spot: Spo
   const first = window.hours[0];
   return (
     <section style={{ ...cardStyle(tokens), borderColor: tokens.accentBorder }}>
-      <p style={eyebrowStyle(tokens)}>An chéad fhuinneog · Next good window</p>
+      <h2 style={eyebrowStyle(tokens)}>An chéad fhuinneog · Next good window</h2>
       <p
         style={{
           margin: '8px 0 4px',
@@ -75,7 +75,7 @@ export function DayStrip({ days, spot }: { days: DailySummary[]; spot: Spot }) {
   const { tokens } = theme;
   return (
     <section>
-      <p style={{ ...eyebrowStyle(tokens), marginBottom: 12 }}>An tseachtain · The week ahead</p>
+      <h2 style={{ ...eyebrowStyle(tokens), marginBottom: 12 }}>An tseachtain · The week ahead</h2>
       <div
         style={{
           display: 'grid',
@@ -143,7 +143,7 @@ export function TideCard({ tides, spot }: { tides: TideEvent[]; spot: Spot }) {
   const upcoming = tides.slice(0, 4);
   return (
     <section style={cardStyle(tokens)}>
-      <p style={eyebrowStyle(tokens)}>Taoidí · Tides at {spot.tideStationId}</p>
+      <h2 style={eyebrowStyle(tokens)}>Taoidí · Tides at {spot.tideStationId}</h2>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
         {upcoming.map((tide) => (
           <div key={tide.time} style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
@@ -187,7 +187,7 @@ export function BuoyCard({ buoy, spot }: { buoy: BuoyObservation; spot: Spot }) 
   const { tokens } = theme;
   return (
     <section style={cardStyle(tokens)}>
-      <p style={eyebrowStyle(tokens)}>
+      <h2 style={eyebrowStyle(tokens)}>
         <span
           data-tonnta-animated
           style={{
@@ -201,7 +201,7 @@ export function BuoyCard({ buoy, spot }: { buoy: BuoyObservation; spot: Spot }) 
           }}
         />
         Anois ar an mbaoi · Now at {buoy.stationId}
-      </p>
+      </h2>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginTop: 12 }}>
         {buoy.waveHeightM !== undefined ? (
           <Stat label="waves" value={`${buoy.waveHeightM.toFixed(2)}m`} />

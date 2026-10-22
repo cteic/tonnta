@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 
+import { JsonLd } from '@/components/json-ld';
 import { TamaguiClientProvider } from '@/components/tamagui-provider';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site';
+import { buildSiteGraph } from '@/lib/structured-data';
 import { ThemeProvider } from '@/themes/theme-context';
 
 import '../../public/tamagui.css';
@@ -16,11 +18,19 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
   keywords: ['surf', 'Donabate', 'Ireland', 'waves', 'forecast', 'SUP', 'longboard'],
+  alternates: { canonical: '/' },
   openGraph: {
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
     type: 'website',
     locale: 'en_IE',
+    url: '/',
+    siteName: SITE_NAME,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
   },
 };
 
@@ -50,6 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        <JsonLd data={buildSiteGraph()} />
         <TamaguiClientProvider>
           <ThemeProvider>{children}</ThemeProvider>
         </TamaguiClientProvider>
