@@ -1,43 +1,34 @@
-import { AppFooter } from '@/components/app-footer';
-import {
-  BuoyCard,
-  DayStrip,
-  NextWindowCard,
-  TideCard,
-  Warnings,
-} from '@/components/forecast-sections';
-import { SeaHero } from '@/components/sea-hero';
-import { loadSpotConditions } from '@/lib/conditions';
+import type { Metadata } from 'next';
 
-export const runtime = 'edge';
+import { DEFAULT_SPOT_ID, getSpot } from '@tonnta/data';
+
+import { JsonLd } from '@/components/json-ld';
+import { SpotScreen } from '@/components/spot-screen';
+import { WebMcpTools } from '@/components/webmcp-tools';
+import { indexingMetadata } from '@/lib/page-metadata';
+import { buildHomeGraph } from '@/lib/structured-data';
+
 export const dynamic = 'force-dynamic';
 
+const BASE_METADATA: Metadata = {
+  title: 'Is it worth surfing in Donabate today?',
+  description:
+    'Is it worth surfing in Donabate today? Live verdict, wave height, wind, tides and the board call for Donabate beach, Co. Dublin — rechecked every 15 minutes.',
+  alternates: { canonical: '/' },
+};
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { ...BASE_METADATA, ...(await indexingMetadata()) };
+}
+
 export default async function HomePage() {
-  const conditions = await loadSpotConditions();
+  const spot = getSpot(DEFAULT_SPOT_ID);
 
   return (
-    <main>
-      <SeaHero spot={conditions.spot} verdict={conditions.now} hour={conditions.currentHour} />
-      <div
-        style={{
-          maxWidth: 720,
-          margin: '0 auto',
-          padding: '28px 24px 8px',
-          display: 'grid',
-          gap: 16,
-        }}
-      >
-        <Warnings warnings={conditions.warnings} />
-        {conditions.nextWindow !== undefined && conditions.now.verdict !== 'go' ? (
-          <NextWindowCard window={conditions.nextWindow} spot={conditions.spot} />
-        ) : null}
-        <DayStrip days={conditions.days} spot={conditions.spot} />
-        {conditions.buoy !== undefined ? (
-          <BuoyCard buoy={conditions.buoy} spot={conditions.spot} />
-        ) : null}
-        <TideCard tides={conditions.tides} spot={conditions.spot} />
-      </div>
-      <AppFooter />
-    </main>
+    <>
+      <SpotScreen spotId={DEFAULT_SPOT_ID} />
+      {spot === undefined ? null : <JsonLd data={buildHomeGraph(spot, new Date())} />}
+      <WebMcpTools />
+    </>
   );
 }

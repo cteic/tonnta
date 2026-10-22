@@ -1,21 +1,27 @@
 import {
   DEFAULT_SPOT_ID,
+  applyWaterQuality,
   assessHour,
+  assessSwimHour,
   fetchBuoyObservation,
   fetchHourlyConditions,
   fetchTideEvents,
+  fetchWaterQualityAlert,
+  findSwimWindows,
   getSpot,
   nextGoodWindow,
   summarizeDays,
 } from '@tonnta/data';
-import type { GoodWindow } from '@tonnta/data';
+import type { GoodWindow, SwimWindow } from '@tonnta/data';
 import type {
   BuoyObservation,
   DailySummary,
   HourlyConditions,
   Spot,
+  SwimVerdictResult,
   TideEvent,
   VerdictResult,
+  WaterQualityAlert,
 } from '@tonnta/types';
 
 /**
@@ -41,6 +47,11 @@ export interface SpotConditions {
   hours: HourlyConditions[];
   tides: TideEvent[];
   buoy?: BuoyObservation;
+  /** Snámh mode: swim verdict for the same current hour. */
+  swimNow: SwimVerdictResult;
+  /** Upcoming swimmable windows, high-tide windows first. */
+  swimWindows: SwimWindow[];
+  waterQuality?: WaterQualityAlert;
   /** Set when a source failed and the screen is degraded. */
   warnings: string[];
 }
@@ -60,13 +71,16 @@ export async function loadSpotConditions(
 
   const warnings: string[] = [];
 
-  const [hoursResult, tidesResult, buoyResult] = await Promise.allSettled([
+  const [hoursResult, tidesResult, buoyResult, waterQualityResult] = await Promise.allSettled([
     fetchHourlyConditions(spot, cachedFetch(FORECAST_REVALIDATE_S)),
     spot.tideStationId !== undefined
       ? fetchTideEvents(spot.tideStationId, 3, cachedFetch(FORECAST_REVALIDATE_S))
       : Promise.resolve([]),
     spot.buoyStationId !== undefined
       ? fetchBuoyObservation(spot.buoyStationId, cachedFetch(LIVE_REVALIDATE_S))
+      : Promise.resolve(undefined),
+    spot.epaBeachId !== undefined
+      ? fetchWaterQualityAlert(spot.epaBeachId, cachedFetch(FORECAST_REVALIDATE_S))
       : Promise.resolve(undefined),
   ]);
 
@@ -83,11 +97,21 @@ export async function loadSpotConditions(
     warnings.push("The buoy hasn't reported — forecast only.");
   }
 
+  const waterQuality =
+    waterQualityResult.status === 'fulfilled' ? waterQualityResult.value : undefined;
+  // A failed EPA fetch degrades silently: the conditions verdict still stands.
+
   const currentHour = currentOrNextHour(hours);
   const now: VerdictResult =
     currentHour !== undefined
       ? assessHour(currentHour, spot)
       : { verdict: 'flat', reason: 'No forecast data — check back shortly.' };
+  const swimNow: SwimVerdictResult = applyWaterQuality(
+    currentHour !== undefined
+      ? assessSwimHour(currentHour, tides)
+      : { verdict: 'no', reason: 'No forecast data — check back shortly.', nearHighTide: false },
+    waterQuality
+  );
 
   const result: SpotConditions = {
     spot,
@@ -95,6 +119,8 @@ export async function loadSpotConditions(
     days: summarizeDays(hours, spot),
     hours,
     tides,
+    swimNow,
+    swimWindows: findSwimWindows(hours, tides, spot).slice(0, 3),
     warnings,
   };
   if (currentHour !== undefined) {
@@ -106,6 +132,9 @@ export async function loadSpotConditions(
   }
   if (buoy !== undefined) {
     result.buoy = buoy;
+  }
+  if (waterQuality !== undefined) {
+    result.waterQuality = waterQuality;
   }
   return result;
 }

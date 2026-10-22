@@ -95,3 +95,20 @@ Never weather-bureau speak, never surf-bro speak.
 
 Responsive to 320px, visible focus rings, reduced motion respected, WCAG AA contrast
 in both themes, works as installed PWA (this is a check-it-daily app).
+
+## Themes (Cuma)
+
+The three redesign directions from the design review ship as selectable looks
+over one skeleton: components read tokens from the active theme
+(`apps/web/src/themes/registry.ts`), and only the hero is per-theme.
+
+- **Éirí** (default) — the dawn window. A solar engine
+  (`themes/eiri/solar.ts`, NOAA sun-position approximation) paints the hero
+  sky for the current minute at the spot: pre-dawn indigo, sunrise gold, flat
+  Irish daylight, sunset copper, moonlit night. Verdict text colour is chosen
+  per phase to stay AA-legible; the living sea bands roll below the horizon.
+- **Dawn patrol (dawn-v1)** — the launch look, kept pixel-identical as a
+  selectable legacy theme.
+- **An Cairt** and **An Postaer** follow on the same token contract.
+
+The picker ("Cuma") lives in the home nav; choice persists per device.

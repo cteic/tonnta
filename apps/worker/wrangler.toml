@@ -7,15 +7,15 @@ compatibility_flags = ["nodejs_compat"]
 # and paste the ids here before first deploy.
 [[kv_namespaces]]
 binding = "CACHE"
-id = "TODO_CREATE_KV_NAMESPACE"
-preview_id = "TODO_CREATE_KV_PREVIEW_NAMESPACE"
+id = "815ece5673c64467b815ec02b3d030e4"
+preview_id = "3ba767eff58248af8fe046597e1972d4"
 
 # Alert subscriptions — create with `wrangler d1 create tonnta-alerts`,
 # then apply schema: `wrangler d1 execute tonnta-alerts --file=./schema.sql`
 [[d1_databases]]
 binding = "DB"
 database_name = "tonnta-alerts"
-database_id = "TODO_CREATE_D1_DATABASE"
+database_id = "4126b78d-6139-46cf-8fe4-b5d31bfb1c0d"
 
 # Condition checks on the hour during session time (05:00–20:00 UTC).
 [triggers]

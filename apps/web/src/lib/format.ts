@@ -10,6 +10,13 @@ export function formatHour(isoTime: string, timezone: string): string {
   }).format(new Date(isoTime));
 }
 
+/** "11:00–14:00", collapsing single-hour windows to just "11:00". */
+export function formatWindowRange(startIso: string, endIso: string, timezone: string): string {
+  const start = formatHour(startIso, timezone);
+  const end = formatHour(endIso, timezone);
+  return start === end ? start : `${start}\u2013${end}`;
+}
+
 export function formatDayName(isoDateOrTime: string, timezone: string): string {
   return new Intl.DateTimeFormat('en-IE', {
     timeZone: timezone,

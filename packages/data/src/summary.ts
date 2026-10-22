@@ -8,7 +8,7 @@ import type {
 } from '@tonnta/types';
 
 import type { VerdictThresholds } from './verdict';
-import { DEFAULT_THRESHOLDS, assessHour } from './verdict';
+import { assessHour, spotThresholds } from './verdict';
 
 /**
  * Aggregation over the hourly forecast: the 7-day strip and the "next good
@@ -29,6 +29,12 @@ export interface GoodWindow {
 interface LocalStamp {
   date: string; // YYYY-MM-DD
   hour: number;
+}
+
+/** True when the time falls in local session hours (06:00–22:00) at the spot. */
+export function isSessionTime(isoTime: string, timezone: string): boolean {
+  const stamp = localStamp(isoTime, timezone);
+  return stamp !== undefined && isSessionHour(stamp);
 }
 
 function localStamp(isoTime: string, timezone: string): LocalStamp | undefined {
@@ -81,7 +87,7 @@ function dominantWindState(states: WindState[]): WindState {
 export function findGoodWindows(
   hours: HourlyConditions[],
   spot: Spot,
-  thresholds: VerdictThresholds = DEFAULT_THRESHOLDS
+  thresholds?: VerdictThresholds
 ): GoodWindow[] {
   const windows: GoodWindow[] = [];
   let current: HourlyConditions[] = [];
@@ -92,7 +98,7 @@ export function findGoodWindows(
     const last = current[current.length - 1];
     if (first !== undefined && last !== undefined) {
       const boards = current
-        .map((hour) => assessHour(hour, spot, thresholds).board)
+        .map((hour) => assessHour(hour, spot, thresholds ?? spotThresholds(spot)).board)
         .filter((board): board is Board => board !== undefined);
       const window: GoodWindow = { start: first.time, end: last.time, hours: [...current] };
       const board = boards[0];
@@ -109,7 +115,7 @@ export function findGoodWindows(
     const isGo =
       stamp !== undefined &&
       isSessionHour(stamp) &&
-      assessHour(hour, spot, thresholds).verdict === 'go';
+      assessHour(hour, spot, thresholds ?? spotThresholds(spot)).verdict === 'go';
     if (isGo) {
       current.push(hour);
     } else {
@@ -125,15 +131,17 @@ export function findGoodWindows(
 export function nextGoodWindow(
   hours: HourlyConditions[],
   spot: Spot,
-  thresholds: VerdictThresholds = DEFAULT_THRESHOLDS
+  thresholds?: VerdictThresholds
 ): GoodWindow | undefined {
-  return findGoodWindows(hours, spot, thresholds).sort((a, b) => a.start.localeCompare(b.start))[0];
+  return findGoodWindows(hours, spot, thresholds ?? spotThresholds(spot)).sort((a, b) =>
+    a.start.localeCompare(b.start)
+  )[0];
 }
 
 export function summarizeDays(
   hours: HourlyConditions[],
   spot: Spot,
-  thresholds: VerdictThresholds = DEFAULT_THRESHOLDS
+  thresholds?: VerdictThresholds
 ): DailySummary[] {
   const byDate = new Map<string, HourlyConditions[]>();
   for (const hour of hours) {
@@ -154,7 +162,7 @@ export function summarizeDays(
     const windStates: WindState[] = [];
 
     for (const hour of dayHours) {
-      const result = assessHour(hour, spot, thresholds);
+      const result = assessHour(hour, spot, thresholds ?? spotThresholds(spot));
       windStates.push(hour.windState);
       maxWave = Math.max(maxWave, hour.waveHeightM);
       if (VERDICT_RANK[result.verdict] > VERDICT_RANK[bestVerdict]) {
@@ -172,7 +180,7 @@ export function summarizeDays(
     if (board !== undefined) {
       summary.board = board;
     }
-    const windows = findGoodWindows(dayHours, spot, thresholds);
+    const windows = findGoodWindows(dayHours, spot, thresholds ?? spotThresholds(spot));
     const bestWindow = windows[0];
     if (bestWindow !== undefined) {
       summary.bestWindow = { start: bestWindow.start, end: bestWindow.end };

@@ -11,54 +11,56 @@ import {
   formatDayDate,
   formatDayName,
   formatHour,
+  formatWindowRange,
 } from '@/lib/format';
+import type { ThemeTokens } from '@/themes/registry';
+import { useAppTheme } from '@/themes/theme-context';
 
-const CARD: React.CSSProperties = {
-  background: '#122630',
-  border: '1px solid #22404C',
-  borderRadius: 16,
-  padding: 20,
-};
+function cardStyle(tokens: ThemeTokens): React.CSSProperties {
+  return {
+    background: tokens.surface,
+    border: `${tokens.cardBorderPx ?? 1}px solid ${tokens.border}`,
+    borderRadius: tokens.cardRadiusPx ?? 16,
+    padding: 20,
+  };
+}
 
-const EYEBROW: React.CSSProperties = {
-  margin: 0,
-  fontSize: 11,
-  fontWeight: 600,
-  textTransform: 'uppercase',
-  letterSpacing: '0.14em',
-  color: '#6E8A90',
-};
+function eyebrowStyle(tokens: ThemeTokens): React.CSSProperties {
+  return {
+    margin: 0,
+    fontSize: 11,
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.14em',
+    color: tokens.textSubtle,
+  };
+}
 
 const MONO: React.CSSProperties = {
   fontFamily: "'Spline Sans Mono', monospace",
 };
 
-const VERDICT_SWATCH: Record<string, string> = {
-  go: '#5E9A8C',
-  maybe: '#557D86',
-  flat: '#9FB8B3',
-  blown: '#4A5A61',
-};
-
 export function NextWindowCard({ window, spot }: { window: GoodWindow; spot: Spot }) {
+  const { theme } = useAppTheme();
+  const { tokens } = theme;
   const first = window.hours[0];
   return (
-    <section style={{ ...CARD, borderColor: 'rgba(232,163,61,0.4)' }}>
-      <p style={EYEBROW}>An chéad fhuinneog · Next good window</p>
+    <section style={{ ...cardStyle(tokens), borderColor: tokens.accentBorder }}>
+      <h2 style={eyebrowStyle(tokens)}>An chéad fhuinneog · Next good window</h2>
       <p
         style={{
           margin: '8px 0 4px',
           fontFamily: "'Clash Display', sans-serif",
           fontWeight: 600,
           fontSize: 24,
-          color: '#E8A33D',
+          color: tokens.accent,
         }}
       >
-        {formatDayName(window.start, spot.timezone)} {formatHour(window.start, spot.timezone)}–
-        {formatHour(window.end, spot.timezone)}
+        {formatDayName(window.start, spot.timezone)}{' '}
+        {formatWindowRange(window.start, window.end, spot.timezone)}
       </p>
       {first !== undefined ? (
-        <p style={{ ...MONO, margin: 0, fontSize: 13, color: '#A9BDBF' }}>
+        <p style={{ ...MONO, margin: 0, fontSize: 13, color: tokens.textSoft }}>
           {first.waveHeightM.toFixed(1)}m · {WIND_STATE_LABEL[first.windState]}{' '}
           {Math.round(first.windSpeedKmh)}km/h
           {window.board !== undefined ? ` · bring the ${BOARD_LABEL[window.board]}` : ''}
@@ -69,9 +71,11 @@ export function NextWindowCard({ window, spot }: { window: GoodWindow; spot: Spo
 }
 
 export function DayStrip({ days, spot }: { days: DailySummary[]; spot: Spot }) {
+  const { theme } = useAppTheme();
+  const { tokens } = theme;
   return (
     <section>
-      <p style={{ ...EYEBROW, marginBottom: 12 }}>An tseachtain · The week ahead</p>
+      <h2 style={{ ...eyebrowStyle(tokens), marginBottom: 12 }}>An tseachtain · The week ahead</h2>
       <div
         style={{
           display: 'grid',
@@ -80,22 +84,22 @@ export function DayStrip({ days, spot }: { days: DailySummary[]; spot: Spot }) {
         }}
       >
         {days.map((day) => {
-          const swatch = VERDICT_SWATCH[day.verdict] ?? '#557D86';
+          const swatch = tokens.sea[day.verdict];
           const isGo = day.verdict === 'go';
           return (
             <div
               key={day.date}
               style={{
-                ...CARD,
+                ...cardStyle(tokens),
                 padding: 12,
                 textAlign: 'center',
-                borderColor: isGo ? 'rgba(232,163,61,0.4)' : '#22404C',
+                borderColor: isGo ? tokens.accentBorder : tokens.border,
               }}
             >
-              <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: '#A9BDBF' }}>
+              <p style={{ margin: 0, fontSize: 12, fontWeight: 600, color: tokens.textSoft }}>
                 {formatDayName(`${day.date}T12:00:00Z`, spot.timezone)}
               </p>
-              <p style={{ ...MONO, margin: '2px 0 8px', fontSize: 10, color: '#6E8A90' }}>
+              <p style={{ ...MONO, margin: '2px 0 8px', fontSize: 10, color: tokens.textSubtle }}>
                 {formatDayDate(`${day.date}T12:00:00Z`, spot.timezone)}
               </p>
               <div
@@ -114,12 +118,12 @@ export function DayStrip({ days, spot }: { days: DailySummary[]; spot: Spot }) {
                   fontFamily: "'Clash Display', sans-serif",
                   fontWeight: 600,
                   fontSize: 18,
-                  color: isGo ? '#E8A33D' : '#E8ECEB',
+                  color: isGo ? tokens.accent : tokens.text,
                 }}
               >
                 {day.maxWaveHeightM.toFixed(1)}m
               </p>
-              <p style={{ margin: 0, fontSize: 11, color: '#6E8A90' }}>
+              <p style={{ margin: 0, fontSize: 11, color: tokens.textSubtle }}>
                 {VERDICT_LABEL[day.verdict].english.toLowerCase()}
                 {day.bestWindow !== undefined
                   ? ` · ${formatHour(day.bestWindow.start, spot.timezone)}`
@@ -134,10 +138,12 @@ export function DayStrip({ days, spot }: { days: DailySummary[]; spot: Spot }) {
 }
 
 export function TideCard({ tides, spot }: { tides: TideEvent[]; spot: Spot }) {
+  const { theme } = useAppTheme();
+  const { tokens } = theme;
   const upcoming = tides.slice(0, 4);
   return (
-    <section style={CARD}>
-      <p style={EYEBROW}>Taoidí · Tides at {spot.tideStationId}</p>
+    <section style={cardStyle(tokens)}>
+      <h2 style={eyebrowStyle(tokens)}>Taoidí · Tides at {spot.tideStationId}</h2>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
         {upcoming.map((tide) => (
           <div key={tide.time} style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
@@ -147,28 +153,28 @@ export function TideCard({ tides, spot }: { tides: TideEvent[]; spot: Spot }) {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
-                color: tide.kind === 'high' ? '#8FC1B5' : '#6E8A90',
+                color: tide.kind === 'high' ? tokens.positive : tokens.textSubtle,
                 width: 36,
               }}
             >
               {tide.kind}
             </span>
-            <span style={{ ...MONO, fontSize: 15, color: '#E8ECEB' }}>
+            <span style={{ ...MONO, fontSize: 15, color: tokens.text }}>
               {formatDayName(tide.time, spot.timezone)} {formatHour(tide.time, spot.timezone)}
             </span>
-            <span style={{ ...MONO, fontSize: 11, color: '#6E8A90' }}>
+            <span style={{ ...MONO, fontSize: 11, color: tokens.textSubtle }}>
               {tide.heightM.toFixed(1)}m
             </span>
           </div>
         ))}
         {upcoming.length === 0 ? (
-          <p style={{ margin: 0, fontSize: 13, color: '#6E8A90' }}>
+          <p style={{ margin: 0, fontSize: 13, color: tokens.textSubtle }}>
             Tide times are unavailable right now.
           </p>
         ) : null}
       </div>
       {upcoming.length > 0 ? (
-        <p style={{ ...MONO, margin: '12px 0 0', fontSize: 11, color: '#6E8A90' }}>
+        <p style={{ ...MONO, margin: '12px 0 0', fontSize: 11, color: tokens.textSubtle }}>
           heights vs mean sea level · Marine Institute
         </p>
       ) : null}
@@ -177,9 +183,11 @@ export function TideCard({ tides, spot }: { tides: TideEvent[]; spot: Spot }) {
 }
 
 export function BuoyCard({ buoy, spot }: { buoy: BuoyObservation; spot: Spot }) {
+  const { theme } = useAppTheme();
+  const { tokens } = theme;
   return (
-    <section style={CARD}>
-      <p style={EYEBROW}>
+    <section style={cardStyle(tokens)}>
+      <h2 style={eyebrowStyle(tokens)}>
         <span
           data-tonnta-animated
           style={{
@@ -187,13 +195,13 @@ export function BuoyCard({ buoy, spot }: { buoy: BuoyObservation; spot: Spot }) 
             width: 7,
             height: 7,
             borderRadius: 999,
-            background: '#8FC1B5',
+            background: tokens.positive,
             marginRight: 8,
             animation: 'tonntaPulse 1.6s ease-in-out infinite',
           }}
         />
         Anois ar an mbaoi · Now at {buoy.stationId}
-      </p>
+      </h2>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, marginTop: 12 }}>
         {buoy.waveHeightM !== undefined ? (
           <Stat label="waves" value={`${buoy.waveHeightM.toFixed(2)}m`} />
@@ -213,7 +221,7 @@ export function BuoyCard({ buoy, spot }: { buoy: BuoyObservation; spot: Spot }) 
           <Stat label="sea temp" value={`${buoy.seaTempC.toFixed(1)}°C`} />
         ) : null}
       </div>
-      <p style={{ ...MONO, margin: '14px 0 0', fontSize: 11, color: '#6E8A90' }}>
+      <p style={{ ...MONO, margin: '14px 0 0', fontSize: 11, color: tokens.textSubtle }}>
         reported {formatDayName(buoy.time, spot.timezone)} {formatHour(buoy.time, spot.timezone)} ·
         Marine Institute
       </p>
@@ -222,27 +230,33 @@ export function BuoyCard({ buoy, spot }: { buoy: BuoyObservation; spot: Spot }) 
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
+  const { theme } = useAppTheme();
+  const { tokens } = theme;
   return (
     <div>
-      <p style={{ ...MONO, margin: 0, fontSize: 20, fontWeight: 500, color: '#E8ECEB' }}>{value}</p>
-      <p style={{ margin: 0, fontSize: 11, color: '#6E8A90' }}>{label}</p>
+      <p style={{ ...MONO, margin: 0, fontSize: 20, fontWeight: 500, color: tokens.text }}>
+        {value}
+      </p>
+      <p style={{ margin: 0, fontSize: 11, color: tokens.textSubtle }}>{label}</p>
     </div>
   );
 }
 
 export function Warnings({ warnings }: { warnings: string[] }) {
+  const { theme } = useAppTheme();
+  const { tokens } = theme;
   if (warnings.length === 0) return null;
   return (
     <div
       role="status"
       style={{
-        ...CARD,
-        borderColor: 'rgba(196,85,59,0.5)',
+        ...cardStyle(tokens),
+        borderColor: tokens.dangerBorder,
         padding: '12px 16px',
       }}
     >
       {warnings.map((warning) => (
-        <p key={warning} style={{ margin: 0, fontSize: 13, color: '#C6D2D2' }}>
+        <p key={warning} style={{ margin: 0, fontSize: 13, color: tokens.textMuted }}>
           {warning}
         </p>
       ))}

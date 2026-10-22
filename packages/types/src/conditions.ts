@@ -9,6 +9,20 @@
 
 export type SpotId = string;
 
+/** Per-spot verdict tuning — what counts as flat/go differs per coast. */
+export interface VerdictThresholds {
+  /** Below this the sea is flat (m). */
+  flatBelowM: number;
+  /** At or above this it's rideable (m). */
+  goFromM: number;
+  /** Max wind for a clean GO (km/h). */
+  maxWindKmh: number;
+  /** Wind allowance when it's blowing offshore (km/h). */
+  maxWindOffshoreKmh: number;
+  /** Onshore wind above this kills the day regardless of waves (km/h). */
+  blownOnshoreKmh: number;
+}
+
 export interface Spot {
   id: SpotId;
   name: string;
@@ -25,6 +39,10 @@ export interface Spot {
   buoyStationId?: string;
   /** Nearest tide-prediction station on ERDDAP (e.g. "Skerries"). */
   tideStationId?: string;
+  /** EPA bathing-water beach id (data.epa.ie), where the spot is a bathing water. */
+  epaBeachId?: string;
+  /** Verdict tuning for this coast; defaults apply when omitted. */
+  thresholds?: VerdictThresholds;
 }
 
 export type WindState = 'offshore' | 'cross-off' | 'cross' | 'cross-on' | 'onshore' | 'glassy';
@@ -51,6 +69,24 @@ export interface VerdictResult {
   board?: Board;
   /** One human sentence: "Worth a look after work — 0.5m and the wind drops at 4." */
   reason: string;
+}
+
+export type SwimVerdict = 'great' | 'ok' | 'no';
+
+export interface SwimVerdictResult {
+  verdict: SwimVerdict;
+  /** One human sentence: "Calm as a pond and 15.2°C — get in." */
+  reason: string;
+  /** Within ±2h of high tide — the swimmable window at a shallow beach. */
+  nearHighTide: boolean;
+}
+
+/** An active EPA bathing-water incident for a beach. */
+export interface WaterQualityAlert {
+  beachId: string;
+  beachName: string;
+  restrictionInPlace: boolean;
+  startDate?: string;
 }
 
 export interface DailySummary {

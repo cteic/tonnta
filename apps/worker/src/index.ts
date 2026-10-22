@@ -9,6 +9,9 @@ import {
 } from '@tonnta/data';
 import type { Spot } from '@tonnta/types';
 
+import { handleConfirm, handleFounderCount, handleRestore } from './pro';
+import { handleVerdict } from './verdict';
+
 export interface Env {
   CACHE: KVNamespace;
   DB: D1Database;
@@ -16,6 +19,9 @@ export interface Env {
   VAPID_PUBLIC_KEY: string;
   VAPID_PRIVATE_KEY: string;
   VAPID_SUBJECT: string;
+  /** Optional until email restore goes live — dev falls back to console. */
+  RESEND_API_KEY?: string;
+  EMAIL_FROM?: string;
 }
 
 interface SubscriptionRow {
@@ -30,7 +36,7 @@ interface SubscriptionRow {
 function corsHeaders(env: Env): HeadersInit {
   return {
     'Access-Control-Allow-Origin': env.SITE_ORIGIN,
-    'Access-Control-Allow-Methods': 'POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 }
@@ -187,11 +193,24 @@ const worker = {
     if (url.pathname === '/health') {
       return json({ ok: true }, 200, env);
     }
+    if (url.pathname === '/verdict' && request.method === 'GET') {
+      return handleVerdict(url, env.CACHE);
+    }
     if (url.pathname === '/subscribe' && request.method === 'POST') {
       return handleSubscribe(request, env);
     }
     if (url.pathname === '/subscribe' && request.method === 'DELETE') {
       return handleUnsubscribe(request, env);
+    }
+    const respond = (body: unknown, status: number): Response => json(body, status, env);
+    if (url.pathname === '/pro/founder-count' && request.method === 'GET') {
+      return handleFounderCount(env, respond);
+    }
+    if (url.pathname === '/pro/restore' && request.method === 'POST') {
+      return handleRestore(request, env, respond);
+    }
+    if (url.pathname === '/pro/confirm' && request.method === 'GET') {
+      return handleConfirm(request, env, respond);
     }
     return json({ error: 'not found' }, 404, env);
   },

@@ -1,3 +1,4 @@
 {
-  "**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,yaml,yml}": ["prettier --write"]
+  "**/*.{ts,tsx,js,jsx,mjs,cjs,json,css,yaml,yml}": ["prettier --write"],
+  "**/!(AGENTS).md": ["prettier --write"]
 }

@@ -9,10 +9,12 @@
   "scripts": {
     "build": "turbo run build",
     "build:web": "turbo run build --filter=@tonnta/web",
+    "build:app:web": "turbo run build --filter=@tonnta/app",
     "build:worker": "turbo run build --filter=@tonnta/worker",
     "build:packages": "turbo run build --filter=\"./packages/*\"",
     "dev": "turbo run dev",
     "dev:web": "turbo run dev --filter=@tonnta/web",
+    "dev:app": "turbo run dev --filter=@tonnta/app",
     "dev:worker": "turbo run dev --filter=@tonnta/worker",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,yaml,yml}\" --ignore-path .gitignore --ignore-path .prettierignore",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,yaml,yml}\" --ignore-path .gitignore --ignore-path .prettierignore",
@@ -52,7 +54,10 @@
     "overrides": {
       "@types/react": "^19.0.0",
       "@types/react-dom": "^19.0.0",
-      "react-native-web": "^0.21.0"
+      "react-native-web": "^0.21.4",
+      "react-native": "0.88.0",
+      "react": "19.3.0",
+      "react-dom": "19.3.0"
     },
     "patchedDependencies": {
       "tamagui-loader@2.0.0-rc.42": "patches/tamagui-loader@2.0.0-rc.42.patch",

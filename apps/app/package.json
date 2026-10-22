@@ -1,0 +1,61 @@
+{
+  "name": "@tonnta/app",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "description": "Tonnta universal app — web, iOS and Android from one Expo Router codebase",
+  "main": "expo-router/entry",
+  "expo": {
+    "install": {
+      "exclude": [
+        "@types/react",
+        "react-native-web"
+      ]
+    }
+  },
+  "scripts": {
+    "dev": "expo start",
+    "web": "expo start --web",
+    "ios": "TAMAGUI_TARGET=native expo run:ios",
+    "android": "TAMAGUI_TARGET=native expo run:android",
+    "build": "TAMAGUI_TARGET=web expo export --platform web",
+    "generate:assets": "node scripts/generate-assets.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint app src",
+    "lint:fix": "eslint app src --fix",
+    "test:unit": "vitest run --passWithNoTests",
+    "test:ui": "maestro test .maestro",
+    "clean": "rm -rf .expo dist ios android"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.25.0",
+    "@expo/metro-runtime": "~58.0.14",
+    "@tonnta/data": "workspace:*",
+    "@tonnta/types": "workspace:*",
+    "@tonnta/ui": "workspace:*",
+    "expo": "~58.0.16",
+    "expo-constants": "~58.0.12",
+    "expo-linking": "~58.0.13",
+    "expo-router": "~58.0.24",
+    "expo-splash-screen": "~58.0.10",
+    "expo-status-bar": "~58.0.3",
+    "expo-system-ui": "~58.0.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.0",
+    "react-native-safe-area-context": "~5.10.1",
+    "react-native-screens": "~4.30.0",
+    "react-native-web": "~0.21.4"
+  },
+  "devDependencies": {
+    "@amiceli/vitest-cucumber": "4.7.0",
+    "@babel/core": "^7.25.2",
+    "@tamagui/babel-plugin": "2.0.0-rc.42",
+    "@tamagui/metro-plugin": "2.0.0-rc.42",
+    "@tonnta/tsconfig-config": "workspace:*",
+    "@types/react": "^19.0.0",
+    "babel-preset-expo": "~58.0.6",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.6"
+  }
+}

@@ -33,3 +33,4 @@ apps/web/playwright-report
 
 # Claude Code per-machine settings (commands/ is tracked, settings.local.json is not)
 .claude/settings.local.json
+.open-next
