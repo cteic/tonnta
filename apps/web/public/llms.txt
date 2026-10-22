@@ -1,0 +1,21 @@
+# Tonnta
+
+> Tonnta (Irish for "waves") answers one question about Donabate beach in North County Dublin, Ireland: is it worth going down to surf right now, and what board should you bring? The verdict is GO, MAYBE, FLAT or BLOWN OUT, derived from live wave, wind and tide data and refreshed every 15 minutes.
+
+Donabate beach sits at 53.487°N, -6.107°E and faces ENE (70°), so westerly and south-westerly wind blows offshore and clean while north-easterly through south-easterly wind blows onshore and messy. Waves at or above 0.4 m with wind at or below 25 km/h are a GO; the board call is SUP, foamie or longboard. Snámh mode reads the same sea for swimmers, including EPA bathing-water notices. Data comes from Open-Meteo marine models, Marine Institute buoy and tide observations, Met Éireann and the EPA.
+
+## Pages
+
+- [Today's verdict](https://tonnta.surf/): current surf verdict, board call, seven-day outlook, live buoy readings and tide times for Donabate
+- [Session log](https://tonnta.surf/log): log a surf or swim session against the conditions it happened in
+- [Tonnta Pro](https://tonnta.surf/pro): what the paid alerts cover and what they cost
+
+## For agents
+
+- [MCP endpoint](https://tonnta.surf/mcp): JSON-RPC 2.0 over POST — `initialize`, `tools/list`, `tools/call`. One tool, `get_surf_conditions`, returns the current verdict, wave height and period, wind, tide state, sea temperature and board call for Donabate, as prose and as structured numbers.
+
+## Optional
+
+- [Sitemap](https://tonnta.surf/sitemap.xml)
+- [Crawl and content-signal policy](https://tonnta.surf/robots.txt)
+- [Web app manifest](https://tonnta.surf/manifest.webmanifest)

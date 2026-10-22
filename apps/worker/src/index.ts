@@ -11,6 +11,7 @@ import type { Spot } from '@tonnta/types';
 
 import { handleLive } from './live';
 import { handleConfirm, handleFounderCount, handleRestore } from './pro';
+import { handleVerdict } from './verdict';
 
 export interface Env {
   CACHE: KVNamespace;
@@ -192,6 +193,9 @@ const worker = {
     }
     if (url.pathname === '/health') {
       return json({ ok: true }, 200, env);
+    }
+    if (url.pathname === '/verdict' && request.method === 'GET') {
+      return handleVerdict(url, env.CACHE);
     }
     if (url.pathname === '/subscribe' && request.method === 'POST') {
       return handleSubscribe(request, env);

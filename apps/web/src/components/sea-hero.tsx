@@ -180,6 +180,7 @@ export function SeaHero({ verdict, hour }: SeaHeroProps) {
               color: isGo ? tokens.accent : tokens.text,
             }}
           >
+            <span className="tonnta-visually-hidden">Donabate surf today — </span>
             {label.english}
           </h1>
           <p
