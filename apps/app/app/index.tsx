@@ -1,10 +1,15 @@
+import { useEffect } from 'react';
+
 import { Link } from 'expo-router';
 
 import { DEFAULT_SPOT_ID } from '@tonnta/data';
 import { Text, XStack, YStack } from '@tonnta/ui';
 
+import { LiveTideCard } from '@/components/live-tide-card';
 import { OutlookView } from '@/components/outlook-view';
 import { Body, Eyebrow, Screen } from '@/components/screen';
+import { useAnalytics } from '@/lib/analytics';
+import { outlookViewed } from '@/lib/analytics-events';
 import type { OutlookState } from '@/lib/use-spot-outlook';
 import { useSpotOutlook } from '@/lib/use-spot-outlook';
 
@@ -35,6 +40,13 @@ function OutlookBody({ state }: OutlookBodyProps) {
 
 export default function HomeScreen() {
   const state = useSpotOutlook(DEFAULT_SPOT_ID);
+  const { track } = useAnalytics();
+  const outlook = state.status === 'ready' ? state.outlook : undefined;
+
+  useEffect(() => {
+    if (outlook === undefined) return;
+    track('outlook_viewed', outlookViewed(outlook));
+  }, [outlook, track]);
 
   return (
     <Screen>
@@ -63,6 +75,7 @@ export default function HomeScreen() {
       </XStack>
 
       <OutlookBody state={state} />
+      <LiveTideCard spotId={DEFAULT_SPOT_ID} />
     </Screen>
   );
 }
