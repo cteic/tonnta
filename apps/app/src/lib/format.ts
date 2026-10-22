@@ -10,6 +10,22 @@ export function formatHour(isoTime: string, timezone: string): string {
   }).format(new Date(isoTime));
 }
 
+const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * A run of forecast hours as a clock range. `lastHourIso` is the start of the
+ * last hour in the run, so the range ends an hour after it: a single good
+ * hour at 19:00 reads 19:00–20:00.
+ */
+export function formatHourRange(
+  firstHourIso: string,
+  lastHourIso: string,
+  timezone: string
+): string {
+  const end = new Date(Date.parse(lastHourIso) + HOUR_MS).toISOString();
+  return `${formatHour(firstHourIso, timezone)}–${formatHour(end, timezone)}`;
+}
+
 export function formatDayName(isoDateOrTime: string, timezone: string): string {
   return new Intl.DateTimeFormat('en-IE', {
     timeZone: timezone,

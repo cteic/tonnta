@@ -7,7 +7,7 @@ import {
   VERDICT_LABEL,
   WIND_STATE_LABEL,
   formatDayName,
-  formatHour,
+  formatHourRange,
 } from '@/lib/format';
 
 import { ConditionsChart } from './conditions-chart';
@@ -119,7 +119,7 @@ export function OutlookView({ outlook }: OutlookViewProps) {
         <Eyebrow>Next good window</Eyebrow>
         {nextWindow !== undefined ? (
           <Heading>
-            {`${formatDayName(nextWindow.start, spot.timezone)} ${formatHour(nextWindow.start, spot.timezone)}–${formatHour(nextWindow.end, spot.timezone)}`}
+            {`${formatDayName(nextWindow.start, spot.timezone)} ${formatHourRange(nextWindow.start, nextWindow.end, spot.timezone)}`}
           </Heading>
         ) : (
           <Body muted>Nothing rideable in the next seven days.</Body>
