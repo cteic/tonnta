@@ -35,3 +35,8 @@ Feature: What the home-screen widget shows for each hour
     Given an endpoint that never responds
     When the widget fetches the timeline with a 20ms timeout
     Then the fetch fails with "no response within 20ms"
+
+  Scenario: An endpoint that stalls after its headers times out
+    Given an endpoint that sends headers and then never finishes the body
+    When the widget fetches the timeline with a 20ms timeout
+    Then the fetch fails with "no response within 20ms"

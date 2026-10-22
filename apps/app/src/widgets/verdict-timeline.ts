@@ -122,9 +122,15 @@ export async function fetchVerdictTimeline(
 ): Promise<VerdictTimeline> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
-  let response: Response;
+  // The timer covers the body as well as the headers: a server can send
+  // headers and then stall, which would hang the background task as surely.
+  let body: unknown;
   try {
-    response = await fetchImpl(url, { signal: controller.signal });
+    const response = await fetchImpl(url, { signal: controller.signal });
+    if (!response.ok) {
+      throw new Error(`Verdict endpoint: HTTP ${response.status}`);
+    }
+    body = await response.json();
   } catch (error) {
     if (controller.signal.aborted) {
       throw new Error(`Verdict endpoint: no response within ${timeoutMs}ms`);
@@ -133,10 +139,6 @@ export async function fetchVerdictTimeline(
   } finally {
     clearTimeout(timer);
   }
-  if (!response.ok) {
-    throw new Error(`Verdict endpoint: HTTP ${response.status}`);
-  }
-  const body: unknown = await response.json();
   if (!isVerdictTimeline(body)) {
     throw new Error('Verdict endpoint: unexpected response shape');
   }

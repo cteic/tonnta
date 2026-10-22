@@ -175,4 +175,29 @@ describeFeature(feature, ({ Scenario }) => {
       expect(failure instanceof Error ? failure.message : '').toContain('no response within 20ms');
     });
   });
+
+  Scenario('An endpoint that stalls after its headers times out', ({ Given, When, Then }) => {
+    let fetchImpl: typeof fetch = fetch;
+    let failure: unknown;
+
+    Given('an endpoint that sends headers and then never finishes the body', () => {
+      fetchImpl = async (_input, init) => {
+        const body = new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new TextEncoder().encode('{"spot":'));
+            init?.signal?.addEventListener('abort', () => controller.error(new Error('aborted')));
+          },
+        });
+        return new Response(body, { status: 200 });
+      };
+    });
+    When('the widget fetches the timeline with a 20ms timeout', async () => {
+      failure = await fetchVerdictTimeline('https://worker.test/verdict', fetchImpl, 20).catch(
+        (error: unknown) => error
+      );
+    });
+    Then('the fetch fails with "no response within 20ms"', () => {
+      expect(failure instanceof Error ? failure.message : '').toContain('no response within 20ms');
+    });
+  });
 });
