@@ -112,11 +112,27 @@ export function currentEntry(
   return started.at(-1) ?? entries[0];
 }
 
+/** A stalled request must not hold the background task past its OS budget. */
+export const FETCH_TIMEOUT_MS = 15_000;
+
 export async function fetchVerdictTimeline(
   url: string,
-  fetchImpl: typeof fetch = fetch
+  fetchImpl: typeof fetch = fetch,
+  timeoutMs: number = FETCH_TIMEOUT_MS
 ): Promise<VerdictTimeline> {
-  const response = await fetchImpl(url);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  let response: Response;
+  try {
+    response = await fetchImpl(url, { signal: controller.signal });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error(`Verdict endpoint: no response within ${timeoutMs}ms`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
   if (!response.ok) {
     throw new Error(`Verdict endpoint: HTTP ${response.status}`);
   }
