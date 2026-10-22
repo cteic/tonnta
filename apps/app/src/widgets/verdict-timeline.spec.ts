@@ -155,4 +155,24 @@ describeFeature(feature, ({ Scenario }) => {
       );
     });
   });
+
+  Scenario('A stalled endpoint times out', ({ Given, When, Then }) => {
+    let fetchImpl: typeof fetch = fetch;
+    let failure: unknown;
+
+    Given('an endpoint that never responds', () => {
+      fetchImpl = (_input, init) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => reject(new Error('aborted')));
+        });
+    });
+    When('the widget fetches the timeline with a 20ms timeout', async () => {
+      failure = await fetchVerdictTimeline('https://worker.test/verdict', fetchImpl, 20).catch(
+        (error: unknown) => error
+      );
+    });
+    Then('the fetch fails with "no response within 20ms"', () => {
+      expect(failure instanceof Error ? failure.message : '').toContain('no response within 20ms');
+    });
+  });
 });
