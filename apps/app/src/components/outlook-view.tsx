@@ -10,6 +10,7 @@ import {
   formatHour,
 } from '@/lib/format';
 
+import { ConditionsChart } from './conditions-chart';
 import { Body, Eyebrow, Heading } from './screen';
 
 const VERDICT_SEA_TOKEN: Record<Verdict, string> = {
@@ -109,10 +110,11 @@ interface OutlookViewProps {
 }
 
 export function OutlookView({ outlook }: OutlookViewProps) {
-  const { spot, now, currentHour, nextWindow, days } = outlook;
+  const { spot, now, currentHour, nextWindow, days, hours } = outlook;
   return (
     <>
       <VerdictHero verdict={now} hour={currentHour} />
+      <ConditionsChart spotId={spot.id} hours={hours} timezone={spot.timezone} />
       <YStack gap="$4">
         <Eyebrow>Next good window</Eyebrow>
         {nextWindow !== undefined ? (

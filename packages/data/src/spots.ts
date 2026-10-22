@@ -17,6 +17,7 @@ export const SPOTS: readonly Spot[] = [
     facing: 70,
     buoyStationId: 'M2',
     tideStationId: 'Skerries',
+    tideGaugeId: 'Skerries Harbour',
     epaBeachId: 'IEEABWC020_0000_0100',
   },
   {
