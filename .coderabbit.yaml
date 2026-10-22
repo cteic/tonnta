@@ -109,6 +109,23 @@ reviews:
         For CI workflows, flag actions pinned to a mutable tag rather than a
         commit SHA, secrets echoed into logs or step outputs, and
         `pull_request_target` used with a checkout of untrusted head code.
+  pre_merge_checks:
+    # Comments here are for what the code cannot say, not one per function,
+    # so a coverage threshold would only push boilerplate docstrings.
+    docstrings:
+      mode: 'off'
+    title:
+      mode: warning
+      requirements: >-
+        Conventional Commits: `type(scope): subject`, imperative mood, lower
+        case subject, no trailing full stop. Types: feat, fix, chore, ci,
+        docs, refactor, test, perf, build, revert, style. Scopes: app, web,
+        mobile, worker, data, types, utils, ui, deps, ci, docs.
+    description:
+      mode: warning
+    # Work is tracked in Linear, which this check cannot see.
+    issue_assessment:
+      mode: 'off'
   tools:
     gitleaks:
       enabled: true
