@@ -16,6 +16,8 @@ import type {
   VerdictResult,
 } from '@tonnta/types';
 
+import { currentHourOf } from './current-hour';
+
 /**
  * Home-screen data assembly. The app fetches Open-Meteo directly from the
  * device; a cached worker proxy takes over when spots and users grow.
@@ -64,11 +66,6 @@ function chartHours(
   });
 }
 
-function currentOrNextHour(hours: HourlyConditions[]): HourlyConditions | undefined {
-  const nowIso = new Date().toISOString();
-  return hours.find((hour) => hour.time >= nowIso) ?? hours.at(-1);
-}
-
 export async function loadSpotOutlook(spotId: string = DEFAULT_SPOT_ID): Promise<SpotOutlook> {
   const spot = getSpot(spotId);
   if (spot === undefined) {
@@ -76,7 +73,7 @@ export async function loadSpotOutlook(spotId: string = DEFAULT_SPOT_ID): Promise
   }
 
   const hours = await fetchHourlyConditions(spot);
-  const currentHour = currentOrNextHour(hours);
+  const currentHour = currentHourOf(hours, Date.now());
   const now: VerdictResult =
     currentHour !== undefined
       ? assessHour(currentHour, spot)
