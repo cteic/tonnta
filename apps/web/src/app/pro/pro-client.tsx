@@ -190,7 +190,7 @@ export function ProClient() {
         }}
       >
         <section style={CARD}>
-          <p style={EYEBROW}>Bliantúil · Annual</p>
+          <h2 style={EYEBROW}>Bliantúil · Annual</h2>
           <p style={{ ...DISPLAY, fontSize: 40, margin: '10px 0 2px' }}>
             {formatEuro(PRICE_ANNUAL_EUR)}
             <span style={{ fontSize: 16, fontWeight: 500, color: '#A9BDBF' }}> / year</span>
@@ -213,7 +213,7 @@ export function ProClient() {
         </section>
 
         <section style={{ ...CARD, borderColor: 'rgba(232,163,61,0.5)' }}>
-          <p style={{ ...EYEBROW, color: '#E8A33D' }}>Bunaitheoir · Founder — {founderLine}</p>
+          <h2 style={{ ...EYEBROW, color: '#E8A33D' }}>Bunaitheoir · Founder — {founderLine}</h2>
           <p style={{ ...DISPLAY, fontSize: 40, margin: '10px 0 2px' }}>
             {formatEuro(PRICE_FOUNDER_EUR)}
             <span style={{ fontSize: 16, fontWeight: 500, color: '#A9BDBF' }}> once</span>
@@ -237,7 +237,7 @@ export function ProClient() {
       </div>
 
       <section style={{ ...CARD, padding: 20 }}>
-        <p style={EYEBROW}>Ceannaithe cheana? · Bought already?</p>
+        <h2 style={EYEBROW}>Ceannaithe cheana? · Bought already?</h2>
         <p style={{ margin: '8px 0 12px', fontSize: 14, color: '#C6D2D2' }}>
           New phone or fresh browser — enter your checkout email and we&apos;ll send a link that
           switches alerts on here. No password, no account.

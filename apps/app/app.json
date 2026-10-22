@@ -66,7 +66,8 @@
         }
       ],
       "expo-background-task",
-      "expo-localization"
+      "expo-localization",
+      "expo-status-bar"
     ],
     "extra": {
       "eas": {
