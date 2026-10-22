@@ -9,7 +9,7 @@ outlook come from `@tonnta/data`.
 | Route         | Screen                                       |
 | ------------- | -------------------------------------------- |
 | `/`           | Verdict for the current hour + 7-day outlook |
-| `/log`        | Loga — session diary (placeholder)           |
+| `/log`        | Loga: session diary (placeholder)            |
 | `/pro`        | Tonnta Pro (placeholder)                     |
 | `/s/[spotId]` | Spot screen, reads the id from the URL       |
 
@@ -32,6 +32,21 @@ pnpm ios                     # expo prebuild + build + launch on the default sim
 
 `ios/` and `android/` are generated (continuous native generation) and are
 git-ignored; `app.json` is the source of truth for native config.
+
+## Preview builds (EAS)
+
+`eas.json` has a `preview` profile: an iOS simulator build and an Android APK,
+both internal distribution. Neither needs an Apple or Google developer account.
+The project belongs to the `cteic` Expo account.
+
+```sh
+cd apps/app
+pnpm dlx eas-cli@latest login                         # once per machine
+pnpm dlx eas-cli@latest init                          # once: writes extra.eas.projectId to app.json
+pnpm dlx eas-cli@latest build -p android --profile preview
+pnpm dlx eas-cli@latest build -p ios --profile preview
+pnpm dlx eas-cli@latest build:run -p ios --latest     # install the simulator build
+```
 
 ## UI smoke test (Maestro)
 
