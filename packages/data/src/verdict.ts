@@ -109,7 +109,10 @@ export function assessHour(
         reason: 'Flat and glassy — no surf, but a lovely SUP.',
       };
     }
-    return { verdict: 'flat', reason: 'Under 0.3m — nothing to ride today.' };
+    return {
+      verdict: 'flat',
+      reason: `Under ${formatWave(resolved.flatBelowM)} — nothing to ride today.`,
+    };
   }
 
   const windCap = isOff(windState) ? resolved.maxWindOffshoreKmh : resolved.maxWindKmh;

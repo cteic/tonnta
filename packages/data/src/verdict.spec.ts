@@ -176,4 +176,22 @@ describeFeature(feature, ({ Scenario }) => {
       });
     });
   }
+
+  Scenario("A spot's own flat threshold names its own height", ({ Given, When, Then }) => {
+    const elCotillo = getSpot('el-cotillo');
+    let hour: HourlyConditions | undefined;
+    let result: VerdictResult | undefined;
+
+    Given('0.5m waves at 4s with 12km/h wind at El Cotillo, which goes flat below 0.6m', () => {
+      hour = hourWith(0.5, 4, 12, 'north');
+    });
+    When('I assess the hour for El Cotillo', () => {
+      if (elCotillo === undefined || hour === undefined) throw new Error('fixture missing');
+      result = assessHour(hour, elCotillo);
+    });
+    Then('the verdict should be flat because it is under 0.6m', () => {
+      expect(result?.verdict).toBe('flat');
+      expect(result?.reason).toContain('Under 0.6m');
+    });
+  });
 });
