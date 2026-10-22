@@ -59,6 +59,8 @@ export interface HourlyConditions {
   windDirectionDeg: number;
   windState: WindState;
   seaTempC?: number;
+  /** WMO weather code from the forecast, for example 95 for a thunderstorm. */
+  weatherCode?: number;
 }
 
 export type Verdict = 'go' | 'maybe' | 'flat' | 'blown';

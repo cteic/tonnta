@@ -88,7 +88,7 @@ export async function loadSpotOutlook(spotId: string = DEFAULT_SPOT_ID): Promise
   if (currentHour !== undefined) {
     outlook.currentHour = currentHour;
   }
-  const window = nextGoodWindow(hours, spot);
+  const window = nextGoodWindow(hours, spot, Date.now());
   if (window !== undefined) {
     outlook.nextWindow = window;
   }

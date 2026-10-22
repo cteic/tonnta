@@ -9,6 +9,7 @@ import type {
   WaterQualityAlert,
 } from '@tonnta/types';
 
+import { isRecord } from './guards';
 import { findBeachAlert } from './sources/epa-bathing';
 import { getSpot } from './spots';
 import type { SwimWindow } from './swim';
@@ -177,7 +178,7 @@ describeFeature(feature, ({ Scenario }) => {
         hourAt('2026-07-04T18:00:00Z', 0.2, 8),
       ];
       const tides: TideEvent[] = [{ time: '2026-07-04T18:30:00Z', kind: 'high', heightM: 1.5 }];
-      windows = findSwimWindows(hours, tides, spot);
+      windows = findSwimWindows(hours, tides, spot, Date.parse('2026-07-04T06:00:00Z'));
     });
     Then('the first window should be the one near high tide', () => {
       expect(windows).toHaveLength(2);
@@ -214,6 +215,112 @@ describeFeature(feature, ({ Scenario }) => {
     });
     Then('no alert should be found', () => {
       expect(alert).toBeUndefined();
+    });
+  });
+
+  Scenario(
+    'An active restriction wins over a lifted one at the same beach',
+    ({ Given, When, Then }) => {
+      let payload: unknown;
+      let alert: WaterQualityAlert | undefined;
+
+      Given(
+        'an EPA alerts payload listing a lifted incident before an active one for Balcarrick',
+        () => {
+          const lifted = epaPayload(BALCARRICK_ID, 'No');
+          const active = epaPayload(BALCARRICK_ID, 'Yes');
+          const items = (value: unknown): unknown[] =>
+            isRecord(value) && Array.isArray(value.list) ? value.list : [];
+          payload = { count: 2, list: [...items(lifted), ...items(active)] };
+        }
+      );
+      When('I parse the payload for Balcarrick', () => {
+        alert = findBeachAlert(payload, BALCARRICK_ID);
+      });
+      Then('the parsed alert should have a restriction in place', () => {
+        expect(alert?.restrictionInPlace).toBe(true);
+      });
+    }
+  );
+
+  Scenario('A calm day splits at the high-tide band', ({ Given, When, Then, And }) => {
+    let hours: HourlyConditions[] = [];
+    let windows: SwimWindow[] = [];
+    // Irish summer time is UTC+1: 09:00 to 21:00 Irish time is 08:00 to 20:00 UTC.
+    const utc = (h: number) => `2026-07-04T${String(h).padStart(2, '0')}:00:00Z`;
+    const tides: TideEvent[] = [{ time: utc(14), kind: 'high', heightM: 1.5 }];
+
+    Given('calm water from 09:00 to 21:00 Irish time and a high tide at 15:00', () => {
+      hours = Array.from({ length: 13 }, (_, i) => hourAt(utc(8 + i), 0.2, 8));
+    });
+    When('I find the swim windows', () => {
+      windows = findSwimWindows(hours, tides, spot, Date.parse(utc(6)));
+    });
+    Then('the first window runs from 13:00 to the 17:00 hour, around that high tide', () => {
+      expect(windows[0]).toMatchObject({
+        start: utc(12),
+        end: utc(16),
+        nearHighTide: true,
+        highTide: utc(14),
+      });
+    });
+    And('the low-water stretches either side are separate windows', () => {
+      expect(windows.slice(1).map((w) => [w.start, w.end, w.nearHighTide])).toEqual([
+        [utc(8), utc(11), false],
+        [utc(17), utc(20), false],
+      ]);
+    });
+  });
+
+  Scenario('A swim window that has ended is not offered', ({ Given, When, Then }) => {
+    let hours: HourlyConditions[] = [];
+    let windows: SwimWindow[] = [];
+    Given('calm water from 09:00 to 11:00 Irish time and rough water after', () => {
+      hours = [
+        hourAt('2026-07-04T08:00:00Z', 0.2, 8),
+        hourAt('2026-07-04T09:00:00Z', 0.2, 8),
+        hourAt('2026-07-04T10:00:00Z', 0.2, 8),
+        hourAt('2026-07-04T11:00:00Z', 0.9, 35),
+        hourAt('2026-07-04T14:00:00Z', 0.9, 35),
+      ];
+    });
+    When('I find the swim windows at 14:00', () => {
+      windows = findSwimWindows(hours, [], spot, Date.parse('2026-07-04T13:00:00Z'));
+    });
+    Then('there are no swim windows', () => {
+      expect(windows).toEqual([]);
+    });
+  });
+
+  Scenario('No swimming in a thunderstorm', ({ Given, When, Then }) => {
+    let hour: HourlyConditions | undefined;
+    let result: SwimVerdictResult | undefined;
+    Given('calm water under a thunderstorm', () => {
+      hour = { ...hourAt(NOON, 0.2, 8), weatherCode: 95 };
+    });
+    When('I assess the swim', () => {
+      if (hour === undefined) throw new Error('no hour');
+      result = assessSwimHour(hour, []);
+    });
+    Then('the swim verdict should be no because of lightning', () => {
+      expect(result?.verdict).toBe('no');
+      expect(result?.reason).toContain('Lightning');
+    });
+  });
+
+  Scenario('A swim window in progress starts at the hour in progress', ({ Given, When, Then }) => {
+    let hours: HourlyConditions[] = [];
+    let windows: SwimWindow[] = [];
+    Given('calm water from 09:00 to 13:00 Irish time', () => {
+      hours = [8, 9, 10, 11].map((h) =>
+        hourAt(`2026-07-04T${String(h).padStart(2, '0')}:00:00Z`, 0.2, 8)
+      );
+    });
+    When('I find the swim windows at 11:30', () => {
+      windows = findSwimWindows(hours, [], spot, Date.parse('2026-07-04T10:30:00Z'));
+    });
+    Then('the window starts at 11:00', () => {
+      expect(windows.map((w) => w.start)).toEqual(['2026-07-04T10:00:00Z']);
     });
   });
 });

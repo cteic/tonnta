@@ -7,6 +7,8 @@ import type {
   WindState,
 } from '@tonnta/types';
 
+import { THUNDERSTORM_REASON, isThunderstorm } from './weather';
+
 /**
  * The verdict engine — Tonnta's whole point in ~100 lines.
  *
@@ -89,6 +91,9 @@ export function assessHour(
   spot: Spot,
   thresholds?: VerdictThresholds
 ): VerdictResult {
+  if (isThunderstorm(hour)) {
+    return { verdict: 'blown', reason: THUNDERSTORM_REASON };
+  }
   const resolved = thresholds ?? spotThresholds(spot);
   const windState = classifyWind(hour.windDirectionDeg, hour.windSpeedKmh, spot);
   const { waveHeightM, windSpeedKmh } = hour;
@@ -109,7 +114,10 @@ export function assessHour(
         reason: 'Flat and glassy — no surf, but a lovely SUP.',
       };
     }
-    return { verdict: 'flat', reason: 'Under 0.3m — nothing to ride today.' };
+    return {
+      verdict: 'flat',
+      reason: `Under ${formatWave(resolved.flatBelowM)} — nothing to ride today.`,
+    };
   }
 
   const windCap = isOff(windState) ? resolved.maxWindOffshoreKmh : resolved.maxWindKmh;
