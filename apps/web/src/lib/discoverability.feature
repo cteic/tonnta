@@ -29,7 +29,7 @@ Feature: Crawler-facing artefacts
   Scenario: The sitemap lists every public route
     Given the production origin
     When I build the sitemap entries
-    Then it lists the home page, the session log and the Pro page as absolute URLs
+    Then it lists the home page, the session log, the Pro page and the privacy policy as absolute URLs
     And it lists a spot route for every spot except the default one
     And the home page is the highest priority entry
 
