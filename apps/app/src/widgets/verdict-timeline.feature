@@ -30,3 +30,8 @@ Feature: What the home-screen widget shows for each hour
     Given an endpoint that returns hours without a verdict
     When the widget fetches the timeline
     Then the fetch fails with "unexpected response shape"
+
+  Scenario: A stalled endpoint times out
+    Given an endpoint that never responds
+    When the widget fetches the timeline with a 20ms timeout
+    Then the fetch fails with "no response within 20ms"
