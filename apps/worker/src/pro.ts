@@ -113,6 +113,36 @@ export function chooseEmailSender(env: Env): EmailSender {
 
 type JsonResponder = (body: unknown, status: number) => Response;
 
+/**
+ * The slice of D1 the confirm flow uses. D1 satisfies it as is, and a test
+ * can back it with SQLite to run the real queries.
+ */
+export interface SqlStatement {
+  bind(...values: unknown[]): SqlStatement;
+  run(): Promise<{ meta: { changes: number } }>;
+  first(): Promise<Record<string, unknown> | null>;
+}
+
+export interface SqlDatabase {
+  prepare(query: string): SqlStatement;
+}
+
+interface TokenRecord extends TokenRow {
+  token: string;
+}
+
+function isTokenRecord(
+  row: Record<string, unknown> | null
+): row is Record<string, unknown> & TokenRecord {
+  return (
+    row !== null &&
+    typeof row.token === 'string' &&
+    typeof row.email === 'string' &&
+    typeof row.expires_at === 'string' &&
+    (row.used_at === null || typeof row.used_at === 'string')
+  );
+}
+
 function newToken(): string {
   const bytes = new Uint8Array(32);
   crypto.getRandomValues(bytes);
@@ -178,7 +208,7 @@ export async function handleRestore(
 
 export async function handleConfirm(
   request: Request,
-  env: Env,
+  env: { DB: SqlDatabase },
   json: JsonResponder
 ): Promise<Response> {
   const url = new URL(request.url);
@@ -187,15 +217,27 @@ export async function handleConfirm(
   if (token.length === 0 || endpoint.length === 0) {
     return json({ error: 'token and endpoint are required' }, 400);
   }
+  const expired = () => json({ error: 'That link has expired — request a fresh one.' }, 400);
 
   const row = await env.DB.prepare(
     'SELECT token, email, expires_at, used_at FROM magic_tokens WHERE token = ?1'
   )
     .bind(token)
-    .first<TokenRow & { token: string }>();
+    .first();
 
-  if (row === null || !compareTokens(row.token, token) || !isTokenValid(row, Date.now())) {
-    return json({ error: 'That link has expired — request a fresh one.' }, 400);
+  if (!isTokenRecord(row) || !compareTokens(row.token, token) || !isTokenValid(row, Date.now())) {
+    return expired();
+  }
+
+  // Claim the token before linking, in one conditional update, so two
+  // requests carrying the same link cannot both link a device.
+  const claimed = await env.DB.prepare(
+    "UPDATE magic_tokens SET used_at = datetime('now') WHERE token = ?1 AND used_at IS NULL"
+  )
+    .bind(token)
+    .run();
+  if (claimed.meta.changes === 0) {
+    return expired();
   }
 
   const updated = await env.DB.prepare(
@@ -205,16 +247,17 @@ export async function handleConfirm(
     .run();
 
   if (updated.meta.changes === 0) {
+    // Nothing was linked, so hand the link back for a retry once alerts are on.
+    await env.DB.prepare('UPDATE magic_tokens SET used_at = NULL WHERE token = ?1')
+      .bind(token)
+      .run();
     return json({ error: 'Turn on alerts on this device first, then open the link again.' }, 409);
   }
 
-  await env.DB.prepare("UPDATE magic_tokens SET used_at = datetime('now') WHERE token = ?1")
-    .bind(token)
-    .run();
-
   const tierRow = await env.DB.prepare('SELECT tier FROM entitlements WHERE email = ?1')
     .bind(row.email)
-    .first<{ tier: string }>();
+    .first();
+  const tier = typeof tierRow?.tier === 'string' ? tierRow.tier : 'annual';
 
-  return json({ ok: true, tier: tierRow?.tier ?? 'annual' }, 200);
+  return json({ ok: true, tier }, 200);
 }

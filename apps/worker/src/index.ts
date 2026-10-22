@@ -1,14 +1,9 @@
 import webPush from 'web-push';
 
-import {
-  assessHour,
-  fetchHourlyConditions,
-  findGoodWindows,
-  getSpot,
-  isRecord,
-} from '@tonnta/data';
-import type { Spot } from '@tonnta/types';
+import { assessHour, fetchHourlyConditions, getSpot, isRecord } from '@tonnta/data';
+import type { HourlyConditions, Spot } from '@tonnta/types';
 
+import { parseUnsubscribeEndpoint, upcomingAlertWindow } from './alerts';
 import { handleConfirm, handleFounderCount, handleRestore } from './pro';
 import { handleVerdict } from './verdict';
 
@@ -96,13 +91,11 @@ async function handleSubscribe(request: Request, env: Env): Promise<Response> {
 }
 
 async function handleUnsubscribe(request: Request, env: Env): Promise<Response> {
-  const body = parseSubscribeBody(await request.json().catch(() => undefined));
-  if (body === undefined) {
+  const endpoint = parseUnsubscribeEndpoint(await request.json().catch(() => undefined));
+  if (endpoint === undefined) {
     return json({ error: 'endpoint is required' }, 400, env);
   }
-  await env.DB.prepare('DELETE FROM alert_subscriptions WHERE endpoint = ?1')
-    .bind(body.endpoint)
-    .run();
+  await env.DB.prepare('DELETE FROM alert_subscriptions WHERE endpoint = ?1').bind(endpoint).run();
   return json({ ok: true }, 200, env);
 }
 
@@ -130,11 +123,14 @@ async function checkAndAlert(env: Env): Promise<void> {
     const spot: Spot | undefined = getSpot(spotId);
     if (spot === undefined) continue;
 
-    const hours = await fetchHourlyConditions(spot);
-    const next24h = hours.filter(
-      (hour) => new Date(hour.time).getTime() - now < 24 * 60 * 60 * 1000
-    );
-    const window = findGoodWindows(next24h, spot)[0];
+    let hours: HourlyConditions[];
+    try {
+      hours = await fetchHourlyConditions(spot);
+    } catch {
+      // One spot's forecast failing must not cost every later spot its alerts.
+      continue;
+    }
+    const window = upcomingAlertWindow(hours, spot, now);
     if (window === undefined) continue;
     const firstHour = window.hours[0];
     if (firstHour === undefined) continue;
