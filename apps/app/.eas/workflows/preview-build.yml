@@ -1,0 +1,23 @@
+# Label a pull request `preview-build` to build installable preview apps from
+# it: an iOS simulator app and an Android APK, both on the `preview` channel.
+# Gated on a label because every run spends builds from the plan's quota.
+name: Preview builds
+
+on:
+  pull_request_labeled:
+    labels: ['preview-build']
+
+jobs:
+  build_ios_simulator:
+    name: iOS simulator app
+    type: build
+    params:
+      platform: ios
+      profile: preview
+
+  build_android_apk:
+    name: Android APK
+    type: build
+    params:
+      platform: android
+      profile: preview
