@@ -13,5 +13,6 @@ export {
 export type { SwimThresholds, SwimWindow } from './swim';
 export { fetchWaterQualityAlert, findBeachAlert } from './sources/epa-bathing';
 export { fetchHourlyConditions } from './sources/open-meteo';
-export { fetchBuoyObservation, fetchTideEvents } from './sources/erddap';
+export { fetchBuoyObservation, fetchTideEvents, fetchTideGaugeReadings } from './sources/erddap';
+export { SLACK_THRESHOLD_M, readingsAfter, tideTrend } from './tide-gauge';
 export { isRecord, isNumberArray, isStringArray, asFiniteNumber } from './guards';
