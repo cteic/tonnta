@@ -14,3 +14,8 @@ Feature: Summarising the forecast into windows and days
     Given four hours of 0.8m waves under a 40km/h onshore wind
     When I summarise the days
     Then the day's verdict is blown
+
+  Scenario: A winter evening GO window stops at sunset
+    Given GO conditions from 14:00 to 19:00 at Donabate on 21 December
+    When I look for good windows
+    Then the only window runs from 14:00 to the 15:00 hour

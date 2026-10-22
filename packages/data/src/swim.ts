@@ -6,7 +6,7 @@ import type {
   WaterQualityAlert,
 } from '@tonnta/types';
 
-import { isSessionTime } from './summary';
+import { isDaylightHour } from './daylight';
 
 /**
  * The Snámh engine — the surf verdict inverted. Flat, calm water is a bad
@@ -142,8 +142,7 @@ export function findSwimWindows(
 
   for (const hour of hours) {
     const swimmable =
-      isSessionTime(hour.time, spot.timezone) &&
-      assessSwimHour(hour, tides, thresholds).verdict !== 'no';
+      isDaylightHour(hour.time, spot) && assessSwimHour(hour, tides, thresholds).verdict !== 'no';
     if (swimmable) {
       current.push(hour);
     } else {

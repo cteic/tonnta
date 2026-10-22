@@ -5,7 +5,7 @@ import type { DailySummary, HourlyConditions, Spot } from '@tonnta/types';
 
 import { getSpot } from './spots';
 import type { GoodWindow } from './summary';
-import { nextGoodWindow, summarizeDays } from './summary';
+import { findGoodWindows, nextGoodWindow, summarizeDays } from './summary';
 import { classifyWind } from './verdict';
 
 const feature = await loadFeature('./summary.feature');
@@ -101,6 +101,26 @@ describeFeature(feature, ({ Scenario }) => {
     });
     Then("the day's verdict is blown", () => {
       expect(days.map((day) => day.verdict)).toEqual(['blown']);
+    });
+  });
+
+  Scenario('A winter evening GO window stops at sunset', ({ Given, When, Then }) => {
+    let hours: HourlyConditions[] = [];
+    let windows: GoodWindow[] = [];
+    Given('GO conditions from 14:00 to 19:00 at Donabate on 21 December', () => {
+      // Ireland is on UTC in December.
+      hours = [14, 15, 16, 17, 18, 19].map((clock) => ({
+        ...go('12:00'),
+        time: `2026-12-21T${clock}:00:00Z`,
+      }));
+    });
+    When('I look for good windows', () => {
+      windows = findGoodWindows(hours, spot);
+    });
+    Then('the only window runs from 14:00 to the 15:00 hour', () => {
+      expect(windows.map((window) => [window.start, window.end])).toEqual([
+        ['2026-12-21T14:00:00Z', '2026-12-21T15:00:00Z'],
+      ]);
     });
   });
 });
