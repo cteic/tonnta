@@ -3,6 +3,7 @@ import { Link } from 'expo-router';
 import { DEFAULT_SPOT_ID } from '@tonnta/data';
 import { Text, XStack, YStack } from '@tonnta/ui';
 
+import { LiveTideCard } from '@/components/live-tide-card';
 import { OutlookView } from '@/components/outlook-view';
 import { Body, Eyebrow, Screen } from '@/components/screen';
 import type { OutlookState } from '@/lib/use-spot-outlook';
@@ -63,6 +64,7 @@ export default function HomeScreen() {
       </XStack>
 
       <OutlookBody state={state} />
+      <LiveTideCard spotId={DEFAULT_SPOT_ID} />
     </Screen>
   );
 }
