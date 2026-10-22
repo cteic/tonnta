@@ -7,11 +7,13 @@ import {
   VERDICT_LABEL,
   WIND_STATE_LABEL,
   formatDayName,
-  formatHour,
+  formatHourRange,
 } from '@/lib/format';
 
 import { ConditionsChart } from './conditions-chart';
+import { DarkHero } from './dark-hero';
 import { Body, Eyebrow, Heading } from './screen';
+import { SwimView } from './swim-view';
 
 const VERDICT_SEA_TOKEN: Record<Verdict, string> = {
   go: '$seaClean',
@@ -107,19 +109,48 @@ function DayCell({ day, timezone }: DayCellProps) {
 
 interface OutlookViewProps {
   outlook: SpotOutlook;
+  mode: 'surf' | 'swim';
 }
 
-export function OutlookView({ outlook }: OutlookViewProps) {
-  const { spot, now, currentHour, nextWindow, days, hours } = outlook;
+export function OutlookView({ outlook, mode }: OutlookViewProps) {
+  const { spot, now, headline, currentHour, nextWindow, days, hours } = outlook;
+  const dark =
+    headline.kind === 'dark' ? (
+      <DarkHero
+        spot={spot}
+        mode={mode}
+        sunrise={headline.sunrise}
+        firstLightTime={headline.firstLight?.hour.time}
+        surf={headline.firstLight?.result}
+        swim={outlook.swimFirstLight}
+      />
+    ) : null;
+
+  if (mode === 'swim') {
+    return (
+      <>
+        {dark}
+        <SwimView
+          spot={spot}
+          swim={outlook.swimNow}
+          hour={currentHour}
+          waterQuality={outlook.waterQuality}
+          windows={outlook.swimWindows}
+          showHero={dark === null}
+        />
+      </>
+    );
+  }
+
   return (
     <>
-      <VerdictHero verdict={now} hour={currentHour} />
+      {dark ?? <VerdictHero verdict={now} hour={currentHour} />}
       <ConditionsChart spotId={spot.id} hours={hours} timezone={spot.timezone} />
       <YStack gap="$4">
         <Eyebrow>Next good window</Eyebrow>
         {nextWindow !== undefined ? (
           <Heading>
-            {`${formatDayName(nextWindow.start, spot.timezone)} ${formatHour(nextWindow.start, spot.timezone)}–${formatHour(nextWindow.end, spot.timezone)}`}
+            {`${formatDayName(nextWindow.start, spot.timezone)} ${formatHourRange(nextWindow.start, nextWindow.end, spot.timezone)}`}
           </Heading>
         ) : (
           <Body muted>Nothing rideable in the next seven days.</Body>

@@ -16,7 +16,16 @@ function donabate(): Spot {
 }
 
 function outlook(now: VerdictResult): SpotOutlook {
-  return { spot: donabate(), now, days: [], hours: [] };
+  return {
+    spot: donabate(),
+    now,
+    headline: { kind: 'none' },
+    days: [],
+    hours: [],
+    tides: [],
+    swimNow: { verdict: 'no', reason: 'fixture', nearHighTide: false },
+    swimWindows: [],
+  };
 }
 
 describeFeature(feature, ({ Scenario }) => {
