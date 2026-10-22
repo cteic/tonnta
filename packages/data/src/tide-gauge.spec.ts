@@ -90,4 +90,21 @@ describeFeature(feature, ({ Scenario }) => {
       ]);
     });
   });
+
+  Scenario('A cursor with milliseconds marks the same instant', ({ Given, When, Then }) => {
+    let source: TideGaugeReading[] = [];
+    let fresh: TideGaugeReading[] = [];
+    Given('gauge readings that climb 2 cm every 5 minutes', () => {
+      source = readings(0.02);
+    });
+    When('I take the readings after 16:05 written with milliseconds', () => {
+      fresh = readingsAfter(source, '2026-10-20T16:05:00.000Z');
+    });
+    Then('only the 16:10 and 16:15 readings remain', () => {
+      expect(fresh.map((reading) => reading.time)).toEqual([
+        '2026-10-20T16:10:00Z',
+        '2026-10-20T16:15:00Z',
+      ]);
+    });
+  });
 });

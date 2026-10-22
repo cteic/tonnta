@@ -22,11 +22,17 @@ export function tideTrend(readings: TideGaugeReading[]): TideTrend | undefined {
   return change > 0 ? 'rising' : 'falling';
 }
 
-/** Readings strictly newer than `afterTime`, so a stream only sends what a client has not seen. */
+/**
+ * Readings strictly newer than `afterTime`, so a stream only sends what a
+ * client has not seen. Times compare as instants, so `…:05Z` and
+ * `…:05.000Z` are the same cursor. An unreadable cursor returns every
+ * reading: the client drops duplicates, so resending beats going silent.
+ */
 export function readingsAfter(
   readings: TideGaugeReading[],
   afterTime: string | undefined
 ): TideGaugeReading[] {
-  if (afterTime === undefined) return readings;
-  return readings.filter((reading) => reading.time > afterTime);
+  const after = afterTime === undefined ? Number.NaN : Date.parse(afterTime);
+  if (Number.isNaN(after)) return readings;
+  return readings.filter((reading) => Date.parse(reading.time) > after);
 }
