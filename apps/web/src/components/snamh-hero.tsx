@@ -88,6 +88,7 @@ export function SnamhHero({ swim, hour, waterQuality }: SnamhHeroProps) {
               color: isGreat ? tokens.accent : tokens.text,
             }}
           >
+            <span className="tonnta-visually-hidden">Donabate swimming today — </span>
             {label?.english}
           </h1>
           <p
