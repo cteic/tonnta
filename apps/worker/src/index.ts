@@ -9,6 +9,7 @@ import {
 } from '@tonnta/data';
 import type { Spot } from '@tonnta/types';
 
+import { allowedOrigins, withCors } from './cors';
 import { handleConfirm, handleFounderCount, handleRestore } from './pro';
 import { handleVerdict } from './verdict';
 
@@ -16,6 +17,8 @@ export interface Env {
   CACHE: KVNamespace;
   DB: D1Database;
   SITE_ORIGIN: string;
+  /** Further origins allowed to call the alert endpoints, comma-separated. */
+  ALLOWED_ORIGINS?: string;
   VAPID_PUBLIC_KEY: string;
   VAPID_PRIVATE_KEY: string;
   VAPID_SUBJECT: string;
@@ -184,35 +187,43 @@ async function checkAndAlert(env: Env): Promise<void> {
   }
 }
 
+async function route(request: Request, env: Env): Promise<Response> {
+  const url = new URL(request.url);
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: corsHeaders(env) });
+  }
+  if (url.pathname === '/health') {
+    return json({ ok: true }, 200, env);
+  }
+  if (url.pathname === '/verdict' && request.method === 'GET') {
+    return handleVerdict(url, env.CACHE);
+  }
+  if (url.pathname === '/subscribe' && request.method === 'POST') {
+    return handleSubscribe(request, env);
+  }
+  if (url.pathname === '/subscribe' && request.method === 'DELETE') {
+    return handleUnsubscribe(request, env);
+  }
+  const respond = (body: unknown, status: number): Response => json(body, status, env);
+  if (url.pathname === '/pro/founder-count' && request.method === 'GET') {
+    return handleFounderCount(env, respond);
+  }
+  if (url.pathname === '/pro/restore' && request.method === 'POST') {
+    return handleRestore(request, env, respond);
+  }
+  if (url.pathname === '/pro/confirm' && request.method === 'GET') {
+    return handleConfirm(request, env, respond);
+  }
+  return json({ error: 'not found' }, 404, env);
+}
+
 const worker = {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: corsHeaders(env) });
-    }
-    if (url.pathname === '/health') {
-      return json({ ok: true }, 200, env);
-    }
-    if (url.pathname === '/verdict' && request.method === 'GET') {
-      return handleVerdict(url, env.CACHE);
-    }
-    if (url.pathname === '/subscribe' && request.method === 'POST') {
-      return handleSubscribe(request, env);
-    }
-    if (url.pathname === '/subscribe' && request.method === 'DELETE') {
-      return handleUnsubscribe(request, env);
-    }
-    const respond = (body: unknown, status: number): Response => json(body, status, env);
-    if (url.pathname === '/pro/founder-count' && request.method === 'GET') {
-      return handleFounderCount(env, respond);
-    }
-    if (url.pathname === '/pro/restore' && request.method === 'POST') {
-      return handleRestore(request, env, respond);
-    }
-    if (url.pathname === '/pro/confirm' && request.method === 'GET') {
-      return handleConfirm(request, env, respond);
-    }
-    return json({ error: 'not found' }, 404, env);
+    return withCors(
+      await route(request, env),
+      request.headers.get('Origin'),
+      allowedOrigins(env.SITE_ORIGIN, env.ALLOWED_ORIGINS)
+    );
   },
 
   async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
