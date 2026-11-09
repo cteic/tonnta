@@ -3,13 +3,17 @@ import { describe, expect, it } from 'vitest';
 import type { VerdictTimeline } from './verdict-timeline';
 import { toTimelineEntries } from './verdict-timeline';
 
+// The server claims daylight here; the widget must still check the hour itself.
 const timeline = (time: string, spotId = 'donabate'): VerdictTimeline => ({
+  schemaVersion: 2,
   spot: { id: spotId, name: 'Donabate' },
   generatedAt: time,
   hours: [
     {
       time,
       verdict: 'go',
+      daylight: true,
+      validUntil: new Date(Date.parse(time) + 3_600_000).toISOString(),
       board: 'foamie',
       reason: 'Worth going down',
       waveHeightM: 0.6,

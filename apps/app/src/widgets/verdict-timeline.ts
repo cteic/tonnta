@@ -8,21 +8,15 @@ import {
 import type { Board, Verdict } from '@tonnta/types';
 import { colors } from '@tonnta/ui/theme';
 
-import {
-  BOARD_LABEL,
-  VERDICT_LABEL,
-  formatDayName,
-  formatHour,
-  formatHourRange,
-} from '../lib/format';
+import { BOARD_LABEL, VERDICT_LABEL, formatDayName, formatHour } from '../lib/format';
 import type { VerdictWidgetProps } from './verdict-widget-props';
 
-/** v2 adds explicit darkness and validity. v1 remains readable during rollout. */
+/** One hour of the worker's v2 timeline. No widget has shipped, so v2 is the only format. */
 export interface HourVerdict {
   time: string;
   verdict: Verdict | 'dark';
-  daylight?: boolean;
-  validUntil?: string;
+  daylight: boolean;
+  validUntil: string;
   board?: Board;
   reason: string;
   waveHeightM: number;
@@ -31,7 +25,7 @@ export interface HourVerdict {
 }
 
 export interface VerdictTimeline {
-  schemaVersion?: 2;
+  schemaVersion: 2;
   spot: { id: string; name: string; irishName?: string };
   generatedAt: string;
   hours: HourVerdict[];
@@ -60,11 +54,10 @@ function isHourVerdict(value: unknown): value is HourVerdict {
   return (
     typeof value.verdict === 'string' &&
     VERDICTS.includes(value.verdict) &&
-    (value.daylight === undefined || typeof value.daylight === 'boolean') &&
-    (value.validUntil === undefined ||
-      (isTime(value.validUntil) &&
-        Date.parse(value.validUntil) > start &&
-        Date.parse(value.validUntil) <= start + HOUR_MS)) &&
+    typeof value.daylight === 'boolean' &&
+    isTime(value.validUntil) &&
+    Date.parse(value.validUntil) > start &&
+    Date.parse(value.validUntil) <= start + HOUR_MS &&
     (value.board === undefined ||
       (typeof value.board === 'string' && BOARDS.includes(value.board))) &&
     typeof value.reason === 'string' &&
@@ -77,7 +70,7 @@ function isHourVerdict(value: unknown): value is HourVerdict {
 export function isVerdictTimeline(value: unknown): value is VerdictTimeline {
   if (!(
     isRecord(value) &&
-    (value.schemaVersion === undefined || value.schemaVersion === 2) &&
+    value.schemaVersion === 2 &&
     isRecord(value.spot) &&
     typeof value.spot.id === 'string' &&
     typeof value.spot.name === 'string' &&
@@ -89,14 +82,7 @@ export function isVerdictTimeline(value: unknown): value is VerdictTimeline {
   return hours.every((hour, index) => {
     const previous = hours[index - 1];
     if (previous !== undefined && Date.parse(hour.time) <= Date.parse(previous.time)) return false;
-    if (value.schemaVersion === 2) {
-      return (
-        typeof hour.daylight === 'boolean' &&
-        hour.validUntil !== undefined &&
-        (hour.verdict === 'dark' ? !hour.daylight && hour.board === undefined : hour.daylight)
-      );
-    }
-    return true;
+    return hour.verdict === 'dark' ? !hour.daylight && hour.board === undefined : hour.daylight;
   });
 }
 
@@ -125,10 +111,7 @@ export function unavailableWidgetProps(spotName = 'Tonnta'): VerdictWidgetProps 
 }
 
 function hourFooter(hour: HourVerdict, spotName: string, timezone: string): string {
-  const range =
-    hour.validUntil === undefined
-      ? formatHourRange(hour.time, hour.time, timezone)
-      : `${formatHour(hour.time, timezone)}–${formatHour(hour.validUntil, timezone)}`;
+  const range = `${formatHour(hour.time, timezone)}–${formatHour(hour.validUntil, timezone)}`;
   return `${spotName} · ${formatDayName(hour.time, timezone)} ${range}`;
 }
 
@@ -193,16 +176,11 @@ export function toTimelineEntries(
   entries.set(now, unavailable);
   for (const hour of timeline.hours) {
     const start = Date.parse(hour.time);
-    const end = Math.min(
-      start + HOUR_MS,
-      expires,
-      hour.validUntil === undefined ? Infinity : Date.parse(hour.validUntil)
-    );
+    const end = Math.min(start + HOUR_MS, expires, Date.parse(hour.validUntil));
     if (end <= now || start >= expires) continue;
     const date = Math.max(start, now);
     const clipped = { ...hour, validUntil: new Date(end).toISOString() };
-    const daylight =
-      isDaylightHour(hour.time, spot) && hour.daylight !== false && hour.verdict !== 'dark';
+    const daylight = isDaylightHour(hour.time, spot) && hour.daylight && hour.verdict !== 'dark';
     entries.set(
       date,
       daylight

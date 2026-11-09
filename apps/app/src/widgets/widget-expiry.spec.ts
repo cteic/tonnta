@@ -16,6 +16,8 @@ const HOUR = 3_600_000;
 const hour = (time = new Date(START).toISOString()): HourVerdict => ({
   time,
   verdict: 'go',
+  daylight: true,
+  validUntil: new Date(Date.parse(time) + HOUR).toISOString(),
   board: 'foamie',
   reason: 'Worth going down',
   waveHeightM: 0.6,
@@ -23,6 +25,7 @@ const hour = (time = new Date(START).toISOString()): HourVerdict => ({
   windSpeedKmh: 12,
 });
 const timeline = (hours: HourVerdict[] = [hour()]): VerdictTimeline => ({
+  schemaVersion: 2,
   spot: { id: 'donabate', name: 'Donabate' },
   generatedAt: new Date(START).toISOString(),
   hours,
@@ -64,14 +67,13 @@ describe('Widget source expiry and compatibility', () => {
     const source = timeline([
       { ...hour(), daylight: true, validUntil: new Date(START + HOUR / 2).toISOString() },
     ]);
-    source.schemaVersion = 2;
     expect(isVerdictTimeline(source)).toBe(true);
     const entries = toTimelineEntries(source, START);
     expect(entries[0]?.props.footer).toContain('14:00–14:30');
     expect(currentEntry(entries, START + HOUR / 2)?.props.status).toBe('unavailable');
   });
 
-  it('understands v2 darkness and suppresses legacy v1 night recommendations', () => {
+  it('understands v2 darkness and rejects v1 payloads', () => {
     const time = '2026-12-21T17:00:00Z';
     const dark = {
       ...timeline([
@@ -88,8 +90,9 @@ describe('Widget source expiry and compatibility', () => {
     delete dark.hours[0]?.board;
     expect(isVerdictTimeline(dark)).toBe(true);
     expect(toTimelineEntries(dark)[0]?.props.status).toBe('dark');
-    const legacy = { ...timeline([hour(time)]), generatedAt: time };
-    expect(toTimelineEntries(legacy)[0]?.props.verdict).toBe('Out of the water');
+    const v1: Record<string, unknown> = { ...timeline([hour(time)]) };
+    delete v1.schemaVersion;
+    expect(isVerdictTimeline(v1)).toBe(false);
   });
 
   it.each([
