@@ -34,7 +34,7 @@ describeFeature(feature, ({ Scenario }) => {
   });
 
   Scenario(
-    'A December hour counts only if its middle is between sunrise and sunset',
+    'A December hour counts only if the whole hour is between sunrise and sunset',
     ({ Given, Then, And }) => {
       const at = (clock: string) => `2026-12-21T${clock}:00Z`;
       Given(
@@ -54,15 +54,15 @@ describeFeature(feature, ({ Scenario }) => {
     }
   );
 
-  Scenario('A midsummer evening stays light until about ten', ({ Given, Then, And }) => {
+  Scenario('A midsummer recommendation ends before sunset', ({ Given, Then, And }) => {
     Given('Donabate on 21 June 2026, when the sun sets at about 21:57 Irish time', () => {
       // Irish summer time is UTC+1, so 21:00 Irish time is 20:00 UTC.
     });
-    Then('the 21:00 Irish-time hour is light', () => {
-      expect(isDaylightHour('2026-06-21T20:00:00Z', spot)).toBe(true);
+    Then('the 20:00 Irish-time hour is light', () => {
+      expect(isDaylightHour('2026-06-21T19:00:00Z', spot)).toBe(true);
     });
-    And('the 22:00 Irish-time hour is dark', () => {
-      expect(isDaylightHour('2026-06-21T21:00:00Z', spot)).toBe(false);
+    And('the 21:00 Irish-time hour is not a full daylight hour', () => {
+      expect(isDaylightHour('2026-06-21T20:00:00Z', spot)).toBe(false);
     });
   });
 });

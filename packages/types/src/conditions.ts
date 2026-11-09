@@ -15,6 +15,8 @@ export interface VerdictThresholds {
   flatBelowM: number;
   /** At or above this it's rideable (m). */
   goFromM: number;
+  /** Optional conservative GO gate on modeled mean wave period, not a calibrated surf threshold. */
+  minGoPeriodS?: number;
   /** Max wind for a clean GO (km/h). */
   maxWindKmh: number;
   /** Wind allowance when it's blowing offshore (km/h). */

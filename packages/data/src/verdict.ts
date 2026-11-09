@@ -7,17 +7,21 @@ import type {
   WindState,
 } from '@tonnta/types';
 
+import { hasValidSurfInputs } from './guards';
 import { THUNDERSTORM_REASON, isThunderstorm } from './weather';
 
 /**
  * The verdict engine — Tonnta's whole point in ~100 lines.
  *
- * Thresholds are the launch defaults for Donabate (east coast, small-wave
- * spot): waves ≥ 0.4 m with manageable wind is a GO. They become per-user
- * settings later, so everything routes through `VerdictThresholds`.
+ * Regional modeled sea conditions are not a measurement of breaking surf.
+ * Donabate adds a provisional short-period uncertainty gate to the launch
+ * height/wind rules. It is not a locally calibrated prediction model.
  */
 
 export type { VerdictThresholds };
+
+/** Save with exact forecast snapshots; bump whenever surf assessment rules change. */
+export const SURF_VERDICT_ENGINE_VERSION = 'donabate-short-period-v1';
 
 export const DEFAULT_THRESHOLDS: VerdictThresholds = {
   flatBelowM: 0.3,
@@ -94,6 +98,14 @@ export function assessHour(
   if (isThunderstorm(hour)) {
     return { verdict: 'blown', reason: THUNDERSTORM_REASON };
   }
+  // The source drops invalid hours. Defend callers using retained or custom data too,
+  // without claiming that missing/invalid observations mean a flat sea.
+  if (!hasValidSurfInputs(hour)) {
+    return {
+      verdict: 'maybe',
+      reason: 'Forecast data is invalid; breaking surf is unconfirmed. Check locally.',
+    };
+  }
   const resolved = thresholds ?? spotThresholds(spot);
   const windState = classifyWind(hour.windDirectionDeg, hour.windSpeedKmh, spot);
   const { waveHeightM, windSpeedKmh } = hour;
@@ -124,6 +136,12 @@ export function assessHour(
   const rideable = waveHeightM >= resolved.goFromM;
 
   if (rideable && windSpeedKmh <= windCap) {
+    if (resolved.minGoPeriodS !== undefined && hour.wavePeriodS < resolved.minGoPeriodS) {
+      return {
+        verdict: 'maybe',
+        reason: 'Short-period sea; breaking surf is unconfirmed. Check locally.',
+      };
+    }
     const board = pickBoard(hour);
     const windWord = isOff(windState) ? 'clean' : 'manageable';
     const result: VerdictResult = {

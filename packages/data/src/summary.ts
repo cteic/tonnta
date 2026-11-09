@@ -13,7 +13,7 @@ import { assessHour, spotThresholds } from './verdict';
 
 /**
  * Aggregation over the hourly forecast: the 7-day strip and the "next good
- * window" card both come from here. Only daylight-ish hours count — nobody
+ * window" card both come from here. Only complete daylight hours count: nobody
  * is paddling out at Donabate at 2am.
  */
 
@@ -103,6 +103,10 @@ export function findGoodWindows(
       isDaylightHour(hour.time, spot) &&
       assessHour(hour, spot, thresholds ?? spotThresholds(spot)).verdict === 'go';
     if (isGo) {
+      const previous = current.at(-1);
+      if (previous !== undefined && Date.parse(hour.time) - Date.parse(previous.time) !== HOUR_MS) {
+        flush();
+      }
       current.push(hour);
     } else {
       flush();

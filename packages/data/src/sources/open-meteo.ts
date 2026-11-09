@@ -1,13 +1,22 @@
 import type { HourlyConditions, Spot } from '@tonnta/types';
 
-import { isNullableNumberArray, isRecord, isStringArray } from '../guards';
+import {
+  asFiniteNumber,
+  hasValidSurfInputs,
+  isNullableNumberArray,
+  isRecord,
+  isStringArray,
+} from '../guards';
 import { classifyWind } from '../verdict';
 
 /**
- * Open-Meteo — hourly wave forecast (Marine API, MFWAM ~8 km grid) merged
- * with hourly wind (forecast API, gusts included). Keyless; free tier is
- * non-commercial, so all calls route through our own cached proxy and the
- * paid Standard plan is the flip-a-switch upgrade at monetisation.
+ * Open-Meteo regional modeled sea conditions merged with hourly modeled wind.
+ * No model is selected explicitly: the API uses its Best Match default. These
+ * aggregate wave variables are not local breaking-wave or swell measurements.
+ * Returned grid-cell coordinates and model issuance are not retained here yet;
+ * a caller's retrieval timestamp must not be described as model issuance time.
+ * The keyless public endpoints are for non-commercial use. Web caches requests;
+ * native clients currently fetch directly rather than through a shared proxy.
  */
 
 const MARINE_URL = 'https://marine-api.open-meteo.com/v1/marine';
@@ -47,7 +56,7 @@ function optionalSeries(payload: unknown, key: string): (number | null)[] | unde
 }
 
 function seriesValue(data: HourlySeries, key: string, index: number): number | undefined {
-  return data.series.get(key)?.[index] ?? undefined;
+  return asFiniteNumber(data.series.get(key)?.[index]);
 }
 
 export async function fetchHourlyConditions(
@@ -96,7 +105,7 @@ export async function fetchHourlyConditions(
   const hours: HourlyConditions[] = [];
   for (let i = 0; i < marine.time.length; i += 1) {
     const time = marine.time[i];
-    if (time === undefined) continue;
+    if (time === undefined || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(time)) continue;
     const windIndex = windIndexByTime.get(time);
     if (windIndex === undefined) continue;
 
@@ -129,10 +138,19 @@ export async function fetchHourlyConditions(
       windDirectionDeg,
       windState: classifyWind(windDirectionDeg, windSpeedKmh, spot),
     };
+    const timeMs = Date.parse(hour.time);
+    if (
+      !hasValidSurfInputs(hour) ||
+      !Number.isFinite(timeMs) ||
+      new Date(timeMs).toISOString().slice(0, 16) !== time
+    )
+      continue;
     const seaTempC = seriesValue(marine, 'sea_surface_temperature', i);
     if (seaTempC !== undefined) hour.seaTempC = seaTempC;
     const weatherCode = weatherCodes?.[windIndex];
-    if (typeof weatherCode === 'number') hour.weatherCode = weatherCode;
+    if (typeof weatherCode === 'number' && Number.isFinite(weatherCode)) {
+      hour.weatherCode = weatherCode;
+    }
     hours.push(hour);
   }
   return hours;

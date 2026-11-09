@@ -9,7 +9,7 @@ const DEG = Math.PI / 180;
 const MS_PER_DAY = 86_400_000;
 const J2000 = 2_451_545;
 const UNIX_EPOCH_JD = 2_440_587.5;
-const HALF_HOUR_MS = 30 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
 
 /** The sun's centre 0.833° below the horizon: refraction plus its radius. */
 const SUNRISE_ALTITUDE_DEG = -0.833;
@@ -69,9 +69,10 @@ export function isDaylight(at: number, latitude: number, longitude: number): boo
 }
 
 /**
- * True when a forecast hour starting at `isoTime` is light enough to be in
- * the water: the middle of the hour falls between sunrise and sunset. With a
- * 08:40 sunrise the 09:00 hour counts and the 08:00 hour does not.
+ * True only when the entire forecast hour is inside daylight. Recommendations
+ * are displayed as whole-hour ranges, so accepting a partly lit hour would
+ * invite an early start before sunrise or an end after sunset. The live
+ * headline uses `isDaylight(now)` instead, to switch at the actual sun times.
  */
 export function isDaylightHour(
   isoTime: string,
@@ -79,5 +80,8 @@ export function isDaylightHour(
 ): boolean {
   const start = Date.parse(isoTime);
   if (Number.isNaN(start)) return false;
-  return isDaylight(start + HALF_HOUR_MS, location.latitude, location.longitude);
+  const times = sunTimes(start + HOUR_MS / 2, location.latitude, location.longitude);
+  if (times.allDay) return true;
+  if (times.sunrise === undefined || times.sunset === undefined) return false;
+  return start >= times.sunrise && start + HOUR_MS <= times.sunset;
 }

@@ -1,5 +1,11 @@
 export { SPOTS, DEFAULT_SPOT_ID, getSpot } from './spots';
-export { DEFAULT_THRESHOLDS, assessHour, classifyWind, spotThresholds } from './verdict';
+export {
+  DEFAULT_THRESHOLDS,
+  SURF_VERDICT_ENGINE_VERSION,
+  assessHour,
+  classifyWind,
+  spotThresholds,
+} from './verdict';
 export type { VerdictThresholds } from './verdict';
 export { currentHourOf } from './current-hour';
 export { isDaylight, isDaylightHour, sunTimes } from './daylight';
@@ -25,3 +31,5 @@ export { fetchHourlyConditions } from './sources/open-meteo';
 export { fetchBuoyObservation, fetchTideEvents, fetchTideGaugeReadings } from './sources/erddap';
 export { SLACK_THRESHOLD_M, readingsAfter, tideTrend } from './tide-gauge';
 export { isRecord, isNumberArray, isStringArray, asFiniteNumber } from './guards';
+
+export { isForecastFresh, MAX_FORECAST_AGE_MS } from './freshness';

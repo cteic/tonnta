@@ -171,7 +171,13 @@ export function findSwimWindows(
       continue;
     }
     const tide = highTideNear(hour.time, tides);
-    if (current.length > 0 && tide?.time !== currentTide?.time) flush();
+    const previous = current.at(-1);
+    if (
+      previous !== undefined &&
+      (tide?.time !== currentTide?.time ||
+        Date.parse(hour.time) - Date.parse(previous.time) !== HOUR_MS)
+    )
+      flush();
     if (current.length === 0) currentTide = tide;
     current.push(hour);
   }

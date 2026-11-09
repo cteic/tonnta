@@ -267,7 +267,8 @@ describeFeature(feature, ({ Scenario }) => {
     And('the low-water stretches either side are separate windows', () => {
       expect(windows.slice(1).map((w) => [w.start, w.end, w.nearHighTide])).toEqual([
         [utc(8), utc(11), false],
-        [utc(17), utc(20), false],
+        // The 21:00 Irish-time hour extends past sunset, so it is excluded.
+        [utc(17), utc(19), false],
       ]);
     });
   });

@@ -1,7 +1,7 @@
 import type { HourlyConditions, Spot, VerdictResult } from '@tonnta/types';
 
 import { currentHourOf } from './current-hour';
-import { isDaylightHour, sunTimes } from './daylight';
+import { isDaylight, isDaylightHour, sunTimes } from './daylight';
 import { assessHour } from './verdict';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -31,8 +31,10 @@ function nextSunrise(now: number, spot: Spot): string | undefined {
 
 export function headlineFor(hours: HourlyConditions[], spot: Spot, now: number): Headline {
   const hour = currentHourOf(hours, now);
-  if (hour === undefined) return { kind: 'none' };
-  if (isDaylightHour(hour.time, spot)) {
+  if (hour === undefined || Date.parse(hour.time) > now || Date.parse(hour.time) + 3_600_000 <= now)
+    return { kind: 'none' };
+  if (!Number.isFinite(now)) return { kind: 'none' };
+  if (isDaylight(now, spot.latitude, spot.longitude)) {
     return { kind: 'verdict', hour, result: assessHour(hour, spot) };
   }
   const dark: Extract<Headline, { kind: 'dark' }> = { kind: 'dark' };

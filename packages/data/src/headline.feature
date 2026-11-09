@@ -10,4 +10,4 @@ Feature: What the home screen leads with
     When it is 21:00 Irish time
     Then the headline says it is dark
     And it gives the next sunrise, about 08:05 Irish time
-    And it previews the verdict for the first light hour, 08:00
+    And it previews the verdict for the first full daylight hour, 09:00
