@@ -1,7 +1,16 @@
+import {
+  applyWaterQuality,
+  assessSwimHour,
+  findSwimWindows,
+  headlineFor,
+  isForecastFresh,
+  nextGoodWindow,
+} from '@tonnta/data';
 import type { DailySummary, HourlyConditions, Verdict, VerdictResult } from '@tonnta/types';
 import { Text, XStack, YStack } from '@tonnta/ui';
 
 import type { SpotOutlook } from '@/lib/conditions';
+import { chartHoursAt } from '@/lib/conditions';
 import {
   BOARD_LABEL,
   VERDICT_LABEL,
@@ -9,6 +18,7 @@ import {
   formatDayName,
   formatHourRange,
 } from '@/lib/format';
+import { useDaylightClock } from '@/lib/use-daylight-clock';
 
 import { ConditionsChart } from './conditions-chart';
 import { DarkHero } from './dark-hero';
@@ -98,10 +108,15 @@ function DayCell({ day, timezone }: DayCellProps) {
         {formatDayName(`${day.date}T12:00:00`, timezone)}
       </Text>
       <Text fontFamily="$display" fontSize="$3" fontWeight="600" color="$color">
-        {`${day.maxWaveHeightM.toFixed(1)}m`}
+        {`${day.maxWaveHeightM.toFixed(1)}m max`}
       </Text>
       <Text fontFamily="$body" fontSize="$1" color="$colorMuted">
-        {VERDICT_LABEL[day.verdict].english}
+        {`Best: ${VERDICT_LABEL[day.verdict].english}`}
+      </Text>
+      <Text fontFamily="$body" fontSize="$1" color="$colorMuted">
+        {day.bestWindow !== undefined
+          ? formatHourRange(day.bestWindow.start, day.bestWindow.end, timezone)
+          : 'No GO window'}
       </Text>
     </YStack>
   );
@@ -113,7 +128,25 @@ interface OutlookViewProps {
 }
 
 export function OutlookView({ outlook, mode }: OutlookViewProps) {
-  const { spot, now, headline, currentHour, nextWindow, days, hours } = outlook;
+  const { spot, days } = outlook;
+  const clock = useDaylightClock(spot);
+  const hours = chartHoursAt(outlook.forecastHours, spot, clock);
+  const headline = headlineFor(outlook.forecastHours, spot, clock);
+  const swimFirstLight =
+    headline.kind === 'dark' && headline.firstLight !== undefined
+      ? applyWaterQuality(
+          assessSwimHour(headline.firstLight.hour, outlook.tides),
+          outlook.waterQuality
+        )
+      : undefined;
+  const nextWindow = nextGoodWindow(outlook.forecastHours, spot, clock);
+  const currentHour = headline.kind === 'verdict' ? headline.hour : undefined;
+  const swimNow =
+    currentHour === undefined
+      ? outlook.swimNow
+      : applyWaterQuality(assessSwimHour(currentHour, outlook.tides), outlook.waterQuality);
+  if (!isForecastFresh(outlook.loadedAt, clock) || headline.kind === 'none')
+    return <Body>The current forecast is unavailable. Refresh before heading out.</Body>;
   const dark =
     headline.kind === 'dark' ? (
       <DarkHero
@@ -122,7 +155,7 @@ export function OutlookView({ outlook, mode }: OutlookViewProps) {
         sunrise={headline.sunrise}
         firstLightTime={headline.firstLight?.hour.time}
         surf={headline.firstLight?.result}
-        swim={outlook.swimFirstLight}
+        swim={swimFirstLight}
       />
     ) : null;
 
@@ -132,10 +165,14 @@ export function OutlookView({ outlook, mode }: OutlookViewProps) {
         {dark}
         <SwimView
           spot={spot}
-          swim={outlook.swimNow}
+          swim={swimNow}
           hour={currentHour}
           waterQuality={outlook.waterQuality}
-          windows={outlook.swimWindows}
+          windows={
+            outlook.waterQuality?.restrictionInPlace
+              ? []
+              : findSwimWindows(outlook.forecastHours, outlook.tides, spot, clock).slice(0, 3)
+          }
           showHero={dark === null}
         />
       </>
@@ -144,7 +181,14 @@ export function OutlookView({ outlook, mode }: OutlookViewProps) {
 
   return (
     <>
-      {dark ?? <VerdictHero verdict={now} hour={currentHour} />}
+      {dark ??
+        (headline.kind === 'verdict' ? (
+          <VerdictHero verdict={headline.result} hour={headline.hour} />
+        ) : null)}
+      <Body muted>
+        Regional sea estimates, not measured breaking waves. GO is a forecast possibility, not a
+        safety clearance or quality promise.
+      </Body>
       <ConditionsChart spotId={spot.id} hours={hours} timezone={spot.timezone} />
       <YStack gap="$4">
         <Eyebrow>Next good window</Eyebrow>
@@ -153,7 +197,7 @@ export function OutlookView({ outlook, mode }: OutlookViewProps) {
             {`${formatDayName(nextWindow.start, spot.timezone)} ${formatHourRange(nextWindow.start, nextWindow.end, spot.timezone)}`}
           </Heading>
         ) : (
-          <Body muted>Nothing rideable in the next seven days.</Body>
+          <Body muted>No GO window forecast in the next seven days.</Body>
         )}
       </YStack>
       <YStack gap="$4">

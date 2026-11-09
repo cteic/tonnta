@@ -18,6 +18,8 @@ function donabate(): Spot {
 function outlook(now: VerdictResult): SpotOutlook {
   return {
     spot: donabate(),
+    loadedAt: Date.now(),
+    forecastHours: [],
     now,
     headline: { kind: 'none' },
     days: [],
@@ -61,6 +63,7 @@ describeFeature(feature, ({ Scenario }) => {
         time: new Date(Date.UTC(2026, 9, 21, index)).toISOString(),
         waveHeightM: 0.5,
         windSpeedKmh: 15,
+        daylight: true,
         verdict: index === 15 ? 'flat' : 'go',
       }));
     });

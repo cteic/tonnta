@@ -17,9 +17,9 @@ Feature: What the home-screen widget shows for each hour
   Scenario: Entries are dated at the start of each hour and labelled in local time
     Given a timeline whose first hour is GO on a foamie
     When I turn it into widget entries
-    Then there is one entry per hour
+    Then the timeline ends with an update-needed entry
     And the first entry is dated 15:00 UTC
-    And its footer reads "Donabate · 16:00"
+    And its footer reads "Donabate · Tue 16:00–17:00"
 
   Scenario: The current entry is the hour that contains now
     Given a timeline whose first hour is GO on a foamie

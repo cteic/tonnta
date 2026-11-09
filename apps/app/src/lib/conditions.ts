@@ -10,6 +10,7 @@ import {
   findSwimWindows,
   getSpot,
   headlineFor,
+  isDaylightHour,
   nextGoodWindow,
   summarizeDays,
 } from '@tonnta/data';
@@ -37,6 +38,8 @@ export interface ChartHour {
   waveHeightM: number;
   windSpeedKmh: number;
   verdict: Verdict;
+  /** Whether the complete displayed hour falls inside daylight. */
+  daylight: boolean;
   board?: Board;
 }
 
@@ -45,6 +48,10 @@ export const CHART_HOURS = 24;
 
 export interface SpotOutlook {
   spot: Spot;
+  /** When the sources were last checked by this screen. */
+  loadedAt: number;
+  /** Retained locally so sunrise/sunset transitions never need a network request. */
+  forecastHours: HourlyConditions[];
   /** Verdict for the hour in progress. */
   now: VerdictResult;
   /** What the hero leads with: the verdict in daylight, sunrise and first light after dark. */
@@ -67,12 +74,11 @@ export interface SpotOutlook {
 
 const NO_DATA = 'No forecast data. Check back shortly.';
 
-function chartHours(
-  hours: HourlyConditions[],
-  from: HourlyConditions | undefined,
-  spot: Spot
-): ChartHour[] {
-  const start = from === undefined ? 0 : hours.indexOf(from);
+export function chartHoursAt(hours: HourlyConditions[], spot: Spot, now: number): ChartHour[] {
+  const from = currentHourOf(hours, now);
+  if (from === undefined || Date.parse(from.time) > now || Date.parse(from.time) + 3_600_000 <= now)
+    return [];
+  const start = hours.indexOf(from);
   return hours.slice(Math.max(start, 0), Math.max(start, 0) + CHART_HOURS).map((hour) => {
     const result = assessHour(hour, spot);
     const entry: ChartHour = {
@@ -80,8 +86,9 @@ function chartHours(
       waveHeightM: hour.waveHeightM,
       windSpeedKmh: hour.windSpeedKmh,
       verdict: result.verdict,
+      daylight: isDaylightHour(hour.time, spot),
     };
-    if (result.board !== undefined) entry.board = result.board;
+    if (entry.daylight && result.board !== undefined) entry.board = result.board;
     return entry;
   });
 }
@@ -118,13 +125,17 @@ export async function loadSpotOutlook(spotId: string = DEFAULT_SPOT_ID): Promise
 
   const outlook: SpotOutlook = {
     spot,
+    loadedAt: nowMs,
+    forecastHours: hours,
     now,
     headline,
     days: summarizeDays(hours, spot),
-    hours: chartHours(hours, currentHour, spot),
+    hours: chartHoursAt(hours, spot, nowMs),
     tides,
     swimNow,
-    swimWindows: findSwimWindows(hours, tides, spot, nowMs).slice(0, 3),
+    swimWindows: waterQuality?.restrictionInPlace
+      ? []
+      : findSwimWindows(hours, tides, spot, nowMs).slice(0, 3),
   };
   if (currentHour !== undefined) {
     outlook.currentHour = currentHour;

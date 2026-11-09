@@ -14,7 +14,13 @@ import { buildChartGeometry, hourIndexAt, longestGoRun } from '@/chart/chart-geo
 import { useAnalytics } from '@/lib/analytics';
 import { chartScrubbed } from '@/lib/analytics-events';
 import type { ChartHour } from '@/lib/conditions';
-import { BOARD_LABEL, VERDICT_LABEL, formatDayName, formatHour } from '@/lib/format';
+import {
+  BOARD_LABEL,
+  VERDICT_LABEL,
+  formatDayName,
+  formatHour,
+  formatHourRange,
+} from '@/lib/format';
 
 import { Eyebrow } from './screen';
 
@@ -57,12 +63,19 @@ export function ConditionsChart({ spotId, hours, timezone }: ConditionsChartProp
 
   const hour = hours[Math.min(selected, hours.length - 1)] ?? hours[0];
   if (hour === undefined) return null;
+  let verdictLabel = 'Outside full daylight hours';
+  if (hour.daylight) {
+    verdictLabel =
+      hour.board === undefined
+        ? VERDICT_LABEL[hour.verdict].english
+        : `${VERDICT_LABEL[hour.verdict].english} · ${BOARD_LABEL[hour.board]}`;
+  }
   const marker = geometry.centres[Math.min(selected, hours.length - 1)] ?? 0;
   const goRun = longestGoRun(hours);
   const summary =
     goRun === undefined
-      ? 'No GO hours in the next 24 hours.'
-      : `GO from ${formatHour(goRun.start, timezone)} to ${formatHour(goRun.end, timezone)}.`;
+      ? 'No daylight GO hours in the next 24 hours.'
+      : `Daylight GO window ${formatHourRange(goRun.start, goRun.end, timezone)}.`;
 
   const select = (x: number) => setSelected(hourIndexAt(x, hours.length, box));
   const startScrub = (event: GestureResponderEvent) => {
@@ -91,11 +104,9 @@ export function ConditionsChart({ spotId, hours, timezone }: ConditionsChartProp
           fontFamily="$body"
           fontSize="$4"
           fontWeight="600"
-          color={hour.verdict === 'go' ? '$accent' : '$colorMuted'}
+          color={hour.daylight && hour.verdict === 'go' ? '$accent' : '$colorMuted'}
         >
-          {hour.board === undefined
-            ? VERDICT_LABEL[hour.verdict].english
-            : `${VERDICT_LABEL[hour.verdict].english} · ${BOARD_LABEL[hour.board]}`}
+          {verdictLabel}
         </Text>
       </XStack>
       <View
@@ -120,7 +131,7 @@ export function ConditionsChart({ spotId, hours, timezone }: ConditionsChartProp
                 y={BOX_MARGINS.top}
                 width={Math.max(band.width - 1, 0)}
                 height={HEIGHT - BOX_MARGINS.top - BOX_MARGINS.bottom}
-                fill={BAND_COLOUR[band.verdict]}
+                fill={band.daylight ? BAND_COLOUR[band.verdict] : colors.inkOnLight}
                 opacity={0.35}
               />
             ))}

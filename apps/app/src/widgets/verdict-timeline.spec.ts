@@ -103,16 +103,17 @@ describeFeature(feature, ({ Scenario }) => {
         if (source === undefined) throw new Error('no timeline');
         entries = toTimelineEntries(source);
       });
-      Then('there is one entry per hour', () => {
-        expect(entries).toHaveLength(24);
+      Then('the timeline ends with an update-needed entry', () => {
+        expect(entries).toHaveLength(2);
+        expect(entries.at(-1)?.props.status).toBe('unavailable');
         expect((entries[1]?.date.getTime() ?? 0) - (entries[0]?.date.getTime() ?? 0)).toBe(HOUR_MS);
       });
       And('the first entry is dated 15:00 UTC', () => {
         expect(entries[0]?.date.toISOString()).toBe('2026-10-20T15:00:00.000Z');
       });
-      And('its footer reads "Donabate · 16:00"', () => {
+      And('its footer reads "Donabate · Tue 16:00–17:00"', () => {
         // Irish Standard Time on 20 October: UTC+1.
-        expect(entries[0]?.props.footer).toBe('Donabate · 16:00');
+        expect(entries[0]?.props.footer).toBe('Donabate · Tue 16:00–17:00');
       });
     }
   );
