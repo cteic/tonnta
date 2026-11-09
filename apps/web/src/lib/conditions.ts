@@ -41,6 +41,8 @@ function cachedFetch(revalidateS: number): typeof fetch {
 
 export interface SpotConditions {
   spot: Spot;
+  /** When the sources were last checked by this screen. */
+  loadedAt: number;
   /** Verdict for the hour in progress. */
   now: VerdictResult;
   /** What the hero leads with: the verdict in daylight, sunrise and first light after dark. */
@@ -100,7 +102,11 @@ export async function loadSpotConditions(
 
   const waterQuality =
     waterQualityResult.status === 'fulfilled' ? waterQualityResult.value : undefined;
-  // A failed EPA fetch degrades silently: the conditions verdict still stands.
+  if (waterQualityResult.status === 'rejected') {
+    warnings.push(
+      'Water-quality notices could not be checked. Check current local bathing advice before swimming.'
+    );
+  }
 
   const nowMs = Date.now();
   const currentHour = currentHourOf(hours, nowMs);
@@ -118,13 +124,17 @@ export async function loadSpotConditions(
 
   const result: SpotConditions = {
     spot,
+    loadedAt: nowMs,
     now,
     headline,
     days: summarizeDays(hours, spot),
     hours,
     tides,
     swimNow,
-    swimWindows: findSwimWindows(hours, tides, spot, nowMs).slice(0, 3),
+    swimWindows:
+      waterQuality?.restrictionInPlace === true
+        ? []
+        : findSwimWindows(hours, tides, spot, nowMs).slice(0, 3),
     warnings,
   };
   if (currentHour !== undefined) {
