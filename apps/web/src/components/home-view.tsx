@@ -1,25 +1,19 @@
 'use client';
 
+import { DarkHero } from '@tonnta/web-conditions';
+import { BuoyCard, DayStrip, NextWindowCard, TideCard, Warnings } from '@tonnta/web-conditions';
+import { SeaHero } from '@tonnta/web-conditions';
+import { SnamhHero } from '@tonnta/web-conditions';
+import { SwimWindowsCard } from '@tonnta/web-conditions';
+import { useLiveConditions } from '@tonnta/web-conditions';
+import type { SpotConditions } from '@tonnta/web-conditions';
 import { ThemePicker } from '@tonnta/web-shell';
 import { useAppTheme } from '@tonnta/web-shell';
 
 import { AlertCard } from '@/components/alert-card';
-import { DarkHero } from '@/components/dark-hero';
-import {
-  BuoyCard,
-  DayStrip,
-  NextWindowCard,
-  TideCard,
-  Warnings,
-} from '@/components/forecast-sections';
-import { SeaHero } from '@/components/sea-hero';
-import { SnamhHero } from '@/components/snamh-hero';
-import { SwimWindowsCard } from '@/components/snamh-sections';
 import { SpotSwitcher } from '@/components/spot-switcher';
 import { useForecastCapture } from '@/components/use-forecast-capture';
-import { useLiveConditions } from '@/components/use-live-conditions';
 import { APP_IDENTITIES, type Activity } from '@/lib/activity';
-import type { SpotConditions } from '@/lib/conditions';
 import { CairtHero } from '@/themes/cairt/cairt-hero';
 import { EiriHero } from '@/themes/eiri/eiri-hero';
 import { PostaerHero } from '@/themes/postaer/postaer-hero';

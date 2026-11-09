@@ -5,7 +5,7 @@ import type { Spot } from '@tonnta/types';
 import type { ThemeTokens } from '@tonnta/web-shell';
 import { useAppTheme } from '@tonnta/web-shell';
 
-import { formatDayName, formatHour, formatHourRange } from '@/lib/format';
+import { formatDayName, formatHour, formatHourRange } from './format';
 
 function cardStyle(tokens: ThemeTokens): React.CSSProperties {
   return {

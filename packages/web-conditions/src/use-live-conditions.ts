@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 
 import { sunTimes } from '@tonnta/data';
 
-import type { SpotConditions } from '@/lib/conditions';
-import { conditionsAt } from '@/lib/live-conditions';
+import type { SpotConditions } from './conditions';
+import { conditionsAt } from './live-conditions';
 
 /** Local clock only: no repeated API calls or browser-router refreshes. */
 export function useLiveConditions(initial: SpotConditions): SpotConditions {

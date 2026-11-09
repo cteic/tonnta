@@ -14,7 +14,7 @@ import {
   formatDayName,
   formatHour,
   formatHourRange,
-} from '@/lib/format';
+} from './format';
 
 function cardStyle(tokens: ThemeTokens): React.CSSProperties {
   return {

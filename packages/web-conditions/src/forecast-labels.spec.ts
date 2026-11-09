@@ -7,7 +7,7 @@ import { getSpot } from '@tonnta/data';
 import type { DailySummary } from '@tonnta/types';
 import { ThemeProvider } from '@tonnta/web-shell';
 
-import { DayStrip } from '@/components/forecast-sections';
+import { DayStrip } from './forecast-sections';
 
 const spot = getSpot('donabate');
 if (spot === undefined) throw new Error('Missing Donabate');

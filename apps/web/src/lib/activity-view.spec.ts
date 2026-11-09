@@ -3,12 +3,11 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 
+import type { SpotConditions } from '@tonnta/web-conditions';
 import { ThemeProvider } from '@tonnta/web-shell';
 
 import { AppFooter } from '@/components/app-footer';
 import { HomeView } from '@/components/home-view';
-
-import type { SpotConditions } from './conditions';
 
 vi.mock('@tonnta/web-shell', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
@@ -18,16 +17,15 @@ vi.mock('@/components/spot-switcher', () => ({
   SpotSwitcher: ({ activity }: { activity: string }) => `spot-picker:${activity}`,
 }));
 vi.mock('@/components/alert-card', () => ({ AlertCard: () => 'surf-alerts' }));
-vi.mock('@/components/sea-hero', () => ({ SeaHero: () => 'surf-hero' }));
-vi.mock('@/components/snamh-hero', () => ({ SnamhHero: () => 'swim-hero' }));
-vi.mock('@/components/dark-hero', () => ({
-  DarkHero: ({ mode }: { mode: string }) => `dark-hero:${mode}`,
-}));
-vi.mock('@/components/snamh-sections', () => ({ SwimWindowsCard: () => 'swim-windows' }));
 vi.mock('@/themes/cairt/cairt-hero', () => ({ CairtHero: () => null }));
 vi.mock('@/themes/eiri/eiri-hero', () => ({ EiriHero: () => null }));
 vi.mock('@/themes/postaer/postaer-hero', () => ({ PostaerHero: () => null }));
-vi.mock('@/components/forecast-sections', () => ({
+vi.mock('@tonnta/web-conditions', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  SeaHero: () => 'surf-hero',
+  SnamhHero: () => 'swim-hero',
+  DarkHero: ({ mode }: { mode: string }) => `dark-hero:${mode}`,
+  SwimWindowsCard: () => 'swim-windows',
   BuoyCard: () => null,
   DayStrip: () => 'surf-days',
   NextWindowCard: () => 'surf-next-window',

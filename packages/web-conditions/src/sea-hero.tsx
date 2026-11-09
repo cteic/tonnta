@@ -3,7 +3,7 @@
 import type { HourlyConditions, VerdictResult } from '@tonnta/types';
 import { useAppTheme } from '@tonnta/web-shell';
 
-import { BOARD_LABEL, VERDICT_LABEL, WIND_STATE_LABEL, compassPoint } from '@/lib/format';
+import { BOARD_LABEL, VERDICT_LABEL, WIND_STATE_LABEL, compassPoint } from './format';
 
 /**
  * The living sea — Tonnta's signature. Three drifting sine bands whose

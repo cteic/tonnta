@@ -37,6 +37,7 @@ packages/
   types/     shared domain types
   ui/        Tamagui components and tokens
   web-shell/ root document, fonts, themes and page chrome shared by every website
+  web-conditions/ spot conditions loader, formatters and conditions UI for the websites
   {eslint,prettier,tsconfig}-config/
 ```
 

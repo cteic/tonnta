@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 
 import { SURF_VERDICT_ENGINE_VERSION } from '@tonnta/data';
+import type { SpotConditions } from '@tonnta/web-conditions';
 
 import type { Activity } from '@/lib/activity';
-import type { SpotConditions } from '@/lib/conditions';
 import { forecastHoursToCapture } from '@/lib/forecast-capture';
 import { captureForecastSnapshots, persistForecastSnapshots } from '@/lib/forecast-snapshots';
 

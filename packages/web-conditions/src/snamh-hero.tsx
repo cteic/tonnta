@@ -3,8 +3,7 @@
 import type { HourlyConditions, SwimVerdictResult, WaterQualityAlert } from '@tonnta/types';
 import { useAppTheme } from '@tonnta/web-shell';
 
-import { WIND_STATE_LABEL, compassPoint } from '@/lib/format';
-
+import { WIND_STATE_LABEL, compassPoint } from './format';
 import { SeaBands } from './sea-hero';
 import { SeaTempCard } from './sea-temp';
 

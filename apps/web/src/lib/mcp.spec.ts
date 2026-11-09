@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest';
 
 import { getSpot, isRecord, sunTimes } from '@tonnta/data';
 import type { HourlyConditions, Spot, VerdictResult } from '@tonnta/types';
+import type { SpotConditions } from '@tonnta/web-conditions';
 
-import type { SpotConditions } from './conditions';
 import type { JsonRpcResponse } from './mcp';
 import {
   MCP_PROTOCOL_VERSION,

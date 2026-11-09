@@ -3,16 +3,15 @@
 import { useEffect, useState } from 'react';
 
 import type { BuoyObservation, HourlyConditions, TideEvent, VerdictResult } from '@tonnta/types';
-import { useAppTheme } from '@tonnta/web-shell';
-
-import { SeaBands } from '@/components/sea-hero';
+import { SeaBands } from '@tonnta/web-conditions';
 import {
   BOARD_LABEL,
   VERDICT_LABEL,
   WIND_STATE_LABEL,
   compassPoint,
   formatHour,
-} from '@/lib/format';
+} from '@tonnta/web-conditions';
+import { useAppTheme } from '@tonnta/web-shell';
 
 import type { SolarScene } from './solar';
 import { skyGradient, solarScene } from './solar';
