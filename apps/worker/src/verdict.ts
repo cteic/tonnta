@@ -1,8 +1,11 @@
 import {
   DEFAULT_SPOT_ID,
+  SURF_VERDICT_ENGINE_VERSION,
   assessHour,
   fetchHourlyConditions,
   getSpot,
+  isDaylightHour,
+  isForecastFresh,
   isRecord,
 } from '@tonnta/data';
 import type { Board, HourlyConditions, Spot, Verdict } from '@tonnta/types';
@@ -28,7 +31,9 @@ export interface VerdictCache {
 
 export interface HourVerdict {
   time: string;
-  verdict: Verdict;
+  verdict: Verdict | 'dark';
+  daylight: boolean;
+  validUntil: string;
   board?: Board;
   reason: string;
   waveHeightM: number;
@@ -37,22 +42,28 @@ export interface HourVerdict {
 }
 
 export interface VerdictTimeline {
+  schemaVersion: 2;
   spot: { id: string; name: string; irishName?: string };
   generatedAt: string;
   hours: HourVerdict[];
 }
 
 function toHourVerdict(hour: HourlyConditions, spot: Spot): HourVerdict {
-  const result = assessHour(hour, spot);
+  const daylight = isDaylightHour(hour.time, spot);
+  const result = daylight
+    ? assessHour(hour, spot)
+    : { verdict: 'dark' as const, reason: 'Outside a full daylight hour. Stay out of the water.' };
   const entry: HourVerdict = {
     time: hour.time,
+    daylight,
+    validUntil: new Date(Date.parse(hour.time) + HOUR_MS).toISOString(),
     verdict: result.verdict,
     reason: result.reason,
     waveHeightM: hour.waveHeightM,
     wavePeriodS: hour.wavePeriodS,
     windSpeedKmh: hour.windSpeedKmh,
   };
-  if (result.board !== undefined) {
+  if ('board' in result && result.board !== undefined) {
     entry.board = result.board;
   }
   return entry;
@@ -65,7 +76,10 @@ export function buildTimeline(
   now: number,
   count: number = TIMELINE_HOURS
 ): VerdictTimeline {
-  const upcoming = hours
+  const current = hours.some(
+    (hour) => Date.parse(hour.time) <= now && Date.parse(hour.time) + HOUR_MS > now
+  );
+  const upcoming = (current ? hours : [])
     .filter((hour) => Date.parse(hour.time) + HOUR_MS > now)
     .slice(0, count)
     .map((hour) => toHourVerdict(hour, spot));
@@ -73,41 +87,62 @@ export function buildTimeline(
   if (spot.irishName !== undefined) {
     summary.irishName = spot.irishName;
   }
-  return { spot: summary, generatedAt: new Date(now).toISOString(), hours: upcoming };
+  return {
+    schemaVersion: 2,
+    spot: summary,
+    generatedAt: new Date(now).toISOString(),
+    hours: upcoming,
+  };
 }
 
-const VERDICTS: readonly string[] = ['go', 'maybe', 'flat', 'blown'];
+const VERDICTS: readonly string[] = ['go', 'maybe', 'flat', 'blown', 'dark'];
 const BOARDS: readonly string[] = ['sup', 'foamie', 'longboard'];
 
 function isHourVerdict(value: unknown): value is HourVerdict {
   return (
     isRecord(value) &&
     typeof value.time === 'string' &&
+    Number.isFinite(Date.parse(value.time)) &&
+    typeof value.validUntil === 'string' &&
+    Date.parse(value.validUntil) === Date.parse(value.time) + HOUR_MS &&
+    typeof value.daylight === 'boolean' &&
+    (value.daylight
+      ? value.verdict !== 'dark'
+      : value.verdict === 'dark' && value.board === undefined) &&
     typeof value.verdict === 'string' &&
     VERDICTS.includes(value.verdict) &&
     (value.board === undefined ||
       (typeof value.board === 'string' && BOARDS.includes(value.board))) &&
     typeof value.reason === 'string' &&
     typeof value.waveHeightM === 'number' &&
+    Number.isFinite(value.waveHeightM) &&
+    value.waveHeightM >= 0 &&
     typeof value.wavePeriodS === 'number' &&
-    typeof value.windSpeedKmh === 'number'
+    Number.isFinite(value.wavePeriodS) &&
+    value.wavePeriodS >= 0 &&
+    typeof value.windSpeedKmh === 'number' &&
+    Number.isFinite(value.windSpeedKmh) &&
+    value.windSpeedKmh >= 0
   );
 }
 
 export function isVerdictTimeline(value: unknown): value is VerdictTimeline {
   return (
     isRecord(value) &&
+    value.schemaVersion === 2 &&
     isRecord(value.spot) &&
     typeof value.spot.id === 'string' &&
     typeof value.spot.name === 'string' &&
     typeof value.generatedAt === 'string' &&
+    Number.isFinite(Date.parse(value.generatedAt)) &&
     Array.isArray(value.hours) &&
     value.hours.every(isHourVerdict)
   );
 }
 
 function cacheKey(spotId: string, now: number): string {
-  return `verdict:v1:${spotId}:${new Date(now).toISOString().slice(0, 13)}`;
+  // Rules can change within the same forecast hour; old verdicts must not survive them.
+  return `verdict:v2:${SURF_VERDICT_ENGINE_VERSION}:${spotId}:${new Date(now).toISOString().slice(0, 13)}`;
 }
 
 async function readCached(cache: VerdictCache, key: string): Promise<VerdictTimeline | undefined> {
@@ -129,9 +164,19 @@ export async function verdictTimeline(
 ): Promise<VerdictTimeline> {
   const key = cacheKey(spot.id, now);
   const cached = await readCached(cache, key);
-  if (cached !== undefined) return cached;
+  if (
+    cached !== undefined &&
+    cached.spot.id === spot.id &&
+    isForecastFresh(Date.parse(cached.generatedAt), now) &&
+    cached.hours.some(
+      (hour) => Date.parse(hour.time) <= now && Date.parse(hour.validUntil) > now
+    ) &&
+    cached.hours.every((hour) => hour.daylight === isDaylightHour(hour.time, spot))
+  )
+    return cached;
 
   const timeline = buildTimeline(await fetchHourlyConditions(spot, fetchImpl), spot, now);
+  if (timeline.hours.length === 0) throw new Error('No current forecast coverage');
   try {
     await cache.put(key, JSON.stringify(timeline), { expirationTtl: CACHE_TTL_S });
   } catch {
@@ -154,7 +199,7 @@ function respond(body: unknown, status: number, maxAgeS: number): Response {
 export async function handleVerdict(
   url: URL,
   cache: VerdictCache,
-  now: number = Date.now(),
+  now?: number,
   fetchImpl: typeof fetch = fetch
 ): Promise<Response> {
   const spot = getSpot(url.searchParams.get('spot') ?? DEFAULT_SPOT_ID);
@@ -162,7 +207,23 @@ export async function handleVerdict(
     return respond({ error: 'unknown spot' }, 404, 0);
   }
   try {
-    return respond(await verdictTimeline(spot, cache, now, fetchImpl), 200, 300);
+    const timeline = await verdictTimeline(spot, cache, now ?? Date.now(), fetchImpl);
+    const completedAt = now ?? Date.now();
+    timeline.hours = timeline.hours.filter((hour) => Date.parse(hour.validUntil) > completedAt);
+    if (
+      !isForecastFresh(Date.parse(timeline.generatedAt), completedAt) ||
+      !timeline.hours.some((hour) => Date.parse(hour.time) <= completedAt)
+    )
+      throw new Error('No fresh current forecast coverage at response completion');
+    const expires = Math.min(
+      Math.floor(completedAt / HOUR_MS) * HOUR_MS + HOUR_MS,
+      Date.parse(timeline.generatedAt) + HOUR_MS
+    );
+    return respond(
+      timeline,
+      200,
+      Math.max(0, Math.min(300, Math.floor((expires - completedAt) / 1000)))
+    );
   } catch {
     return respond({ error: 'forecast unavailable' }, 502, 0);
   }
