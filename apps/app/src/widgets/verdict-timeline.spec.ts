@@ -12,9 +12,12 @@ const START = Date.parse('2026-10-20T15:00:00Z');
 const HOUR_MS = 60 * 60 * 1000;
 
 function hourAt(index: number, overrides: Partial<HourVerdict>): HourVerdict {
+  const start = START + index * HOUR_MS;
   return {
-    time: new Date(START + index * HOUR_MS).toISOString().replace('.000Z', 'Z'),
+    time: new Date(start).toISOString().replace('.000Z', 'Z'),
     verdict: 'go',
+    daylight: true,
+    validUntil: new Date(start + HOUR_MS).toISOString(),
     board: 'foamie',
     reason: '0.7m at 4s and the wind is manageable, worth going down.',
     waveHeightM: 0.68,
@@ -26,6 +29,7 @@ function hourAt(index: number, overrides: Partial<HourVerdict>): HourVerdict {
 
 function timeline(first: Partial<HourVerdict>): VerdictTimeline {
   return {
+    schemaVersion: 2,
     spot: { id: 'donabate', name: 'Donabate', irishName: 'Domhnach Bat' },
     generatedAt: new Date(START).toISOString(),
     hours: Array.from({ length: 24 }, (_, index) => hourAt(index, index === 0 ? first : {})),
