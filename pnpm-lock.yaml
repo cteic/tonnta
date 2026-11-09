@@ -187,6 +187,73 @@ importers:
         specifier: ^3.2.6
         version: 3.2.6(@types/node@22.20.0)(jiti@2.6.1)(lightningcss@1.33.0)(terser@5.48.0)(yaml@2.9.1)
 
+  apps/swim-web:
+    dependencies:
+      '@opennextjs/cloudflare':
+        specifier: ^1.20.12
+        version: 1.20.12(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(wrangler@4.151.3(@types/node@22.20.0))
+      '@tonnta/data':
+        specifier: workspace:*
+        version: link:../../packages/data
+      '@tonnta/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@tonnta/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@tonnta/web-conditions':
+        specifier: workspace:*
+        version: link:../../packages/web-conditions
+      '@tonnta/web-shell':
+        specifier: workspace:*
+        version: link:../../packages/web-shell
+      next:
+        specifier: 16.4.2
+        version: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: 19.3.0
+        version: 19.3.0(react@19.3.0)
+      react-native-web:
+        specifier: ^0.21.4
+        version: 0.21.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      tamagui:
+        specifier: 2.0.0-rc.42
+        version: 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react-native@0.88.0(@babel/core@7.29.7)(@react-native/metro-config@0.88.0(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.3.0))(react@19.3.0)
+    devDependencies:
+      '@amiceli/vitest-cucumber':
+        specifier: 4.7.0
+        version: 4.7.0(@types/node@22.20.0)(lightningcss@1.33.0)(terser@5.48.0)
+      '@tamagui/core':
+        specifier: 2.0.0-rc.42
+        version: 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/next-plugin':
+        specifier: 2.0.0-rc.42
+        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      '@tamagui/web':
+        specifier: 2.0.0-rc.42
+        version: 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tonnta/tsconfig-config':
+        specifier: workspace:*
+        version: link:../../packages/tsconfig-config
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: ^19.0.0
+        version: 19.2.3(@types/react@19.2.17)
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.6
+        version: 3.2.6(@types/node@22.20.0)(jiti@2.6.1)(lightningcss@1.33.0)(terser@5.48.0)(yaml@2.9.1)
+      wrangler:
+        specifier: ^4.151.3
+        version: 4.151.3(@types/node@22.20.0)
+
   apps/web:
     dependencies:
       '@opennextjs/cloudflare':
@@ -234,7 +301,7 @@ importers:
         version: 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/next-plugin':
         specifier: 2.0.0-rc.42
-        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16))
+        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))
       '@tamagui/web':
         specifier: 2.0.0-rc.42
         version: 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -6856,14 +6923,6 @@ packages:
         integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==,
       }
 
-  baseline-browser-mapping@2.10.41:
-    resolution:
-      {
-        integrity: sha512-WwS7MHhqGHHlaVsqRZnhvCEMS0owDX+SxRlve7JkuH7My1Ara3ZriTmCQupPfYjxMZ8I/tgxtJYr2t7taHaH4A==,
-      }
-    engines: { node: '>=6.0.0' }
-    hasBin: true
-
   baseline-browser-mapping@2.11.24:
     resolution:
       {
@@ -7057,12 +7116,6 @@ packages:
         integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==,
       }
     engines: { node: '>=10' }
-
-  caniuse-lite@1.0.30001800:
-    resolution:
-      {
-        integrity: sha512-MMHtuAz9Ys840zAY5F4k6fV5GaivZ9sPk+nz0mY+GYVzRBnYkN0mpqkSR92oWRQ19yQWo4HvBV/FnC16AJX8MA==,
-      }
 
   caniuse-lite@1.0.30001810:
     resolution:
@@ -7787,12 +7840,6 @@ packages:
     resolution:
       {
         integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==,
-      }
-
-  electron-to-chromium@1.5.385:
-    resolution:
-      {
-        integrity: sha512-78sa/M08MNAYHQfjoWMvOlKQqZ0ElhSm/L5HNUc96VZ3b+KvDVnngFm8sYQy0XrhTRgAhggHr5abA7yTvRdo4Q==,
       }
 
   electron-to-chromium@1.5.430:
@@ -10590,13 +10637,6 @@ packages:
         integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==,
       }
 
-  node-releases@2.0.50:
-    resolution:
-      {
-        integrity: sha512-J6l92tKHX6w8Jy5nO1Vuc01NoIiRGi/d6qBKVxh+IQ8Cr3b6HbVNfKiF8ZpFKufTwpwxMmce2W3iQZ861ZRyTg==,
-      }
-    engines: { node: '>=18' }
-
   node-releases@2.0.55:
     resolution:
       {
@@ -12576,15 +12616,6 @@ packages:
         integrity: sha512-pjy2bYhSsufwWlKwPc+l3cN7+wuJlK6uz0YdJEOlQDbl6jo/YlPi4mb8agUkVC8BF7V8NuzeyPNqRksA3hztKQ==,
       }
     engines: { node: '>= 0.8' }
-
-  update-browserslist-db@1.2.3:
-    resolution:
-      {
-        integrity: sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==,
-      }
-    hasBin: true
-    peerDependencies:
-      browserslist: '>= 4.21.0'
 
   update-browserslist-db@1.3.3:
     resolution:
@@ -16109,9 +16140,7 @@ snapshots:
       metro-runtime: 0.87.1
     transitivePeerDependencies:
       - '@babel/core'
-      - bufferutil
       - supports-color
-      - utf-8-validate
 
   '@react-native/normalize-color@2.1.0': {}
 
@@ -16957,21 +16986,45 @@ snapshots:
     dependencies:
       react: 19.3.0
 
-  '@tamagui/next-plugin@2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16))':
+  '@tamagui/next-plugin@2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))':
     dependencies:
       '@babel/preset-react': 7.29.7(@babel/core@7.29.7)
       '@tamagui/proxy-worm': 2.0.0-rc.42
       '@tamagui/react-native-svg': 2.0.0-rc.42
       '@tamagui/static': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      babel-loader: 9.2.1(@babel/core@7.29.7)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16))
-      browserslist: 4.28.4
-      css-loader: 6.11.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16))
-      esbuild-loader: 4.5.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16))
-      file-loader: 6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16))
-      html-webpack-plugin: 5.6.7(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16))
+      babel-loader: 9.2.1(@babel/core@7.29.7)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      browserslist: 4.29.0
+      css-loader: 6.11.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      esbuild-loader: 4.5.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      file-loader: 6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      html-webpack-plugin: 5.6.7(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
       next: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      tamagui-loader: 2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16))
-      url-loader: 4.1.1(file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16)))(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16))
+      tamagui-loader: 2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      url-loader: 4.1.1(file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)))(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@rspack/core'
+      - encoding
+      - react
+      - react-dom
+      - supports-color
+      - webpack
+
+  '@tamagui/next-plugin@2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))':
+    dependencies:
+      '@babel/preset-react': 7.29.7(@babel/core@7.29.7)
+      '@tamagui/proxy-worm': 2.0.0-rc.42
+      '@tamagui/react-native-svg': 2.0.0-rc.42
+      '@tamagui/static': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      babel-loader: 9.2.1(@babel/core@7.29.7)(webpack@5.108.3(lightningcss@1.33.0))
+      browserslist: 4.29.0
+      css-loader: 6.11.0(webpack@5.108.3(lightningcss@1.33.0))
+      esbuild-loader: 4.5.0(webpack@5.108.3(lightningcss@1.33.0))
+      file-loader: 6.2.0(webpack@5.108.3(lightningcss@1.33.0))
+      html-webpack-plugin: 5.6.7(webpack@5.108.3(lightningcss@1.33.0))
+      next: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      tamagui-loader: 2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))
+      url-loader: 4.1.1(file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)))(webpack@5.108.3(lightningcss@1.33.0))
     transitivePeerDependencies:
       - '@babel/core'
       - '@rspack/core'
@@ -18154,12 +18207,19 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel-loader@9.2.1(@babel/core@7.29.7)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16)):
+  babel-loader@9.2.1(@babel/core@7.29.7)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       '@babel/core': 7.29.7
       find-cache-dir: 4.0.0
       schema-utils: 4.3.3
-      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.16)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
+
+  babel-loader@9.2.1(@babel/core@7.29.7)(webpack@5.108.3(lightningcss@1.33.0)):
+    dependencies:
+      '@babel/core': 7.29.7
+      find-cache-dir: 4.0.0
+      schema-utils: 4.3.3
+      webpack: 5.108.3(lightningcss@1.33.0)
 
   babel-plugin-polyfill-corejs2@0.4.17(@babel/core@7.29.7):
     dependencies:
@@ -18313,8 +18373,6 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  baseline-browser-mapping@2.10.41: {}
-
   baseline-browser-mapping@2.11.24: {}
 
   big-integer@1.6.52: {}
@@ -18374,11 +18432,11 @@ snapshots:
 
   browserslist@4.28.4:
     dependencies:
-      baseline-browser-mapping: 2.10.41
-      caniuse-lite: 1.0.30001800
-      electron-to-chromium: 1.5.385
-      node-releases: 2.0.50
-      update-browserslist-db: 1.2.3(browserslist@4.28.4)
+      baseline-browser-mapping: 2.11.24
+      caniuse-lite: 1.0.30001810
+      electron-to-chromium: 1.5.430
+      node-releases: 2.0.55
+      update-browserslist-db: 1.3.3(browserslist@4.28.4)
 
   browserslist@4.29.0:
     dependencies:
@@ -18427,8 +18485,6 @@ snapshots:
       tslib: 2.8.1
 
   camelcase@6.3.0: {}
-
-  caniuse-lite@1.0.30001800: {}
 
   caniuse-lite@1.0.30001810: {}
 
@@ -18671,18 +18727,31 @@ snapshots:
     dependencies:
       hyphenate-style-name: 1.1.0
 
-  css-loader@6.11.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16)):
+  css-loader@6.11.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
-      icss-utils: 5.1.0(postcss@8.5.16)
-      postcss: 8.5.16
-      postcss-modules-extract-imports: 3.1.0(postcss@8.5.16)
-      postcss-modules-local-by-default: 4.2.0(postcss@8.5.16)
-      postcss-modules-scope: 3.2.1(postcss@8.5.16)
-      postcss-modules-values: 4.0.0(postcss@8.5.16)
+      icss-utils: 5.1.0(postcss@8.5.23)
+      postcss: 8.5.23
+      postcss-modules-extract-imports: 3.1.0(postcss@8.5.23)
+      postcss-modules-local-by-default: 4.2.0(postcss@8.5.23)
+      postcss-modules-scope: 3.2.1(postcss@8.5.23)
+      postcss-modules-values: 4.0.0(postcss@8.5.23)
       postcss-value-parser: 4.2.0
       semver: 7.8.5
     optionalDependencies:
-      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.16)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
+
+  css-loader@6.11.0(webpack@5.108.3(lightningcss@1.33.0)):
+    dependencies:
+      icss-utils: 5.1.0(postcss@8.5.23)
+      postcss: 8.5.23
+      postcss-modules-extract-imports: 3.1.0(postcss@8.5.23)
+      postcss-modules-local-by-default: 4.2.0(postcss@8.5.23)
+      postcss-modules-scope: 3.2.1(postcss@8.5.23)
+      postcss-modules-values: 4.0.0(postcss@8.5.23)
+      postcss-value-parser: 4.2.0
+      semver: 7.8.5
+    optionalDependencies:
+      webpack: 5.108.3(lightningcss@1.33.0)
 
   css-select@4.3.0:
     dependencies:
@@ -18856,8 +18925,6 @@ snapshots:
 
   ee-first@1.1.1: {}
 
-  electron-to-chromium@1.5.385: {}
-
   electron-to-chromium@1.5.430: {}
 
   emoji-regex@10.6.0: {}
@@ -19015,12 +19082,20 @@ snapshots:
       is-date-object: 1.1.0
       is-symbol: 1.1.1
 
-  esbuild-loader@4.5.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16)):
+  esbuild-loader@4.5.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
-      esbuild: 0.28.1
+      esbuild: 0.28.2
       get-tsconfig: 4.14.0
       loader-utils: 2.0.4
-      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.16)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
+      webpack-sources: 3.5.0
+
+  esbuild-loader@4.5.0(webpack@5.108.3(lightningcss@1.33.0)):
+    dependencies:
+      esbuild: 0.28.2
+      get-tsconfig: 4.14.0
+      loader-utils: 2.0.4
+      webpack: 5.108.3(lightningcss@1.33.0)
       webpack-sources: 3.5.0
 
   esbuild-register@3.6.0(esbuild@0.27.7):
@@ -19651,11 +19726,17 @@ snapshots:
     dependencies:
       flat-cache: 4.0.1
 
-  file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16)):
+  file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 3.3.0
-      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.16)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
+
+  file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)):
+    dependencies:
+      loader-utils: 2.0.4
+      schema-utils: 3.3.0
+      webpack: 5.108.3(lightningcss@1.33.0)
 
   fill-range@7.1.1:
     dependencies:
@@ -19941,7 +20022,7 @@ snapshots:
       relateurl: 0.2.7
       terser: 5.48.0
 
-  html-webpack-plugin@5.6.7(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16)):
+  html-webpack-plugin@5.6.7(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
@@ -19949,7 +20030,17 @@ snapshots:
       pretty-error: 4.0.0
       tapable: 2.3.3
     optionalDependencies:
-      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.16)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
+
+  html-webpack-plugin@5.6.7(webpack@5.108.3(lightningcss@1.33.0)):
+    dependencies:
+      '@types/html-minifier-terser': 6.1.0
+      html-minifier-terser: 6.1.0
+      lodash: 4.18.1
+      pretty-error: 4.0.0
+      tapable: 2.3.3
+    optionalDependencies:
+      webpack: 5.108.3(lightningcss@1.33.0)
 
   htmlparser2@6.1.0:
     dependencies:
@@ -19989,9 +20080,9 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
-  icss-utils@5.1.0(postcss@8.5.16):
+  icss-utils@5.1.0(postcss@8.5.23):
     dependencies:
-      postcss: 8.5.16
+      postcss: 8.5.23
 
   ignore@5.3.2: {}
 
@@ -20724,16 +20815,26 @@ snapshots:
 
   minimist@1.2.8: {}
 
-  minimizer-webpack-plugin@5.6.1(lightningcss@1.33.0)(postcss@8.5.16)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16)):
+  minimizer-webpack-plugin@5.6.1(lightningcss@1.33.0)(postcss@8.5.23)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       terser: 5.48.0
-      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.16)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
     optionalDependencies:
       lightningcss: 1.33.0
-      postcss: 8.5.16
+      postcss: 8.5.23
+
+  minimizer-webpack-plugin@5.6.1(lightningcss@1.33.0)(webpack@5.108.3(lightningcss@1.33.0)):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      jest-worker: 27.5.1
+      schema-utils: 4.3.3
+      terser: 5.48.0
+      webpack: 5.108.3(lightningcss@1.33.0)
+    optionalDependencies:
+      lightningcss: 1.33.0
 
   minipass@7.1.3: {}
 
@@ -20808,8 +20909,6 @@ snapshots:
   node-forge@1.4.0: {}
 
   node-int64@0.4.0: {}
-
-  node-releases@2.0.50: {}
 
   node-releases@2.0.55: {}
 
@@ -21061,26 +21160,26 @@ snapshots:
 
   possible-typed-array-names@1.1.0: {}
 
-  postcss-modules-extract-imports@3.1.0(postcss@8.5.16):
+  postcss-modules-extract-imports@3.1.0(postcss@8.5.23):
     dependencies:
-      postcss: 8.5.16
+      postcss: 8.5.23
 
-  postcss-modules-local-by-default@4.2.0(postcss@8.5.16):
+  postcss-modules-local-by-default@4.2.0(postcss@8.5.23):
     dependencies:
-      icss-utils: 5.1.0(postcss@8.5.16)
-      postcss: 8.5.16
+      icss-utils: 5.1.0(postcss@8.5.23)
+      postcss: 8.5.23
       postcss-selector-parser: 7.1.4
       postcss-value-parser: 4.2.0
 
-  postcss-modules-scope@3.2.1(postcss@8.5.16):
+  postcss-modules-scope@3.2.1(postcss@8.5.23):
     dependencies:
-      postcss: 8.5.16
+      postcss: 8.5.23
       postcss-selector-parser: 7.1.4
 
-  postcss-modules-values@4.0.0(postcss@8.5.16):
+  postcss-modules-values@4.0.0(postcss@8.5.23):
     dependencies:
-      icss-utils: 5.1.0(postcss@8.5.16)
-      postcss: 8.5.16
+      icss-utils: 5.1.0(postcss@8.5.23)
+      postcss: 8.5.23
 
   postcss-selector-parser@7.1.4:
     dependencies:
@@ -21924,7 +22023,7 @@ snapshots:
       string-width: 4.2.3
       strip-ansi: 6.0.1
 
-  tamagui-loader@2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16)):
+  tamagui-loader@2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       '@tamagui/cli-color': 2.0.0-rc.42
       '@tamagui/core': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -21932,7 +22031,26 @@ snapshots:
       '@tamagui/static-worker': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/types': 2.0.0-rc.42
       '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      esbuild-loader: 4.5.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16))
+      esbuild-loader: 4.5.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      esm-resolve: 1.0.11
+      fs-extra: 11.3.6
+      loader-utils: 3.3.1
+    transitivePeerDependencies:
+      - encoding
+      - react
+      - react-dom
+      - supports-color
+      - webpack
+
+  tamagui-loader@2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)):
+    dependencies:
+      '@tamagui/cli-color': 2.0.0-rc.42
+      '@tamagui/core': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/static': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/static-worker': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/types': 2.0.0-rc.42
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      esbuild-loader: 4.5.0(webpack@5.108.3(lightningcss@1.33.0))
       esm-resolve: 1.0.11
       fs-extra: 11.3.6
       loader-utils: 3.3.1
@@ -22192,7 +22310,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  update-browserslist-db@1.2.3(browserslist@4.28.4):
+  update-browserslist-db@1.3.3(browserslist@4.28.4):
     dependencies:
       browserslist: 4.28.4
       escalade: 3.2.0
@@ -22208,14 +22326,23 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  url-loader@4.1.1(file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16)))(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16)):
+  url-loader@4.1.1(file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)))(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       loader-utils: 2.0.4
       mime-types: 2.1.35
       schema-utils: 3.3.0
-      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.16)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
     optionalDependencies:
-      file-loader: 6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16))
+      file-loader: 6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+
+  url-loader@4.1.1(file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)))(webpack@5.108.3(lightningcss@1.33.0)):
+    dependencies:
+      loader-utils: 2.0.4
+      mime-types: 2.1.35
+      schema-utils: 3.3.0
+      webpack: 5.108.3(lightningcss@1.33.0)
+    optionalDependencies:
+      file-loader: 6.2.0(webpack@5.108.3(lightningcss@1.33.0))
 
   urlpattern-polyfill@10.1.0: {}
 
@@ -22280,7 +22407,7 @@ snapshots:
   vite@5.4.21(@types/node@22.20.0)(lightningcss@1.33.0)(terser@5.48.0):
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.5.16
+      postcss: 8.5.23
       rollup: 4.62.2
     optionalDependencies:
       '@types/node': 22.20.0
@@ -22416,7 +22543,7 @@ snapshots:
 
   webpack-sources@3.5.0: {}
 
-  webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16):
+  webpack@5.108.3(lightningcss@1.33.0):
     dependencies:
       '@types/estree': 1.0.9
       '@types/json-schema': 7.0.15
@@ -22434,7 +22561,45 @@ snapshots:
       graceful-fs: 4.2.11
       loader-runner: 4.3.2
       mime-db: 1.54.0
-      minimizer-webpack-plugin: 5.6.1(lightningcss@1.33.0)(postcss@8.5.16)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.16))
+      minimizer-webpack-plugin: 5.6.1(lightningcss@1.33.0)(webpack@5.108.3(lightningcss@1.33.0))
+      neo-async: 2.6.2
+      schema-utils: 4.3.3
+      tapable: 2.3.3
+      watchpack: 2.5.2
+      webpack-sources: 3.5.0
+    transitivePeerDependencies:
+      - '@minify-html/node'
+      - '@swc/core'
+      - '@swc/css'
+      - '@swc/html'
+      - clean-css
+      - cssnano
+      - csso
+      - esbuild
+      - html-minifier-terser
+      - lightningcss
+      - postcss
+      - uglify-js
+
+  webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23):
+    dependencies:
+      '@types/estree': 1.0.9
+      '@types/json-schema': 7.0.15
+      '@webassemblyjs/ast': 1.14.1
+      '@webassemblyjs/wasm-edit': 1.14.1
+      '@webassemblyjs/wasm-parser': 1.14.1
+      acorn: 8.17.0
+      acorn-import-phases: 1.0.4(acorn@8.17.0)
+      browserslist: 4.29.0
+      chrome-trace-event: 1.0.4
+      enhanced-resolve: 5.24.1
+      es-module-lexer: 2.3.0
+      eslint-scope: 5.1.1
+      events: 3.3.0
+      graceful-fs: 4.2.11
+      loader-runner: 4.3.2
+      mime-db: 1.54.0
+      minimizer-webpack-plugin: 5.6.1(lightningcss@1.33.0)(postcss@8.5.23)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.3

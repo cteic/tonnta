@@ -30,7 +30,8 @@ deliberately not repeated here.
 
 ```
 apps/
-  web/       Next.js app
+  web/       Next.js app: tonnta.surf
+  swim-web/  Next.js app: snamh.app, the swim site
   worker/    Cloudflare Worker — conditions data + cache
 packages/
   data/      forecast/tide/buoy data access
