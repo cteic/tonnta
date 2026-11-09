@@ -2,8 +2,7 @@
 
 import { seaTempBand } from '@tonnta/data';
 import type { SeaTempBand } from '@tonnta/data';
-
-import { useAppTheme } from '@/themes/theme-context';
+import { useAppTheme } from '@tonnta/web-shell';
 
 /** Thermometer scale, °C. Irish waters run about 8 to 19. */
 const SCALE_MIN_C = 6;

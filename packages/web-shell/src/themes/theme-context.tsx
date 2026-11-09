@@ -15,8 +15,14 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [themeId, setThemeId] = useState<ThemeId>(DEFAULT_THEME_ID);
+interface ThemeProviderProps {
+  children: ReactNode;
+  /** The look before the stored choice loads, and the look for server-rendered output. */
+  initialThemeId?: ThemeId;
+}
+
+export function ThemeProvider({ children, initialThemeId = DEFAULT_THEME_ID }: ThemeProviderProps) {
+  const [themeId, setThemeId] = useState<ThemeId>(initialThemeId);
 
   useEffect(() => {
     setThemeId(resolveThemeId(window.localStorage.getItem(STORAGE_KEY)));

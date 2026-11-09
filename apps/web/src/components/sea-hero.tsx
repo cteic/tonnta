@@ -1,9 +1,9 @@
 'use client';
 
 import type { HourlyConditions, VerdictResult } from '@tonnta/types';
+import { useAppTheme } from '@tonnta/web-shell';
 
 import { BOARD_LABEL, VERDICT_LABEL, WIND_STATE_LABEL, compassPoint } from '@/lib/format';
-import { useAppTheme } from '@/themes/theme-context';
 
 /**
  * The living sea — Tonnta's signature. Three drifting sine bands whose

@@ -1,9 +1,9 @@
 'use client';
 
 import type { HourlyConditions, SwimVerdictResult, WaterQualityAlert } from '@tonnta/types';
+import { useAppTheme } from '@tonnta/web-shell';
 
 import { WIND_STATE_LABEL, compassPoint } from '@/lib/format';
-import { useAppTheme } from '@/themes/theme-context';
 
 import { SeaBands } from './sea-hero';
 import { SeaTempCard } from './sea-temp';

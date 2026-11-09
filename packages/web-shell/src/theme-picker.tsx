@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { THEMES } from '@/themes/registry';
-import { useAppTheme } from '@/themes/theme-context';
+import { THEMES } from './themes/registry';
+import { useAppTheme } from './themes/theme-context';
 
 /**
  * Cuma — the look picker. A small nav affordance opening an inline panel;

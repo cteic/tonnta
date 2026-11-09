@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import type { BuoyObservation, HourlyConditions, TideEvent, VerdictResult } from '@tonnta/types';
+import { useAppTheme } from '@tonnta/web-shell';
 
 import { SeaBands } from '@/components/sea-hero';
 import {
@@ -12,7 +13,6 @@ import {
   compassPoint,
   formatHour,
 } from '@/lib/format';
-import { useAppTheme } from '@/themes/theme-context';
 
 import type { SolarScene } from './solar';
 import { skyGradient, solarScene } from './solar';

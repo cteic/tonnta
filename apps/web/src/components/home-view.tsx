@@ -1,5 +1,8 @@
 'use client';
 
+import { ThemePicker } from '@tonnta/web-shell';
+import { useAppTheme } from '@tonnta/web-shell';
+
 import { AlertCard } from '@/components/alert-card';
 import { DarkHero } from '@/components/dark-hero';
 import {
@@ -13,7 +16,6 @@ import { SeaHero } from '@/components/sea-hero';
 import { SnamhHero } from '@/components/snamh-hero';
 import { SwimWindowsCard } from '@/components/snamh-sections';
 import { SpotSwitcher } from '@/components/spot-switcher';
-import { ThemePicker } from '@/components/theme-picker';
 import { useForecastCapture } from '@/components/use-forecast-capture';
 import { useLiveConditions } from '@/components/use-live-conditions';
 import { APP_IDENTITIES, type Activity } from '@/lib/activity';
@@ -21,7 +23,6 @@ import type { SpotConditions } from '@/lib/conditions';
 import { CairtHero } from '@/themes/cairt/cairt-hero';
 import { EiriHero } from '@/themes/eiri/eiri-hero';
 import { PostaerHero } from '@/themes/postaer/postaer-hero';
-import { useAppTheme } from '@/themes/theme-context';
 
 /** The URL owns the activity; device preferences never change a shared forecast. */
 export function HomeView({

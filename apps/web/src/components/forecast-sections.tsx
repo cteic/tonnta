@@ -2,6 +2,8 @@
 
 import type { GoodWindow } from '@tonnta/data';
 import type { BuoyObservation, DailySummary, Spot, TideEvent } from '@tonnta/types';
+import type { ThemeTokens } from '@tonnta/web-shell';
+import { useAppTheme } from '@tonnta/web-shell';
 
 import {
   BOARD_LABEL,
@@ -13,8 +15,6 @@ import {
   formatHour,
   formatHourRange,
 } from '@/lib/format';
-import type { ThemeTokens } from '@/themes/registry';
-import { useAppTheme } from '@/themes/theme-context';
 
 function cardStyle(tokens: ThemeTokens): React.CSSProperties {
   return {

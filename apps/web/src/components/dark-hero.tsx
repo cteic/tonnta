@@ -2,9 +2,9 @@
 
 import { formatHour } from '@tonnta/data';
 import type { Spot, SwimVerdictResult, VerdictResult } from '@tonnta/types';
+import { useAppTheme } from '@tonnta/web-shell';
 
 import { VERDICT_LABEL } from '@/lib/format';
-import { useAppTheme } from '@/themes/theme-context';
 
 const SWIM_LABEL: Record<string, string> = {
   great: 'PERFECT',

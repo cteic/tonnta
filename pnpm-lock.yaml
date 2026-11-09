@@ -201,6 +201,9 @@ importers:
       '@tonnta/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@tonnta/web-shell':
+        specifier: workspace:*
+        version: link:../../packages/web-shell
       next:
         specifier: 16.4.2
         version: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -372,6 +375,46 @@ importers:
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.17
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.6
+        version: 3.2.6(@types/node@22.20.0)(jiti@2.6.1)(lightningcss@1.33.0)(terser@5.48.0)(yaml@2.9.1)
+
+  packages/web-shell:
+    dependencies:
+      '@tonnta/data':
+        specifier: workspace:*
+        version: link:../data
+      '@tonnta/ui':
+        specifier: workspace:*
+        version: link:../ui
+      tamagui:
+        specifier: 2.0.0-rc.42
+        version: 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react-native@0.88.0(@babel/core@7.29.7)(@react-native/metro-config@0.88.0(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.3.0))(react@19.3.0)
+    devDependencies:
+      '@amiceli/vitest-cucumber':
+        specifier: 4.7.0
+        version: 4.7.0(@types/node@22.20.0)(lightningcss@1.33.0)(terser@5.48.0)
+      '@tonnta/tsconfig-config':
+        specifier: workspace:*
+        version: link:../tsconfig-config
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: ^19.0.0
+        version: 19.2.3(@types/react@19.2.17)
+      next:
+        specifier: 16.4.2
+        version: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: 19.3.0
+        version: 19.3.0
+      react-dom:
+        specifier: 19.3.0
+        version: 19.3.0(react@19.3.0)
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
