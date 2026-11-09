@@ -2,8 +2,6 @@ import type { Metadata, MetadataRoute } from 'next';
 
 import { DEFAULT_SPOT_ID, SPOTS } from '@tonnta/data';
 
-import { spotPath } from './activity';
-
 /**
  * Crawler-facing artefacts: the robots.txt body and the sitemap entries.
  *
@@ -61,15 +59,7 @@ function spotPaths(): PublicPath[] {
 }
 
 export function publicPaths(): PublicPath[] {
-  return [
-    ...FIXED_PATHS,
-    ...spotPaths(),
-    ...SPOTS.map((spot): PublicPath => ({
-      path: spotPath('swim', spot.id),
-      priority: 0.8,
-      changeFrequency: 'hourly',
-    })),
-  ];
+  return [...FIXED_PATHS, ...spotPaths()];
 }
 
 export interface RobotsOptions {

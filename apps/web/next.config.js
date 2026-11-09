@@ -31,6 +31,13 @@ const nextConfig = {
     '@tamagui/themes',
   ],
   typedRoutes: true,
+  // Swimming moved to its own site. Keep in step with SWIM_ORIGIN in src/lib/spot-links.ts.
+  async redirects() {
+    return [
+      { source: '/swim', destination: 'https://snamh.app/', statusCode: 301 },
+      { source: '/swim/s/:spotId', destination: 'https://snamh.app/s/:spotId', statusCode: 301 },
+    ];
+  },
   async headers() {
     return [
       {

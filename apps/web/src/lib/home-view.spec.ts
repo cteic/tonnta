@@ -13,9 +13,7 @@ vi.mock('@tonnta/web-shell', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   ThemePicker: () => null,
 }));
-vi.mock('@/components/spot-switcher', () => ({
-  SpotSwitcher: ({ activity }: { activity: string }) => `spot-picker:${activity}`,
-}));
+vi.mock('@/components/spot-switcher', () => ({ SpotSwitcher: () => 'spot-picker' }));
 vi.mock('@/components/alert-card', () => ({ AlertCard: () => 'surf-alerts' }));
 vi.mock('@/themes/cairt/cairt-hero', () => ({ CairtHero: () => null }));
 vi.mock('@/themes/eiri/eiri-hero', () => ({ EiriHero: () => null }));
@@ -47,67 +45,35 @@ function render(element: ReturnType<typeof createElement>): string {
   );
 }
 
-describe('Activity-specific server-rendered screens', () => {
-  it('renders swimming immediately, without surf controls or a mode toggle', () => {
-    const html = render(createElement(HomeView, { conditions, activity: 'swim' }));
-    expect(html).toContain('Tonnta Swim');
-    expect(html).toContain('swim-hero');
-    expect(html).toContain('swim-windows');
-    expect(html).toContain('spot-picker:swim');
-    expect(html).not.toContain('surf-alerts');
-    expect(html).not.toContain('surf-days');
-    expect(html).not.toContain('tablist');
-    expect(html).not.toContain('Add a quick check');
-  });
-
-  it('keeps existing default routes surf-only', () => {
+describe('Surf site screen', () => {
+  it('shows surf content and nothing from the swim product', () => {
     const html = render(createElement(HomeView, { conditions }));
     expect(html).toContain('surf-hero');
     expect(html).toContain('surf-alerts');
     expect(html).toContain('surf-days');
-    expect(html).toContain('spot-picker:surf');
+    expect(html).toContain('spot-picker');
     expect(html).not.toContain('swim-hero');
+    expect(html).not.toContain('swim-windows');
     expect(html).toContain('href="/log?spot=donabate"');
     expect(html).toContain('Add a quick check');
     expect(html).toContain('regional sea estimates');
   });
 
-  it('passes the correct activity to the existing night safety screen', () => {
+  it('shows the surf night screen after dark', () => {
     const dark = { ...conditions, headline: { kind: 'dark' } } as SpotConditions;
-    expect(render(createElement(HomeView, { conditions: dark, activity: 'swim' }))).toContain(
-      'dark-hero:snamh'
-    );
-    expect(render(createElement(HomeView, { conditions: dark, activity: 'surf' }))).toContain(
-      'dark-hero:surf'
-    );
+    expect(render(createElement(HomeView, { conditions: dark }))).toContain('dark-hero:surf');
   });
 
   it('never displays a cached verdict when the current hour is unavailable', () => {
     const missing = { ...conditions, headline: { kind: 'none' } } as SpotConditions;
-    for (const activity of ['surf', 'swim'] as const) {
-      const html = render(createElement(HomeView, { conditions: missing, activity }));
-      expect(html).toContain('Current conditions unavailable');
-      expect(html).not.toContain('surf-hero');
-      expect(html).not.toContain('swim-hero');
-    }
+    const html = render(createElement(HomeView, { conditions: missing }));
+    expect(html).toContain('Current conditions unavailable');
+    expect(html).not.toContain('surf-hero');
   });
 
-  it('suppresses swim windows under an active bathing restriction', () => {
-    const restricted = {
-      ...conditions,
-      waterQuality: { restrictionInPlace: true },
-    } as SpotConditions;
-    const html = render(createElement(HomeView, { conditions: restricted, activity: 'swim' }));
-    expect(html).not.toContain('swim-windows');
-    expect(html).toContain('bathing restriction is in place');
-  });
-
-  it('keeps the surf-only diary out of swimming and cross-links the same spot', () => {
-    const swim = render(createElement(AppFooter, { activity: 'swim', spotId: 'other' }));
-    expect(swim).not.toContain('href="/log');
-    expect(swim).toContain('href="/s/other"');
-    const surf = render(createElement(AppFooter, { activity: 'surf', spotId: 'other' }));
-    expect(surf).toContain('href="/log?spot=other"');
-    expect(surf).toContain('href="/swim/s/other"');
+  it('links the footer to beach checks and the same spot on the swim site', () => {
+    const html = render(createElement(AppFooter, { spotId: 'el-cotillo' }));
+    expect(html).toContain('href="/log?spot=el-cotillo"');
+    expect(html).toContain('href="https://snamh.app/s/el-cotillo"');
   });
 });

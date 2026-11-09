@@ -4,22 +4,16 @@ import { useRouter } from 'next/navigation';
 
 import { SpotMenu } from '@tonnta/web-shell';
 
-import { type Activity, spotPath } from '@/lib/activity';
+import { spotPath } from '@/lib/spot-links';
 
-/** Donabate lives at `/`; every other spot at `/s/<id>`, or under `/swim`. */
-export function SpotSwitcher({
-  activeSpotId,
-  activity = 'surf',
-}: {
-  activeSpotId: string;
-  activity?: Activity;
-}) {
+/** Donabate lives at `/`; every other spot at `/s/<id>`. */
+export function SpotSwitcher({ activeSpotId }: { activeSpotId: string }) {
   const router = useRouter();
   return (
     <SpotMenu
       activeSpotId={activeSpotId}
       onSelect={(spotId) => {
-        router.push(spotPath(activity, spotId));
+        router.push(spotPath(spotId));
       }}
     />
   );

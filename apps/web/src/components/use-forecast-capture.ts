@@ -5,15 +5,13 @@ import { useEffect, useState } from 'react';
 import { SURF_VERDICT_ENGINE_VERSION } from '@tonnta/data';
 import type { SpotConditions } from '@tonnta/web-conditions';
 
-import type { Activity } from '@/lib/activity';
 import { forecastHoursToCapture } from '@/lib/forecast-capture';
 import { captureForecastSnapshots, persistForecastSnapshots } from '@/lib/forecast-snapshots';
 
 /** Private local evidence for a later beach check. No network writes or account required. */
-export function useForecastCapture(conditions: SpotConditions, activity: Activity) {
+export function useForecastCapture(conditions: SpotConditions) {
   const [failed, setFailed] = useState(false);
   useEffect(() => {
-    if (activity !== 'surf') return;
     let cancelled = false;
     const capturedAt = Date.now();
     const hours = forecastHoursToCapture(conditions, capturedAt);
@@ -38,6 +36,6 @@ export function useForecastCapture(conditions: SpotConditions, activity: Activit
     return () => {
       cancelled = true;
     };
-  }, [activity, conditions]);
+  }, [conditions]);
   return failed;
 }
