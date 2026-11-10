@@ -28,6 +28,8 @@ jobs:
       - run: pnpm --filter @tonnta/worker run deploy
 
   web:
+    # Review-only drafts must not upload or deploy safety-sensitive changes.
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -88,6 +90,8 @@ jobs:
             }
 
   swim-web:
+    # Review-only drafts must not upload or deploy safety-sensitive changes.
+    if: github.event_name == 'push' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
