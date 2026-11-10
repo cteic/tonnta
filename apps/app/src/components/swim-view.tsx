@@ -1,8 +1,19 @@
 import Svg, { Circle, Line, Rect } from 'react-native-svg';
 
-import { seaTempBand } from '@tonnta/data';
+import {
+  applySwimWaterQuality,
+  isWaterQualityUnknown,
+  seaTempBand,
+  waterQualityMessage,
+} from '@tonnta/data';
 import type { SeaTempBand, SwimWindow } from '@tonnta/data';
-import type { HourlyConditions, Spot, SwimVerdictResult, WaterQualityAlert } from '@tonnta/types';
+import type {
+  HourlyConditions,
+  Spot,
+  SwimVerdictResult,
+  WaterQualityAlert,
+  WaterQualityStatus,
+} from '@tonnta/types';
 import { Text, XStack, YStack } from '@tonnta/ui';
 
 import { formatDayName, formatHour, formatHourRange } from '@/lib/format';
@@ -15,8 +26,8 @@ import { Body, Eyebrow } from './screen';
  */
 
 const SWIM_LABEL: Record<SwimVerdictResult['verdict'], { english: string; irish: string }> = {
-  great: { english: 'PERFECT', irish: 'Foirfe' },
-  ok: { english: 'GRAND', irish: 'Ceart go leor' },
+  great: { english: 'CALM CONDITIONS', irish: 'Farraige chiúin' },
+  ok: { english: 'SOME CHOP', irish: 'Ceart go leor' },
   no: { english: 'NOT TODAY', irish: 'Ná téigh' },
 };
 
@@ -125,9 +136,19 @@ interface SwimHeroProps {
 }
 
 function SwimHero({ swim, hour, waterQuality }: SwimHeroProps) {
-  const label = SWIM_LABEL[swim.verdict];
+  const label =
+    swim.withheld === 'water-quality-unknown'
+      ? { english: 'CHECK LOCAL ADVICE', irish: 'Seiceáil comhairle áitiúil' }
+      : SWIM_LABEL[swim.verdict];
   return (
-    <YStack gap="$4" padding="$10" borderRadius="$6" backgroundColor={SWIM_SEA_TOKEN[swim.verdict]}>
+    <YStack
+      gap="$4"
+      padding="$10"
+      borderRadius="$6"
+      backgroundColor={
+        swim.withheld === 'water-quality-unknown' ? '$surfaceRaised' : SWIM_SEA_TOKEN[swim.verdict]
+      }
+    >
       <Eyebrow>{label.irish}</Eyebrow>
       <Text
         accessibilityRole="header"
@@ -159,14 +180,23 @@ function SwimHero({ swim, hour, waterQuality }: SwimHeroProps) {
 interface SwimWindowsProps {
   windows: SwimWindow[];
   spot: Spot;
+  waterQualityStatus: WaterQualityStatus;
 }
 
-function SwimWindows({ windows, spot }: SwimWindowsProps) {
+function SwimWindows({ windows, spot, waterQualityStatus }: SwimWindowsProps) {
   return (
     <YStack gap="$4">
-      <Eyebrow>Fuinneoga snámha · Swim windows</Eyebrow>
+      <Eyebrow>Weather windows</Eyebrow>
+      <Body muted>
+        These windows describe modeled weather, not future water quality. Check current bathing
+        notices and local advice before each visit.
+      </Body>
       {windows.length === 0 ? (
-        <Body muted>No swimmable windows in the next few days. The sea needs to settle first.</Body>
+        <Body muted>
+          {waterQualityStatus === 'restricted' || isWaterQualityUnknown(waterQualityStatus)
+            ? 'Weather windows withheld. Check current local bathing advice before entering the water.'
+            : 'No windows are available from the current forecast.'}
+        </Body>
       ) : (
         windows.map((window) => (
           <YStack key={window.start} gap="$1">
@@ -196,16 +226,42 @@ interface SwimViewProps {
   hour: HourlyConditions | undefined;
   waterQuality: WaterQualityAlert | undefined;
   windows: SwimWindow[];
+  waterQualityStatus?: WaterQualityStatus;
   /** False after dark, when the dark hero replaces the swim hero. */
   showHero: boolean;
 }
 
-export function SwimView({ spot, swim, hour, waterQuality, windows, showHero }: SwimViewProps) {
+export function SwimView({
+  spot,
+  swim,
+  hour,
+  waterQuality,
+  windows,
+  showHero,
+  waterQualityStatus: suppliedWaterQualityStatus = 'unchecked',
+}: SwimViewProps) {
+  const waterQualityStatus = waterQuality?.restrictionInPlace
+    ? 'restricted'
+    : suppliedWaterQualityStatus;
+  const guardedSwim = applySwimWaterQuality(swim, waterQuality, waterQualityStatus);
   return (
     <>
-      {showHero ? <SwimHero swim={swim} hour={hour} waterQuality={waterQuality} /> : null}
+      {showHero ? <SwimHero swim={guardedSwim} hour={hour} waterQuality={waterQuality} /> : null}
       {hour?.seaTempC !== undefined ? <SeaTempCard seaTempC={hour.seaTempC} /> : null}
-      <SwimWindows windows={windows} spot={spot} />
+      <Body>{waterQualityMessage(waterQualityStatus)}</Body>
+      <Body muted>
+        Regional sea estimates, not measured breaking waves. Conditions are not a safety clearance.
+        Follow local signs and lifeguard advice.
+      </Body>
+      <SwimWindows
+        windows={
+          waterQualityStatus === 'restricted' || isWaterQualityUnknown(waterQualityStatus)
+            ? []
+            : windows
+        }
+        spot={spot}
+        waterQualityStatus={waterQualityStatus}
+      />
     </>
   );
 }

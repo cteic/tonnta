@@ -1,6 +1,6 @@
 import {
   DEFAULT_SPOT_ID,
-  applyWaterQuality,
+  applySwimWaterQuality,
   assessHour,
   assessSwimHour,
   currentHourOf,
@@ -10,9 +10,12 @@ import {
   fetchWaterQualityAlert,
   findSwimWindows,
   getSpot,
+  getWaterQualityStatus,
   headlineFor,
+  isWaterQualityUnknown,
   nextGoodWindow,
   summarizeDays,
+  waterQualityMessage,
 } from '@tonnta/data';
 import type { GoodWindow, Headline, SwimWindow } from '@tonnta/data';
 import type {
@@ -24,6 +27,8 @@ import type {
   TideEvent,
   VerdictResult,
   WaterQualityAlert,
+  WaterQualityCheck,
+  WaterQualityStatus,
 } from '@tonnta/types';
 
 /**
@@ -34,6 +39,22 @@ import type {
 
 const FORECAST_REVALIDATE_S = 900; // 15 min — model updates are 6-hourly
 const LIVE_REVALIDATE_S = 600; // 10 min — buoy reports hourly
+
+async function loadWaterQuality(
+  spot: Spot
+): Promise<{ alert?: WaterQualityAlert; check: WaterQualityCheck }> {
+  if (spot.epaBeachId === undefined) return { check: { status: 'unmapped' } };
+  try {
+    // A cached or stale-while-revalidated result must not acquire a new check time.
+    const alert = await fetchWaterQualityAlert(spot.epaBeachId, (input, init) =>
+      fetch(input, { ...init, cache: 'no-store' })
+    );
+    const check: WaterQualityCheck = { status: 'checked', checkedAt: Date.now() };
+    return alert === undefined ? { check } : { alert, check };
+  } catch {
+    return { check: { status: 'unavailable', attemptedAt: Date.now() } };
+  }
+}
 
 function cachedFetch(revalidateS: number): typeof fetch {
   return (input, init) => fetch(input, { ...init, next: { revalidate: revalidateS } });
@@ -60,6 +81,9 @@ export interface SpotConditions {
   /** Upcoming swimmable windows, high-tide windows first. */
   swimWindows: SwimWindow[];
   waterQuality?: WaterQualityAlert;
+  /** Retrieval outcome, distinct from a water-quality measurement. */
+  waterQualityCheck?: WaterQualityCheck;
+  waterQualityStatus?: WaterQualityStatus;
   /** Set when a source failed and the screen is degraded. */
   warnings: string[];
 }
@@ -82,9 +106,7 @@ export async function loadSpotConditions(
     spot.buoyStationId !== undefined
       ? fetchBuoyObservation(spot.buoyStationId, cachedFetch(LIVE_REVALIDATE_S))
       : Promise.resolve(undefined),
-    spot.epaBeachId !== undefined
-      ? fetchWaterQualityAlert(spot.epaBeachId, cachedFetch(FORECAST_REVALIDATE_S))
-      : Promise.resolve(undefined),
+    loadWaterQuality(spot),
   ]);
 
   const hours = hoursResult.status === 'fulfilled' ? hoursResult.value : [];
@@ -101,25 +123,29 @@ export async function loadSpotConditions(
   }
 
   const waterQuality =
-    waterQualityResult.status === 'fulfilled' ? waterQualityResult.value : undefined;
-  if (waterQualityResult.status === 'rejected') {
-    warnings.push(
-      'Water-quality notices could not be checked. Check current local bathing advice before swimming.'
-    );
+    waterQualityResult.status === 'fulfilled' ? waterQualityResult.value.alert : undefined;
+  const nowMs = Date.now();
+  const waterQualityCheck: WaterQualityCheck =
+    waterQualityResult.status === 'fulfilled'
+      ? waterQualityResult.value.check
+      : { status: 'unavailable', attemptedAt: nowMs };
+  const waterQualityStatus = getWaterQualityStatus(waterQualityCheck, waterQuality, nowMs);
+  if (waterQualityStatus === 'unavailable' || waterQualityStatus === 'unmapped') {
+    warnings.push(waterQualityMessage(waterQualityStatus));
   }
 
-  const nowMs = Date.now();
   const currentHour = currentHourOf(hours, nowMs);
   const headline = headlineFor(hours, spot, nowMs);
   const now: VerdictResult =
     currentHour !== undefined
       ? assessHour(currentHour, spot)
       : { verdict: 'flat', reason: 'No forecast data — check back shortly.' };
-  const swimNow: SwimVerdictResult = applyWaterQuality(
+  const swimNow: SwimVerdictResult = applySwimWaterQuality(
     currentHour !== undefined
       ? assessSwimHour(currentHour, tides)
       : { verdict: 'no', reason: 'No forecast data — check back shortly.', nearHighTide: false },
-    waterQuality
+    waterQuality,
+    waterQualityStatus
   );
 
   const result: SpotConditions = {
@@ -131,8 +157,10 @@ export async function loadSpotConditions(
     hours,
     tides,
     swimNow,
+    waterQualityCheck,
+    waterQualityStatus,
     swimWindows:
-      waterQuality?.restrictionInPlace === true
+      isWaterQualityUnknown(waterQualityStatus) || waterQualityStatus === 'restricted'
         ? []
         : findSwimWindows(hours, tides, spot, nowMs).slice(0, 3),
     warnings,
@@ -141,9 +169,10 @@ export async function loadSpotConditions(
     result.currentHour = currentHour;
   }
   if (headline.kind === 'dark' && headline.firstLight !== undefined) {
-    result.swimFirstLight = applyWaterQuality(
+    result.swimFirstLight = applySwimWaterQuality(
       assessSwimHour(headline.firstLight.hour, tides),
-      waterQuality
+      waterQuality,
+      waterQualityStatus
     );
   }
   const window = nextGoodWindow(hours, spot, nowMs);

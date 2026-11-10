@@ -1,7 +1,8 @@
 'use client';
 
+import { isWaterQualityUnknown, waterQualityMessage } from '@tonnta/data';
 import type { SwimWindow } from '@tonnta/data';
-import type { Spot } from '@tonnta/types';
+import type { Spot, WaterQualityStatus } from '@tonnta/types';
 import type { ThemeTokens } from '@tonnta/web-shell';
 import { useAppTheme } from '@tonnta/web-shell';
 
@@ -31,17 +32,33 @@ const MONO: React.CSSProperties = {
   fontFamily: "'Spline Sans Mono', monospace",
 };
 
-export function SwimWindowsCard({ windows, spot }: { windows: SwimWindow[]; spot: Spot }) {
+export function SwimWindowsCard({
+  windows,
+  spot,
+  waterQualityStatus = 'unchecked',
+}: {
+  windows: SwimWindow[];
+  spot: Spot;
+  waterQualityStatus?: WaterQualityStatus | undefined;
+}) {
   const { theme } = useAppTheme();
   const { tokens } = theme;
+  const withheld = isWaterQualityUnknown(waterQualityStatus) || waterQualityStatus === 'restricted';
   return (
     <section style={{ ...cardStyle(tokens), borderColor: 'rgba(143,193,181,0.4)' }}>
-      <h2 style={eyebrowStyle(tokens)}>Fuinneoga snámha · Swim windows</h2>
-      {windows.length === 0 ? (
+      <h2 style={eyebrowStyle(tokens)}>Fuinneoga · Weather windows</h2>
+      {withheld && (
         <p style={{ margin: '10px 0 0', fontSize: 14, color: tokens.textMuted }}>
-          No swimmable windows in the next few days — the sea needs to settle first.
+          {waterQualityMessage(waterQualityStatus)} No swimming recommendation is being made.
         </p>
-      ) : (
+      )}
+      {!withheld && windows.length === 0 && (
+        <p style={{ margin: '10px 0 0', fontSize: 14, color: tokens.textMuted }}>
+          No swim windows are available from the current forecast. Check forecast availability and
+          current local bathing advice.
+        </p>
+      )}
+      {!withheld && windows.length > 0 && (
         <div style={{ display: 'grid', gap: 12, marginTop: 12 }}>
           {windows.map((window) => {
             const first = window.hours[0];
@@ -70,6 +87,10 @@ export function SwimWindowsCard({ windows, spot }: { windows: SwimWindow[]; spot
           })}
         </div>
       )}
+      <p style={{ margin: '12px 0 0', fontSize: 12, color: tokens.textSubtle }}>
+        These windows describe modeled weather, not future water quality. Check current local
+        notices before each visit.
+      </p>
     </section>
   );
 }

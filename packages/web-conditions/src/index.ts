@@ -17,3 +17,5 @@ export { SeaTempCard } from './sea-temp';
 export { SnamhHero } from './snamh-hero';
 export { SwimWindowsCard } from './snamh-sections';
 export { useLiveConditions } from './use-live-conditions';
+
+export { WaterQualityNotice } from './water-quality-notice';

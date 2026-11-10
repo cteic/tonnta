@@ -3,12 +3,33 @@ import { useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 
 import type { SpotOutlook } from './conditions';
-import { loadSpotOutlook } from './conditions';
+import { loadSpotOutlook, retainKnownWaterQualityRestriction } from './conditions';
 
 export type OutlookState =
   | { status: 'loading' }
   | { status: 'ready'; outlook: SpotOutlook }
   | { status: 'error'; message: string };
+
+/** Keep a known restriction visible while refreshing, including forecast failures. */
+export function outlookRefreshState(
+  previous: SpotOutlook | undefined,
+  phase: 'loading' | 'error',
+  message = 'The forecast is unavailable right now.'
+): OutlookState {
+  if (previous?.waterQuality?.restrictionInPlace === true) {
+    return {
+      status: 'ready',
+      outlook: {
+        ...previous,
+        refreshWarning:
+          phase === 'loading'
+            ? 'Refreshing conditions. The previously retrieved bathing restriction has not been confirmed lifted.'
+            : 'Conditions could not be refreshed. Showing previously retrieved data; the bathing restriction has not been confirmed lifted. Check current local advice.',
+      },
+    };
+  }
+  return phase === 'loading' ? { status: 'loading' } : { status: 'error', message };
+}
 
 /** Refresh while foregrounded and on return; stale results from a previous spot are dropped. */
 export function useSpotOutlook(spotId: string): OutlookState {
@@ -18,13 +39,16 @@ export function useSpotOutlook(spotId: string): OutlookState {
     let cancelled = false;
     let loading = false;
     let lastLoadedAt = 0;
+    let lastOutlook: SpotOutlook | undefined;
     const refresh = async () => {
       if (loading || cancelled) return;
       loading = true;
-      setState({ status: 'loading' });
+      setState(outlookRefreshState(lastOutlook, 'loading'));
       try {
-        const outlook = await loadSpotOutlook(spotId);
+        const downloaded = await loadSpotOutlook(spotId);
         if (!cancelled) {
+          const outlook = retainKnownWaterQualityRestriction(downloaded, lastOutlook, Date.now());
+          lastOutlook = outlook;
           lastLoadedAt = outlook.loadedAt;
           setState({ status: 'ready', outlook });
         }
@@ -32,7 +56,7 @@ export function useSpotOutlook(spotId: string): OutlookState {
         if (!cancelled) {
           const message =
             error instanceof Error ? error.message : 'The forecast is unavailable right now.';
-          setState({ status: 'error', message });
+          setState(outlookRefreshState(lastOutlook, 'error', message));
         }
       } finally {
         loading = false;

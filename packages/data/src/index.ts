@@ -33,3 +33,11 @@ export { SLACK_THRESHOLD_M, readingsAfter, tideTrend } from './tide-gauge';
 export { isRecord, isNumberArray, isStringArray, asFiniteNumber } from './guards';
 
 export { isForecastFresh, MAX_FORECAST_AGE_MS } from './freshness';
+
+export {
+  MAX_WATER_QUALITY_AGE_MS,
+  applySwimWaterQuality,
+  getWaterQualityStatus,
+  isWaterQualityUnknown,
+  waterQualityMessage,
+} from './water-quality';

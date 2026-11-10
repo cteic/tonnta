@@ -8,6 +8,7 @@ import {
   SwimWindowsCard,
   TideCard,
   Warnings,
+  WaterQualityNotice,
   useLiveConditions,
 } from '@tonnta/web-conditions';
 import { ThemePicker, useAppTheme } from '@tonnta/web-shell';
@@ -37,6 +38,8 @@ function SwimHero({ conditions }: { conditions: SpotConditions }) {
         sunrise={headline.sunrise}
         firstLightTime={headline.firstLight?.hour.time}
         swim={conditions.swimFirstLight}
+        waterQuality={conditions.waterQuality}
+        waterQualityStatus={conditions.waterQualityStatus}
       />
     );
   }
@@ -45,6 +48,7 @@ function SwimHero({ conditions }: { conditions: SpotConditions }) {
       swim={conditions.swimNow}
       hour={conditions.currentHour}
       waterQuality={conditions.waterQuality}
+      waterQualityStatus={conditions.waterQualityStatus}
     />
   );
 }
@@ -101,6 +105,11 @@ export function SwimView({ conditions: initialConditions }: { conditions: SpotCo
       </div>
 
       <main>
+        <WaterQualityNotice
+          status={restricted ? 'restricted' : conditions.waterQualityStatus}
+          check={conditions.waterQualityCheck}
+          spot={spot}
+        />
         <SwimHero conditions={conditions} />
         <div
           style={{
@@ -118,7 +127,11 @@ export function SwimView({ conditions: initialConditions }: { conditions: SpotCo
               current local notice.
             </p>
           ) : (
-            <SwimWindowsCard windows={conditions.swimWindows} spot={spot} />
+            <SwimWindowsCard
+              windows={conditions.swimWindows}
+              spot={spot}
+              waterQualityStatus={conditions.waterQualityStatus}
+            />
           )}
           {conditions.buoy !== undefined ? <BuoyCard buoy={conditions.buoy} spot={spot} /> : null}
           <TideCard tides={conditions.tides} spot={spot} />

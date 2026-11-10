@@ -1,10 +1,12 @@
 import {
   DEFAULT_SPOT_ID,
   MAX_FORECAST_AGE_MS,
+  MAX_WATER_QUALITY_AGE_MS,
   SPOTS,
   getSpot,
   isRecord,
   sunTimes,
+  waterQualityMessage,
 } from '@tonnta/data';
 import type { Spot, TideEvent } from '@tonnta/types';
 import type { SpotConditions } from '@tonnta/web-conditions';
@@ -212,7 +214,12 @@ export function buildConditionsSummary(conditions: SpotConditions, now: Date): s
   const lines: string[] = [
     `${spot.name}, ${spot.region}, ${COUNTRY_NAME[spot.country]}: ${presentation.spokenLabel}.`,
     presentation.reason,
+    'The surf outlook describes modeled weather, not water quality.',
+    `Water-quality notices: ${waterQualityMessage(conditions.waterQualityStatus ?? 'unchecked')}`,
   ];
+  if (conditions.swimNow.withheld === 'water-quality-unknown') {
+    lines.push('No swimming recommendation is being made while bathing advice is unknown.');
+  }
 
   if (currentHour !== undefined) {
     const wind = `${Math.round(currentHour.windSpeedKmh)} km/h ${WIND_STATE_LABEL[currentHour.windState]} from ${compassPoint(currentHour.windDirectionDeg)}`;
@@ -272,6 +279,15 @@ export function buildConditionsPayload(
     }
   }
 
+  if (
+    conditions.waterQualityStatus === 'not-reported' &&
+    conditions.waterQualityCheck?.status === 'checked'
+  ) {
+    validUntil = Math.min(
+      validUntil,
+      conditions.waterQualityCheck.checkedAt + MAX_WATER_QUALITY_AGE_MS
+    );
+  }
   const payload: Record<string, unknown> = {
     schemaVersion: 2,
     evaluatedAt: now.toISOString(),
@@ -289,6 +305,13 @@ export function buildConditionsPayload(
     verdictLabel: presentation.label,
     reason: presentation.reason,
     swimVerdict: live ? conditions.swimNow.verdict : presentation.verdict,
+    swimReason: live ? conditions.swimNow.reason : presentation.reason,
+    swimRecommendationWithheld: conditions.swimNow.withheld === 'water-quality-unknown',
+    waterQualityStatus: conditions.waterQualityStatus ?? 'unchecked',
+    waterQualityMeasured: false,
+    waterQualityNoticeScope:
+      spot.epaBeachId === undefined ? 'unmapped' : 'in-season-incidents-only',
+    waterQualityNotice: waterQualityMessage(conditions.waterQualityStatus ?? 'unchecked'),
     warnings: conditions.warnings,
     source: spotUrl(spot),
   };

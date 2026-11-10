@@ -4,7 +4,7 @@ import { getSpot, headlineFor, sunTimes } from '@tonnta/data';
 import type { HourlyConditions } from '@tonnta/types';
 
 import type { SpotConditions } from './conditions';
-import { conditionsAt } from './live-conditions';
+import { conditionsAt, nextConditionsCheckDelay } from './live-conditions';
 
 const donabate = getSpot('donabate');
 if (donabate === undefined) throw new Error('Donabate missing');
@@ -67,5 +67,23 @@ describe('Local clock forecast refresh', () => {
     expect(expired.currentHour).toBeUndefined();
     expect(expired.now.verdict).not.toBe('go');
     expect(expired.swimNow.verdict).toBe('no');
+  });
+});
+
+describe('Displayed notice and forecast expiry scheduling', () => {
+  const at = initial.loadedAt;
+  const delay = (loadedAt: number, checkedAt?: number) =>
+    nextConditionsCheckDelay(at, spot.latitude, spot.longitude, loadedAt, checkedAt);
+  it('wakes at the notice deadline rather than the 15-second polling cap', () => {
+    expect(delay(at, at - 899_999)).toBe(1);
+    expect(delay(at, at - 890_000)).toBe(10_000);
+  });
+  it('wakes at a nearer forecast expiry', () => {
+    expect(delay(at - 3_599_500, at)).toBe(500);
+  });
+  it('ignores expired or invalid deadlines without a zero-delay loop', () => {
+    expect(delay(at, at - 900_000)).toBe(15_000);
+    expect(delay(Number.NaN, Number.NaN)).toBe(15_000);
+    expect(delay(at, Number.POSITIVE_INFINITY)).toBe(15_000);
   });
 });
