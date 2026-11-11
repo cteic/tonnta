@@ -8,8 +8,8 @@ import { VERDICT_LABEL, formatHour } from '@/lib/format';
 import { Body, Eyebrow } from './screen';
 
 const SWIM_LABEL: Record<SwimVerdictResult['verdict'], string> = {
-  great: 'PERFECT',
-  ok: 'GRAND',
+  great: 'CALM CONDITIONS',
+  ok: 'SOME CHOP',
   no: 'NOT TODAY',
 };
 
@@ -32,7 +32,9 @@ function firstLightPreview(
       ? undefined
       : `${VERDICT_LABEL[surf.verdict].english}. ${surf.reason}`;
   }
-  return swim === undefined ? undefined : `${SWIM_LABEL[swim.verdict]}. ${swim.reason}`;
+  return swim === undefined
+    ? undefined
+    : `${swim.withheld === 'water-quality-unknown' ? 'CHECK LOCAL ADVICE' : SWIM_LABEL[swim.verdict]}. ${swim.reason}`;
 }
 
 /**
@@ -78,6 +80,12 @@ export function DarkHero({ spot, mode, sunrise, firstLightTime, surf, swim }: Da
             {`First light, ${formatHour(firstLightAt, spot.timezone)}`}
           </Text>
           <Body muted>{preview}</Body>
+          {mode === 'swim' ? (
+            <Body muted>
+              First-light conditions describe modeled weather, not future water quality. Check
+              current bathing notices and local advice before each visit.
+            </Body>
+          ) : null}
         </YStack>
       ) : null}
     </YStack>

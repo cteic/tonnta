@@ -408,3 +408,88 @@ describe('MCP local surf uncertainty', () => {
     expect(buildConditionsSummary(conditions, NOW)).toContain('Short-period sea');
   });
 });
+
+describe('MCP bathing-notice knowledge', () => {
+  it('does not expose a positive swim verdict for failed or absent notice knowledge', () => {
+    for (const check of [
+      { status: 'unavailable' as const, attemptedAt: NOW.getTime() },
+      { status: 'unmapped' as const },
+      undefined,
+    ]) {
+      const conditions = conditionsFixture();
+      if (check !== undefined) conditions.waterQualityCheck = check;
+      const result = buildConditionsPayload(conditions, NOW);
+      expect(result.swimVerdict).toBe('no');
+      expect(result.swimRecommendationWithheld).toBe(true);
+      expect(result.waterQualityStatus).toBe(check?.status ?? 'unchecked');
+      expect(result.waterQualityNotice).toBeTypeOf('string');
+      expect(result.swimReason).toBeTypeOf('string');
+      expect(result.verdict).toBe('go');
+    }
+  });
+  it('bounds notice reporting by expiry without ever turning empty alerts into swim clearance', () => {
+    const conditions = conditionsFixture();
+    conditions.waterQualityCheck = { status: 'checked', checkedAt: NOW.getTime() };
+    const result = buildConditionsPayload(conditions, NOW);
+    expect(result.swimVerdict).toBe('no');
+    expect(result.swimRecommendationWithheld).toBe(true);
+    expect(result.waterQualityMeasured).toBe(false);
+    expect(result.waterQualityNoticeScope).toBe('in-season-incidents-only');
+    expect(result.waterQualityStatus).toBe('not-reported');
+    expect(result.validUntil).toBe(new Date(NOW.getTime() + 900_000).toISOString());
+    expect(result.waterQualityNotice).toContain('Current water quality is unknown');
+    const stale = buildConditionsPayload(conditions, new Date(NOW.getTime() + 900_000));
+    expect(stale.waterQualityStatus).toBe('stale');
+    expect(stale.swimVerdict).toBe('no');
+    expect(stale.swimRecommendationWithheld).toBe(true);
+  });
+  it('retains a known restriction despite failed check metadata', () => {
+    const conditions = conditionsFixture();
+    conditions.waterQualityCheck = { status: 'unavailable', attemptedAt: NOW.getTime() };
+    conditions.waterQuality = {
+      beachId: 'donabate',
+      beachName: 'Donabate',
+      restrictionInPlace: true,
+    };
+    const result = buildConditionsPayload(conditions, NOW);
+    expect(result.waterQualityStatus).toBe('restricted');
+    expect(result.swimVerdict).toBe('no');
+    expect(result.swimRecommendationWithheld).toBe(false);
+    expect(result.swimReason).toContain('bathing restriction');
+  });
+});
+
+describe('MCP prose bathing-notice separation', () => {
+  it.each(['stale', 'unchecked', 'restricted'] as const)(
+    'includes current %s advice in primary text',
+    (status) => {
+      const conditions = conditionsFixture();
+      if (status === 'stale')
+        conditions.waterQualityCheck = { status: 'checked', checkedAt: NOW.getTime() - 900_000 };
+      if (status === 'restricted')
+        conditions.waterQuality = {
+          beachId: 'donabate',
+          beachName: 'Donabate',
+          restrictionInPlace: true,
+        };
+      const text = buildConditionsSummary(conditions, NOW);
+      expect(text).toContain('modeled weather, not water quality');
+      expect(text).toContain('Water-quality notices:');
+      if (status === 'restricted') expect(text).toContain('Stay out');
+      else {
+        expect(text).toContain('No swimming recommendation');
+        expect(text).toContain(status === 'stale' ? 'need rechecking' : 'have not been checked');
+      }
+    }
+  );
+});
+
+it('expires notice retrieval metadata even with negative weather advice', () => {
+  const conditions = conditionsFixture();
+  conditions.hours = [{ ...CURRENT_HOUR, waveHeightM: 3 }];
+  conditions.waterQualityCheck = { status: 'checked', checkedAt: NOW.getTime() };
+  const result = buildConditionsPayload(conditions, NOW);
+  expect(result.swimVerdict).toBe('no');
+  expect(result.waterQualityStatus).toBe('not-reported');
+  expect(result.validUntil).toBe(new Date(NOW.getTime() + 900_000).toISOString());
+});

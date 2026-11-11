@@ -85,10 +85,10 @@ export function assessSwimHour(
   const { waveHeightM, windSpeedKmh } = hour;
 
   if (windSpeedKmh < thresholds.greatWindKmh && waveHeightM <= thresholds.greatWaveM) {
-    const tideNote = nearHighTide ? ' High tide too — in you get.' : '';
+    const tideNote = nearHighTide ? ' Near high tide.' : '';
     return {
       verdict: 'great',
-      reason: `Calm as a pond${formatTemp(hour.seaTempC)} — a lovely swim.${tideNote}`,
+      reason: `Modeled calm conditions${formatTemp(hour.seaTempC)}.${tideNote}`,
       nearHighTide,
     };
   }
@@ -96,7 +96,7 @@ export function assessSwimHour(
   if (windSpeedKmh <= thresholds.okWindKmh && waveHeightM <= thresholds.okWaveM) {
     return {
       verdict: 'ok',
-      reason: `A bit of chop at ${waveHeightM.toFixed(1)}m${formatTemp(hour.seaTempC)} — grand for a dip if you know the spot.`,
+      reason: `Modeled chop at ${waveHeightM.toFixed(1)}m${formatTemp(hour.seaTempC)}.`,
       nearHighTide,
     };
   }
