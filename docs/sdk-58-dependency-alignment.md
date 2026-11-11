@@ -56,3 +56,12 @@ On Node 22.23.4 and pnpm 9.15.0:
   Tamagui patch hashes intact. Safety code and workflows are unchanged.
 
 Remote CI must still be checked on the resulting published commit.
+
+### Remote doctor tooling correction
+
+The first remote run passed frozen installation and Code Checks, but the floating
+`expo-doctor@latest` resolved 1.21.7 and crashed before checks with missing
+`@expo/env`. Local validation had resolved 1.21.6. Mobile CI now pins 1.21.6,
+which passed all 20 checks again from a fresh cache without `NODE_PATH`. This
+keeps all doctor checks enabled while avoiding the broken floating release.
+Revisit the pin when a later release is independently verified.
