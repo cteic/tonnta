@@ -65,3 +65,41 @@ The first remote run passed frozen installation and Code Checks, but the floatin
 which passed all 20 checks again from a fresh cache without `NODE_PATH`. This
 keeps all doctor checks enabled while avoiding the broken floating release.
 Revisit the pin when a later release is independently verified.
+
+### Follow-up patch alignment (CTE-100, 11 November 2026)
+
+PR #75's Mobile run encountered 11 newly recommended Expo patches:
+https://github.com/cteic/tonnta/actions/runs/43067276330.
+A fresh online `expo install --check` reproduced the same recommendations.
+This separate follow-up updates only those app declarations and their lockfile
+resolution: `@expo/ui` 58.0.28, `expo` 58.0.24, `expo-background-task` 58.0.13,
+`expo-constants` 58.0.16, `expo-linking` 58.0.17, `expo-router` 58.0.31,
+`expo-splash-screen` 58.0.14, `expo-status-bar` 58.0.5,
+`expo-task-manager` 58.0.14, `expo-updates` 58.0.22, and `expo-widgets` 58.0.28.
+The doctor pin and existing exclusions are unchanged.
+
+These direct patch releases bring upstream transitive changes, including
+`expo-modules-core`, `expo-modules-autolinking`, and `expo-server` 58.1.0,
+`expo-modules-cli` 0.5.0, `expo-modules-macros` 0.33.0, and `@expo/env` 2.6.0.
+They are not evidence of native build or device acceptance. All native release
+gates above still apply; CTE-100 remains open for that acceptance.
+
+Semantic lockfile review found 1,659 package records versus 1,657 previously.
+Only the app importer changed. Unchanged-version package metadata/integrities,
+all other importers, overrides, and Tamagui patch hashes are preserved.
+
+Independent review compared 38 old/new installed packages and 17 Android
+manifest/privacy files without finding manifest or privacy-file changes.
+`RECEIVE_BOOT_COMPLETED` was already present in task-manager 58.0.13.
+Core/macros/autolinking still change iOS module generation and validation;
+check native compilation and device behavior before any release.
+The direct Babel preset remains 58.0.24 while Expo resolves a separate
+transitive 58.0.25; no blanket latest-version claim is intended.
+
+Local verification on Node 22.23.4 and pnpm 9.15.0 passed frozen installation,
+formatting, workflow timeouts, lint, typecheck, 961 unit/contract tests in
+58 files, both web builds, worker dry-run, and iOS/Android exports.
+`build:packages` completed with no tasks defined. A fresh-cache
+`expo-doctor@1.21.6` passed all 20 checks, and the online compatibility check
+passed. Remote Code Checks and Mobile must still be verified on the published
+commit. No merge, EAS build, submission, OTA update, or deployment was performed.
