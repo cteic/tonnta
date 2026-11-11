@@ -60,3 +60,33 @@ should remain distinct from physical forecast calibration and safety warnings.
 
 This change does not establish the precise cause of the reported weekend miss.
 That needs the visit time, spot, deployed rules and original forecast evidence.
+
+## Deterministic regression baseline
+
+Run `pnpm test:contract` for the cross-package fixtures in
+`scripts/verdict-contract.spec.ts`. These synthetic Open-Meteo responses pass
+through the real source adapter, worker HTTP handler, JSON decoder and widget
+projections without network access. They lock down:
+
+- Valid daytime scoring and board selection at 3.99s, 4s and 5s, including the
+  boardless short-period MAYBE and Android's non-actionable snapshot.
+- Missing or invalid current forecast inputs returning an uncached 502, even when
+  later hours are valid. The widget fetch rejects that response rather than
+  substituting a future GO.
+- Wind/marine timestamp alignment and missing future hours remaining unavailable.
+- Sunrise/sunset-straddling forecast hours staying dark and boardless.
+- UTC validity intervals, exclusive expiry and spot-local display across both
+  Europe/Dublin daylight-saving changes, independent of the device timezone.
+
+The existing data-package tests cover each required numeric field, optional
+readings, scoring precedence, local threshold overrides, astronomical boundaries
+and window selection. The contract fixtures cover the seams between those units;
+these are regression checks, not evidence of observed beach accuracy or a change
+to the provisional thresholds. No live-source availability, native rendering or
+production deployment is verified by this suite.
+
+Repeated identical upstream inputs and an explicit clock must produce deeply equal
+wire payloads (including reason text) and widget projections. Human-readable
+reasons are currently prose, not stable machine-readable reason codes. Versioned
+reason codes and forecast evidence/profile metadata in the public payload remain
+follow-up contract work; this baseline does not claim that work is complete.

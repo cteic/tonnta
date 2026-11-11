@@ -1,11 +1,15 @@
 # Daylight-safe verdict API (schema version 2)
 
-This is a breaking change to recommendation enums. **Producer rollout is blocked**
-until every existing v1 consumer is verified upgraded or retired, or a separately
-reviewed version-negotiation/compatibility path is implemented. No installation
-inventory has been verified in this work. Unknown versions and unknown states in
-updated consumers must fail closed: show unavailable, never a default positive
-verdict or board.
+This is a breaking change to recommendation enums. As reviewed on 11 November
+2026, [CTE-87](https://linear.app/cteic/issue/CTE-87/decide-whether-installed-v1-widgets-exist-before-shipping-the-v2)
+is recorded Done, and PR #68 records that no widgets were installed outside
+development; PR #74 integrates that change. This is the recorded inventory
+decision, not a new device audit or permission to deploy. Recheck any distribution
+changes before release. If v1 consumers now exist, producer rollout remains
+blocked until they are verified upgraded or retired, or a separately reviewed
+version-negotiation/compatibility path is implemented. Unknown versions and
+unknown states in updated consumers must fail closed: show unavailable, never a
+default positive verdict or board.
 
 ## GET /verdict
 
