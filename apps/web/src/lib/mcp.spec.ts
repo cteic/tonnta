@@ -1,7 +1,13 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { describe, expect, it } from 'vitest';
 
-import { getSpot, isRecord, sunTimes } from '@tonnta/data';
+import {
+  SURF_VERDICT_ENGINE_VERSION,
+  assessHourWithReason,
+  getSpot,
+  isRecord,
+  sunTimes,
+} from '@tonnta/data';
 import type { HourlyConditions, Spot, VerdictResult } from '@tonnta/types';
 import type { SpotConditions } from '@tonnta/web-conditions';
 
@@ -309,6 +315,7 @@ describe('live MCP daylight and freshness', () => {
       expect(payload.schemaVersion).toBe(2);
       expect(payload.verdict === 'dark').toBe(dark);
       if (dark) {
+        expect(payload.reasonCode).toBe('outside-daylight');
         expect(payload.swimVerdict).toBe('dark');
         expect(payload.board).toBeUndefined();
         expect(payload.nextGoodWindow).toBeUndefined();
@@ -331,6 +338,7 @@ describe('live MCP daylight and freshness', () => {
     ]) {
       const payload = buildConditionsPayload(conditions, NOW);
       expect(payload.verdict).toBe('unavailable');
+      expect(payload.reasonCode).toBe('current-forecast-unavailable');
       expect(payload.swimVerdict).toBe('unavailable');
       expect(payload.board).toBeUndefined();
       expect(payload.forecastHour).toBeUndefined();
@@ -492,4 +500,25 @@ it('expires notice retrieval metadata even with negative weather advice', () => 
   expect(result.swimVerdict).toBe('no');
   expect(result.waterQualityStatus).toBe('not-reported');
   expect(result.validUntil).toBe(new Date(NOW.getTime() + 900_000).toISOString());
+});
+
+it('adds evaluation identity without extending data freshness or changing surf prose', () => {
+  const conditions = conditionsFixture();
+  const payload = buildConditionsPayload(conditions, NOW);
+  const expected = assessHourWithReason(CURRENT_HOUR, conditions.spot);
+  expect(payload).toMatchObject({
+    schemaVersion: 2,
+    engineVersion: SURF_VERDICT_ENGINE_VERSION,
+    profileVersion: 'donabate-v1',
+    generatedAt: NOW.toISOString(),
+    evaluatedAt: NOW.toISOString(),
+    reasonCode: expected.reasonCode,
+    verdict: expected.verdict,
+    reason: expected.reason,
+  });
+  const stale = buildConditionsPayload({ ...conditions, loadedAt: NOW.getTime() - 3_600_000 }, NOW);
+  expect(stale.generatedAt).toBe(NOW.toISOString());
+  expect(stale.validUntil).toBe(NOW.toISOString());
+  expect(stale.reasonCode).toBe('current-forecast-unavailable');
+  expect(stale.board).toBeUndefined();
 });

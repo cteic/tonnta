@@ -3,10 +3,13 @@ export {
   DEFAULT_THRESHOLDS,
   SURF_VERDICT_ENGINE_VERSION,
   assessHour,
+  assessHourWithReason,
+  SURF_REASON_CODES,
   classifyWind,
   spotThresholds,
 } from './verdict';
-export type { VerdictThresholds } from './verdict';
+export type { VerdictThresholds, SurfReasonCode, SurfAssessment } from './verdict';
+export { surfProfileVersion } from './spot-profiles';
 export { currentHourOf } from './current-hour';
 export { isDaylight, isDaylightHour, sunTimes } from './daylight';
 export { headlineFor } from './headline';

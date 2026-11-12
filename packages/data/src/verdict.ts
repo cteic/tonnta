@@ -90,19 +90,20 @@ export function spotThresholds(spot: Spot): VerdictThresholds {
   return spot.thresholds ?? DEFAULT_THRESHOLDS;
 }
 
-export function assessHour(
+export function assessHourWithReason(
   hour: HourlyConditions,
   spot: Spot,
   thresholds?: VerdictThresholds
-): VerdictResult {
+): SurfAssessment {
   if (isThunderstorm(hour)) {
-    return { verdict: 'blown', reason: THUNDERSTORM_REASON };
+    return { verdict: 'blown', reasonCode: 'thunderstorm', reason: THUNDERSTORM_REASON };
   }
   // The source drops invalid hours. Defend callers using retained or custom data too,
   // without claiming that missing/invalid observations mean a flat sea.
   if (!hasValidSurfInputs(hour)) {
     return {
       verdict: 'maybe',
+      reasonCode: 'invalid-forecast',
       reason: 'Forecast data is invalid; breaking surf is unconfirmed. Check locally.',
     };
   }
@@ -113,6 +114,7 @@ export function assessHour(
   if (isOn(windState) && windSpeedKmh > resolved.blownOnshoreKmh) {
     return {
       verdict: 'blown',
+      reasonCode: 'onshore-blown-out',
       reason: `Onshore ${Math.round(windSpeedKmh)}km/h has it blown out — save it for another day.`,
     };
   }
@@ -123,11 +125,13 @@ export function assessHour(
       return {
         verdict: 'flat',
         board,
+        reasonCode: 'flat-glassy',
         reason: 'Flat and glassy — no surf, but a lovely SUP.',
       };
     }
     return {
       verdict: 'flat',
+      reasonCode: 'below-surf-height',
       reason: `Under ${formatWave(resolved.flatBelowM)} — nothing to ride today.`,
     };
   }
@@ -139,13 +143,15 @@ export function assessHour(
     if (resolved.minGoPeriodS !== undefined && hour.wavePeriodS < resolved.minGoPeriodS) {
       return {
         verdict: 'maybe',
+        reasonCode: 'short-period-unconfirmed',
         reason: 'Short-period sea; breaking surf is unconfirmed. Check locally.',
       };
     }
     const board = pickBoard(hour);
     const windWord = isOff(windState) ? 'clean' : 'manageable';
-    const result: VerdictResult = {
+    const result: SurfAssessment = {
       verdict: 'go',
+      reasonCode: 'rideable-within-wind-limit',
       reason: `${formatWave(waveHeightM)} at ${Math.round(hour.wavePeriodS)}s and the wind is ${windWord} — worth going down.`,
     };
     if (board !== undefined) {
@@ -155,8 +161,9 @@ export function assessHour(
   }
 
   if (rideable) {
-    const result: VerdictResult = {
+    const result: SurfAssessment = {
       verdict: 'maybe',
+      reasonCode: 'wind-above-limit',
       reason: `${formatWave(waveHeightM)} showing but ${Math.round(windSpeedKmh)}km/h ${windState} wind — could be messy.`,
     };
     const board = pickBoard(hour);
@@ -168,6 +175,35 @@ export function assessHour(
 
   return {
     verdict: 'maybe',
+    reasonCode: 'borderline-height',
     reason: `${formatWave(waveHeightM)} — borderline; take the foamie if you're passing anyway.`,
   };
+}
+
+/** Stable, primary decision branch; never infer these codes by parsing prose. */
+export const SURF_REASON_CODES = [
+  'thunderstorm',
+  'invalid-forecast',
+  'onshore-blown-out',
+  'flat-glassy',
+  'below-surf-height',
+  'short-period-unconfirmed',
+  'rideable-within-wind-limit',
+  'wind-above-limit',
+  'borderline-height',
+] as const;
+export type SurfReasonCode = (typeof SURF_REASON_CODES)[number];
+export interface SurfAssessment extends VerdictResult {
+  reasonCode: SurfReasonCode;
+}
+
+/** Preserve the original assessment shape for persisted snapshots and existing callers. */
+export function assessHour(
+  hour: HourlyConditions,
+  spot: Spot,
+  thresholds?: VerdictThresholds
+): VerdictResult {
+  const { reasonCode, ...result } = assessHourWithReason(hour, spot, thresholds);
+  void reasonCode;
+  return result;
 }

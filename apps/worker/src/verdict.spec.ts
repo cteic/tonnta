@@ -12,7 +12,7 @@ import {
 import type { HourlyConditions, Spot } from '@tonnta/types';
 
 import type { VerdictCache, VerdictTimeline } from './verdict';
-import { buildTimeline, handleVerdict, isVerdictTimeline } from './verdict';
+import { buildTimeline, handleVerdict, isVerdictTimeline, verdictTimeline } from './verdict';
 
 const feature = await loadFeature('./verdict.feature');
 
@@ -88,7 +88,7 @@ function memoryCache(): VerdictCache & { store: Map<string, string> } {
   };
 }
 
-const CURRENT_HOUR_KEY = `verdict:v2:${SURF_VERDICT_ENGINE_VERSION}:donabate:2026-10-20T09`;
+const CURRENT_HOUR_KEY = `verdict:v2:${SURF_VERDICT_ENGINE_VERSION}:evidence-1:donabate-v1:donabate:2026-10-20T09`;
 
 async function readTimeline(response: Response): Promise<VerdictTimeline> {
   const body: unknown = await response.json();
@@ -328,6 +328,18 @@ describe('daylight API v2', () => {
     for (const change of [
       { generatedAt: new Date(NOW - HOUR_MS).toISOString() },
       { schemaVersion: 1 },
+      { evidenceVersion: undefined },
+      { engineVersion: 'old-engine' },
+      { profileVersion: 'donabate-v0' },
+      ...[undefined, null, 42, 'unknown-code', 'outside-full-daylight-hour'].map((reasonCode) => ({
+        hours: [{ ...buildTimeline(forecastHours(), launchSpot(), NOW).hours[0], reasonCode }],
+      })),
+      {
+        hours: buildTimeline(forecastHours(), launchSpot(), NOW).hours.map((hour) => ({
+          ...hour,
+          reasonCode: undefined,
+        })),
+      },
       { spot: { id: 'wrong', name: 'Wrong' } },
       {
         hours: [
@@ -471,4 +483,40 @@ describe('daylight API v2', () => {
       }
     }
   });
+});
+
+describe('additive surf evidence', () => {
+  it('publishes stable engine/profile identity and branch codes', () => {
+    const timeline = buildTimeline(forecastHours(), launchSpot(), NOW);
+    expect(timeline).toMatchObject({
+      schemaVersion: 2,
+      evidenceVersion: 1,
+      engineVersion: SURF_VERDICT_ENGINE_VERSION,
+      profileVersion: 'donabate-v1',
+      generatedAt: new Date(NOW).toISOString(),
+    });
+    expect(isVerdictTimeline(timeline)).toBe(true);
+    for (const hour of timeline.hours) expect(typeof hour.reasonCode).toBe('string');
+  });
+  it('never reads an old v2 key even when its forecast is still fresh', async () => {
+    const cache = memoryCache();
+    const oldKey = `verdict:v2:${SURF_VERDICT_ENGINE_VERSION}:donabate:2026-10-20T09`;
+    cache.store.set(oldKey, JSON.stringify(buildTimeline(forecastHours(), launchSpot(), NOW)));
+    const calls: string[] = [];
+    await handleVerdict(new URL('https://worker.test/verdict'), cache, NOW, fakeOpenMeteo(calls));
+    expect(calls).toHaveLength(2);
+    expect(cache.store.has(CURRENT_HOUR_KEY)).toBe(true);
+    expect(cache.store.has(oldKey)).toBe(true);
+  });
+});
+
+it('does not attach registered evidence or reuse KV for a custom profile', async () => {
+  const spot = { ...launchSpot(), facing: launchSpot().facing + 1 };
+  const cache = { get: vi.fn(async () => null), put: vi.fn(async () => undefined) };
+  const calls: string[] = [];
+  const timeline = await verdictTimeline(spot, cache, NOW, fakeOpenMeteo(calls));
+  expect(timeline.profileVersion).toBeNull();
+  expect(calls).toHaveLength(2);
+  expect(cache.get).not.toHaveBeenCalled();
+  expect(cache.put).not.toHaveBeenCalled();
 });

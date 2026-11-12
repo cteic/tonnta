@@ -3,9 +3,12 @@ import {
   MAX_FORECAST_AGE_MS,
   MAX_WATER_QUALITY_AGE_MS,
   SPOTS,
+  SURF_VERDICT_ENGINE_VERSION,
+  assessHourWithReason,
   getSpot,
   isRecord,
   sunTimes,
+  surfProfileVersion,
   waterQualityMessage,
 } from '@tonnta/data';
 import type { Spot, TideEvent } from '@tonnta/types';
@@ -288,9 +291,18 @@ export function buildConditionsPayload(
       conditions.waterQualityCheck.checkedAt + MAX_WATER_QUALITY_AGE_MS
     );
   }
+  let reasonCode = 'current-forecast-unavailable';
+  if (headline.kind === 'dark') reasonCode = 'outside-daylight';
+  else if (live && currentHour !== undefined)
+    reasonCode = assessHourWithReason(currentHour, spot).reasonCode;
+
   const payload: Record<string, unknown> = {
     schemaVersion: 2,
     evaluatedAt: now.toISOString(),
+    generatedAt: now.toISOString(),
+    engineVersion: SURF_VERDICT_ENGINE_VERSION,
+    profileVersion: surfProfileVersion(spot),
+    reasonCode,
     validUntil: new Date(validUntil).toISOString(),
     spot: {
       id: spot.id,

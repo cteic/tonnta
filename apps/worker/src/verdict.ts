@@ -1,13 +1,16 @@
 import {
   DEFAULT_SPOT_ID,
+  SURF_REASON_CODES,
   SURF_VERDICT_ENGINE_VERSION,
-  assessHour,
+  assessHourWithReason,
   fetchHourlyConditions,
   getSpot,
   isDaylightHour,
   isForecastFresh,
   isRecord,
+  surfProfileVersion,
 } from '@tonnta/data';
+import type { SurfReasonCode } from '@tonnta/data';
 import type { Board, HourlyConditions, Spot, Verdict } from '@tonnta/types';
 
 /**
@@ -18,6 +21,8 @@ import type { Board, HourlyConditions, Spot, Verdict } from '@tonnta/types';
  */
 
 export const TIMELINE_HOURS = 24;
+/** Additive evidence contract, independent of scoring and wire enum versions. */
+export const SURF_EVIDENCE_VERSION = 1;
 
 /** KV entries outlive one forecast hour by a little; the key carries the hour. */
 const CACHE_TTL_S = 15 * 60;
@@ -36,6 +41,7 @@ export interface HourVerdict {
   validUntil: string;
   board?: Board;
   reason: string;
+  reasonCode: SurfReasonCode | 'outside-full-daylight-hour';
   waveHeightM: number;
   wavePeriodS: number;
   windSpeedKmh: number;
@@ -43,6 +49,9 @@ export interface HourVerdict {
 
 export interface VerdictTimeline {
   schemaVersion: 2;
+  evidenceVersion: 1;
+  engineVersion: string;
+  profileVersion: string | null;
   spot: { id: string; name: string; irishName?: string };
   generatedAt: string;
   hours: HourVerdict[];
@@ -51,14 +60,19 @@ export interface VerdictTimeline {
 function toHourVerdict(hour: HourlyConditions, spot: Spot): HourVerdict {
   const daylight = isDaylightHour(hour.time, spot);
   const result = daylight
-    ? assessHour(hour, spot)
-    : { verdict: 'dark' as const, reason: 'Outside a full daylight hour. Stay out of the water.' };
+    ? assessHourWithReason(hour, spot)
+    : {
+        verdict: 'dark' as const,
+        reasonCode: 'outside-full-daylight-hour' as const,
+        reason: 'Outside a full daylight hour. Stay out of the water.',
+      };
   const entry: HourVerdict = {
     time: hour.time,
     daylight,
     validUntil: new Date(Date.parse(hour.time) + HOUR_MS).toISOString(),
     verdict: result.verdict,
     reason: result.reason,
+    reasonCode: result.reasonCode,
     waveHeightM: hour.waveHeightM,
     wavePeriodS: hour.wavePeriodS,
     windSpeedKmh: hour.windSpeedKmh,
@@ -89,6 +103,9 @@ export function buildTimeline(
   }
   return {
     schemaVersion: 2,
+    evidenceVersion: SURF_EVIDENCE_VERSION,
+    engineVersion: SURF_VERDICT_ENGINE_VERSION,
+    profileVersion: surfProfileVersion(spot),
     spot: summary,
     generatedAt: new Date(now).toISOString(),
     hours: upcoming,
@@ -114,6 +131,10 @@ function isHourVerdict(value: unknown): value is HourVerdict {
     (value.board === undefined ||
       (typeof value.board === 'string' && BOARDS.includes(value.board))) &&
     typeof value.reason === 'string' &&
+    (value.daylight
+      ? typeof value.reasonCode === 'string' &&
+        (SURF_REASON_CODES as readonly string[]).includes(value.reasonCode)
+      : value.reasonCode === 'outside-full-daylight-hour') &&
     typeof value.waveHeightM === 'number' &&
     Number.isFinite(value.waveHeightM) &&
     value.waveHeightM >= 0 &&
@@ -130,6 +151,9 @@ export function isVerdictTimeline(value: unknown): value is VerdictTimeline {
   return (
     isRecord(value) &&
     value.schemaVersion === 2 &&
+    value.evidenceVersion === SURF_EVIDENCE_VERSION &&
+    value.engineVersion === SURF_VERDICT_ENGINE_VERSION &&
+    (value.profileVersion === null || typeof value.profileVersion === 'string') &&
     isRecord(value.spot) &&
     typeof value.spot.id === 'string' &&
     typeof value.spot.name === 'string' &&
@@ -140,9 +164,9 @@ export function isVerdictTimeline(value: unknown): value is VerdictTimeline {
   );
 }
 
-function cacheKey(spotId: string, now: number): string {
+function cacheKey(spot: Spot, now: number): string {
   // Rules can change within the same forecast hour; old verdicts must not survive them.
-  return `verdict:v2:${SURF_VERDICT_ENGINE_VERSION}:${spotId}:${new Date(now).toISOString().slice(0, 13)}`;
+  return `verdict:v2:${SURF_VERDICT_ENGINE_VERSION}:evidence-${SURF_EVIDENCE_VERSION}:${surfProfileVersion(spot)}:${spot.id}:${new Date(now).toISOString().slice(0, 13)}`;
 }
 
 async function readCached(cache: VerdictCache, key: string): Promise<VerdictTimeline | undefined> {
@@ -162,11 +186,13 @@ export async function verdictTimeline(
   now: number = Date.now(),
   fetchImpl: typeof fetch = fetch
 ): Promise<VerdictTimeline> {
-  const key = cacheKey(spot.id, now);
-  const cached = await readCached(cache, key);
+  const key = cacheKey(spot, now);
+  const profileVersion = surfProfileVersion(spot);
+  const cached = profileVersion === null ? undefined : await readCached(cache, key);
   if (
     cached !== undefined &&
     cached.spot.id === spot.id &&
+    cached.profileVersion === profileVersion &&
     isForecastFresh(Date.parse(cached.generatedAt), now) &&
     cached.hours.some(
       (hour) => Date.parse(hour.time) <= now && Date.parse(hour.validUntil) > now
@@ -178,7 +204,8 @@ export async function verdictTimeline(
   const timeline = buildTimeline(await fetchHourlyConditions(spot, fetchImpl), spot, now);
   if (timeline.hours.length === 0) throw new Error('No current forecast coverage');
   try {
-    await cache.put(key, JSON.stringify(timeline), { expirationTtl: CACHE_TTL_S });
+    if (profileVersion !== null)
+      await cache.put(key, JSON.stringify(timeline), { expirationTtl: CACHE_TTL_S });
   } catch {
     // A failed cache write costs one extra upstream fetch next time, nothing more.
   }

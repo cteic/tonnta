@@ -86,7 +86,8 @@ to the provisional thresholds. No live-source availability, native rendering or
 production deployment is verified by this suite.
 
 Repeated identical upstream inputs and an explicit clock must produce deeply equal
-wire payloads (including reason text) and widget projections. Human-readable
-reasons are currently prose, not stable machine-readable reason codes. Versioned
-reason codes and forecast evidence/profile metadata in the public payload remain
-follow-up contract work; this baseline does not claim that work is complete.
+wire payloads (including reason text) and widget projections. The additive
+[decision evidence contract](verdict-api-v2.md#additive-surf-decision-evidence-cte-103)
+now exposes stable primary reason codes and engine/profile identity without
+changing those decisions. Retrieval/evaluation timestamps are not upstream model
+issuance evidence. Profile identity does not imply calibration or beta approval.

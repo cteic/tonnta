@@ -71,3 +71,54 @@ of that final hour.
 Consumers must handle both new states explicitly, avoid deriving a positive
 recommendation from numeric measurements, and request fresh conditions before
 using an older response as live advice.
+
+## Additive surf decision evidence (CTE-103)
+
+Schema v2 verdict enums, prose, scores and expiry behavior are unchanged. The
+Worker now emits `evidenceVersion: 1`, `engineVersion` and `profileVersion` at the
+timeline level, and `reasonCode` on each hour. MCP emits the same engine/profile
+identity, a primary `reasonCode`, and `generatedAt` as an alias of `evaluatedAt`.
+These fields describe surf only, not swim advice or water-quality clearance.
+
+- Engine identity remains `donabate-short-period-v1`: no scoring rule changed.
+- Profile identity is the version pinned in the existing spot registry provenance.
+  It is `null` for custom or mismatched configurations. A version is not evidence
+  of local calibration, independent validation or approval to expand the beta.
+- Worker `generatedAt` is the retrieval/build clock, not upstream model issuance.
+  MCP `generatedAt`/`evaluatedAt` is the response evaluation clock, not retrieval
+  or issuance. Existing freshness checks still use the original data load clock.
+- Per-hour `validUntil` remains the exclusive hour end. Timeline freshness still
+  ends one hour after `generatedAt`; neither metadata nor future hours extends it.
+  MCP `validUntil` retains its existing hour, freshness and sunset bounds.
+
+Primary codes follow engine branch precedence, not all contributing factors:
+
+- `thunderstorm`: thunderstorm override, including when other inputs are invalid.
+- `invalid-forecast`: required surf inputs fail validation.
+- `onshore-blown-out`: onshore/cross-on wind strictly exceeds the blown threshold.
+- `flat-glassy`: below flat threshold with a glassy SUP board selection.
+- `below-surf-height`: below flat threshold without that glassy SUP selection.
+- `short-period-unconfirmed`: rideable height and acceptable wind, but period
+  strictly below the configured minimum.
+- `rideable-within-wind-limit`: rideable height and wind at/below its applicable
+  limit, without the short-period uncertainty gate.
+- `wind-above-limit`: rideable height but wind above its applicable limit.
+- `borderline-height`: neither flat nor rideable height.
+
+The Worker uses `outside-full-daylight-hour` before assessing the weather for
+partly lit/dark intervals. MCP uses `outside-daylight` for actual-clock darkness
+and `current-forecast-unavailable` for withheld current data; it does not guess
+whether a generic unavailable result came from stale, missing or invalid data.
+These are status reasons, not claims about surf conditions.
+
+`assessHourWithReason` is the single scoring implementation. `assessHour` returns
+its original result shape for existing callers and historical local snapshots.
+No historical snapshot is retroactively labelled with new decision evidence.
+Existing widget decoders ignore additive fields and retain their expiry guards.
+
+Worker KV keys include engine, evidence revision and profile version. Prior v2
+keys are not read. Entries lacking codes/evidence, carrying unknown codes,
+wrong engine/profile identity, or failing existing time/daylight validation are
+refetched, never upgraded by attaching current labels. Unversioned custom spot
+configurations bypass KV reads and writes. Old native v1 migration/deployment
+restrictions above are unchanged; this addition does not authorize rollout.
