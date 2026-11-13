@@ -1,12 +1,10 @@
 import type { Metadata } from 'next';
 
-import { DEFAULT_SPOT_ID } from '@tonnta/data';
-
 /** Provisional name and domain (CTE-94). Change them here and nowhere else. */
 export const SITE_NAME = 'Snámh';
-export const SITE_LABEL = 'Sea swimming conditions';
+export const SITE_LABEL = 'Irish bathing water facts';
 export const SITE_DESCRIPTION =
-  'Sea swimming conditions for Irish beaches: daylight swim windows, water temperature, tides and water-quality notices.';
+  'Official facts for the EPA bathing waters in Ireland: alerts, water quality rating, lifeguard cover and the bathing season, next to weather and sea model values.';
 export const PRODUCTION_HOST = 'snamh.app';
 export const PRODUCTION_ORIGIN = `https://${PRODUCTION_HOST}`;
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? PRODUCTION_ORIGIN;
@@ -14,16 +12,10 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? PRODUCTION_ORIGIN;
 /** The surf product, linked from the footer. */
 export const SURF_ORIGIN = 'https://tonnta.surf';
 
-export type SpotPath = '/' | `/s/${string}`;
+export type BeachPath = `/s/${string}`;
 
-/** Donabate lives at `/`; every other spot at `/s/<id>`. */
-export function spotPath(spotId: string): SpotPath {
-  return spotId === DEFAULT_SPOT_ID ? '/' : `/s/${encodeURIComponent(spotId)}`;
-}
-
-/** The same spot on the surf site, which keeps the same path scheme. */
-export function surfSpotUrl(spotId: string): string {
-  return `${SURF_ORIGIN}${spotPath(spotId)}`;
+export function beachPath(slug: string): BeachPath {
+  return `/s/${encodeURIComponent(slug)}`;
 }
 
 /** True only for the live domain (with or without `www.`), port stripped. */

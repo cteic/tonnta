@@ -1,16 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { isProductionHost, robotsFor, spotPath, surfSpotUrl } from './site';
+import { beachPath, isProductionHost, robotsFor } from './site';
 
 describe('Swim site addresses', () => {
-  it('serves Donabate at the root and other spots under /s', () => {
-    expect(spotPath('donabate')).toBe('/');
-    expect(spotPath('el-cotillo')).toBe('/s/el-cotillo');
-  });
-
-  it('links each spot to the same spot on the surf site', () => {
-    expect(surfSpotUrl('donabate')).toBe('https://tonnta.surf/');
-    expect(surfSpotUrl('el-cotillo')).toBe('https://tonnta.surf/s/el-cotillo');
+  it('serves each bathing water under /s', () => {
+    expect(beachPath('donabate-balcarrick-beach')).toBe('/s/donabate-balcarrick-beach');
   });
 
   it('indexes only the production host', () => {

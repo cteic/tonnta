@@ -26,7 +26,29 @@ export {
   isNearHighTide,
 } from './swim';
 export type { SwimThresholds, SwimWindow } from './swim';
-export { fetchWaterQualityAlert, findBeachAlert } from './sources/epa-bathing';
+export {
+  fetchBathingWaterStatus,
+  fetchWaterQualityAlert,
+  findBeachAlert,
+  parseBathingWaterStatus,
+} from './sources/epa-bathing';
+export {
+  fetchBeachSea,
+  fetchBeachWeather,
+  parseBeachSea,
+  parseBeachWeather,
+  rainLast48h,
+} from './sources/open-meteo-beach';
+export {
+  BATHING_SEASON,
+  BATHING_WATERS,
+  bathingSeasonOn,
+  bathingWaterSlugForSpot,
+  bathingWatersByCounty,
+  getBathingWater,
+} from './bathing-waters';
+export type { BathingSeasonState } from './bathing-waters';
+export { irishGridToWgs84 } from './irish-grid';
 export { fetchHourlyConditions } from './sources/open-meteo';
 export { fetchBuoyObservation, fetchTideEvents, fetchTideGaugeReadings } from './sources/erddap';
 export { SLACK_THRESHOLD_M, readingsAfter, tideTrend } from './tide-gauge';

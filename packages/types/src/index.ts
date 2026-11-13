@@ -17,3 +17,9 @@ export type {
   WaterQualityAlert,
   WindState,
 } from './conditions';
+export type {
+  BathingWater,
+  BathingWaterSea,
+  BathingWaterStatus,
+  BathingWaterWeather,
+} from './bathing-water';
