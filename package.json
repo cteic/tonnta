@@ -3,7 +3,7 @@
   "author": "Tonnta",
   "description": "Tonnta monorepo — surf conditions for Donabate and beyond",
   "version": "0.1.0",
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-only",
   "private": true,
   "type": "module",
   "scripts": {

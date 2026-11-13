@@ -2,7 +2,7 @@
   "name": "@tonnta/data",
   "version": "0.1.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-only",
   "type": "module",
   "description": "Spot registry, verdict engine and marine data sources for Tonnta",
   "exports": {

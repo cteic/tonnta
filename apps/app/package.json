@@ -2,7 +2,7 @@
   "name": "@tonnta/app",
   "version": "0.1.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-only",
   "description": "Tonnta universal app — web, iOS and Android from one Expo Router codebase",
   "main": "expo-router/entry",
   "expo": {
