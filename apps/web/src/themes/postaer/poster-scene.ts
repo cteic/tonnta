@@ -1,12 +1,12 @@
-import type { Verdict, WindState } from '@tonnta/types';
+import type { WindState } from '@tonnta/types';
 
 /**
  * An Postaer — the pure scene math.
  *
  * Everything the poster draws (hero and 1080×1920 export alike) is computed
- * here so the layout is testable without a canvas: screen-print inks per
- * verdict, wave-band geometry from real wave height, drift timing from the
- * wind, and the headline — Irish word first, with the bang.
+ * here so the layout is testable without a canvas: one set of screen-print
+ * inks, wave-band geometry from real wave height, drift timing from the
+ * wind, and the headline, which is the wave height itself.
  */
 
 export interface PosterInks {
@@ -19,20 +19,9 @@ export interface PosterInks {
   subline: string;
 }
 
-/** Four screen-print inks on poster stock; blown-out days shift to the
- *  grey-green wet-day inks — still a poster, honestly Irish. */
-export function posterInks(verdict: Verdict): PosterInks {
-  if (verdict === 'blown') {
-    return {
-      stock: '#E9E4D4',
-      sun: '#8E9B8C',
-      deep: '#3D5049',
-      mid: '#5B7268',
-      shallow: '#8CA294',
-      headline: '#3D5049',
-      subline: '#6B7C70',
-    };
-  }
+/** Four screen-print inks on poster stock. The same inks every day: the
+ *  poster shows the sea, it does not judge it. */
+export function posterInks(): PosterInks {
   return {
     stock: '#F4E9D3',
     sun: '#E2593B',
@@ -43,13 +32,6 @@ export function posterInks(verdict: Verdict): PosterInks {
     subline: '#B3401F',
   };
 }
-
-export const POSTER_HEADLINE: Record<Verdict, string> = {
-  go: 'TÉIGH!',
-  maybe: 'B’FHÉIDIR',
-  flat: 'CIÚIN',
-  blown: 'SÉIDTE',
-};
 
 export interface BandSpec {
   /** 0–1 fraction of scene height measured from the bottom to the band crest. */
@@ -95,15 +77,18 @@ export interface PosterLayout {
   sun: { cx: number; cy: number; r: number };
   headline: { text: string; y: number; sizePx: number };
   subline: { text: string; y: number };
-  reasonY: number;
+  factsY: number;
   bands: { yTop: number; ink: BandSpec['ink'] }[];
   stamp: { text: string; y: number };
 }
 
 export interface PosterInput {
-  verdict: Verdict;
+  /** The headline: the wave height, for example "0.8m". */
+  headline: string;
+  /** The board tag line, for example "Board: Foamie". */
   boardLabel?: string | undefined;
-  reason: string;
+  /** Plain facts: period, wind, gusts, sea temperature. */
+  factsLine: string;
   waveHeightM: number;
   windState: WindState;
   dateLabel: string;
@@ -114,8 +99,8 @@ const EXPORT_W = 1080;
 const EXPORT_H = 1920;
 
 export function posterLayout(input: PosterInput): PosterLayout {
-  const headlineText = POSTER_HEADLINE[input.verdict];
-  // Longer Irish words set smaller so they never crowd the margins.
+  const headlineText = input.headline.toUpperCase();
+  // Longer headlines set smaller so they never crowd the margins.
   const sizePx = headlineText.length > 7 ? 168 : 232;
   const bands = bandLayout(input.waveHeightM, input.windState).map((band) => ({
     yTop: Math.round(EXPORT_H * (1 - band.crest)),
@@ -130,7 +115,7 @@ export function posterLayout(input: PosterInput): PosterLayout {
       text: (input.boardLabel ?? '').toUpperCase(),
       y: 1094,
     },
-    reasonY: 1170,
+    factsY: 1170,
     bands,
     stamp: { text: `${input.dateLabel} · ${input.spotLine} · TONNTA.SURF`, y: EXPORT_H - 64 },
   };

@@ -1,19 +1,9 @@
 Feature: An Postaer scene math
 
-  Scenario: A GO day prints the sunny inks
-    Given a go verdict
+  Scenario: The poster prints the same inks every day
+    Given the poster
     When I pick the poster inks
     Then the sun ink is the warm orange
-
-  Scenario: A blown-out day shifts to wet-day inks
-    Given a blown verdict
-    When I pick the poster inks
-    Then the sun ink is grey-green
-
-  Scenario: Every verdict has an Irish headline
-    Given the four verdicts
-    When I read the headlines
-    Then go reads TÉIGH! and blown reads SÉIDTE
 
   Scenario: Bigger waves lift the band crests
     Given calm and heavy wave heights
@@ -31,11 +21,12 @@ Feature: An Postaer scene math
     Then the onshore cycle is shorter
 
   Scenario: The exported layout stays inside the canvas
-    Given a go afternoon at half a metre
+    Given an afternoon at half a metre
     When I compute the export layout
     Then every band and text baseline sits within 1080 by 1920
 
-  Scenario: Long Irish headlines set smaller
-    Given a maybe verdict
+  Scenario: The headline is the wave height, not a verdict
+    Given an afternoon at half a metre
     When I compute the export layout
-    Then the headline size is reduced
+    Then the headline reads the wave height
+    And the board line reads as a plain tag

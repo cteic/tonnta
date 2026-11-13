@@ -11,9 +11,9 @@ import { buildHomeGraph } from '@/lib/structured-data';
 export const dynamic = 'force-dynamic';
 
 const BASE_METADATA: Metadata = {
-  title: 'Is it worth surfing in Donabate today?',
+  title: 'Donabate surf conditions today',
   description:
-    'Is it worth surfing in Donabate today? Live verdict, wave height, wind, tides and the board call for Donabate beach, Co. Dublin — rechecked every 15 minutes.',
+    'Surf conditions for Donabate beach, Co. Dublin: wave height and period, wind, tides, buoy readings and sea temperature, with a board tag. Rechecked every 15 minutes.',
   alternates: { canonical: '/' },
 };
 

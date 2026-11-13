@@ -1,6 +1,7 @@
 import type {
   Board,
   DailySummary,
+  DayFacts,
   HourlyConditions,
   Spot,
   Verdict,
@@ -186,4 +187,54 @@ export function summarizeDays(
   }
 
   return summaries.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/** Circular mean of compass bearings, 0 to 360. Plain averaging breaks across north. */
+function meanBearing(degrees: number[]): number {
+  let x = 0;
+  let y = 0;
+  for (const deg of degrees) {
+    const rad = (deg * Math.PI) / 180;
+    x += Math.cos(rad);
+    y += Math.sin(rad);
+  }
+  const mean = (Math.atan2(y, x) * 180) / Math.PI;
+  return (mean + 360) % 360;
+}
+
+/**
+ * Plain per-day facts for the week strip: wave height, period and wind ranges
+ * over the daylight hours, and the prevailing wind direction. No verdict.
+ */
+export function summarizeDayFacts(hours: HourlyConditions[], spot: Spot): DayFacts[] {
+  const byDate = new Map<string, HourlyConditions[]>();
+  for (const hour of hours) {
+    const stamp = localStamp(hour.time, spot.timezone);
+    if (stamp === undefined || !isDaylightHour(hour.time, spot)) {
+      continue;
+    }
+    const bucket = byDate.get(stamp.date) ?? [];
+    bucket.push(hour);
+    byDate.set(stamp.date, bucket);
+  }
+
+  const facts: DayFacts[] = [];
+  for (const [date, dayHours] of byDate) {
+    const waves = dayHours.map((hour) => hour.waveHeightM);
+    const periods = dayHours.map((hour) => hour.wavePeriodS);
+    const winds = dayHours.map((hour) => hour.windSpeedKmh);
+    facts.push({
+      date,
+      minWaveHeightM: Math.min(...waves),
+      maxWaveHeightM: Math.max(...waves),
+      minWavePeriodS: Math.min(...periods),
+      maxWavePeriodS: Math.max(...periods),
+      minWindSpeedKmh: Math.min(...winds),
+      maxWindSpeedKmh: Math.max(...winds),
+      maxWindGustKmh: Math.max(...dayHours.map((hour) => hour.windGustKmh)),
+      windDirectionDeg: meanBearing(dayHours.map((hour) => hour.windDirectionDeg)),
+    });
+  }
+
+  return facts.sort((a, b) => a.date.localeCompare(b.date));
 }

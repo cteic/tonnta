@@ -2,15 +2,9 @@
 
 import { useEffect, useState } from 'react';
 
-import type { BuoyObservation, HourlyConditions, TideEvent, VerdictResult } from '@tonnta/types';
+import type { Board, BuoyObservation, HourlyConditions, TideEvent } from '@tonnta/types';
 import { SeaBands } from '@tonnta/web-conditions';
-import {
-  BOARD_LABEL,
-  VERDICT_LABEL,
-  WIND_STATE_LABEL,
-  compassPoint,
-  formatHour,
-} from '@tonnta/web-conditions';
+import { WIND_STATE_LABEL, boardTag, formatHour, surfHourFacts } from '@tonnta/web-conditions';
 import { useAppTheme } from '@tonnta/web-shell';
 
 import type { SolarScene } from './solar';
@@ -29,12 +23,14 @@ const SHORT_WIND: Record<string, string> = {
 /**
  * Éirí — the dawn window. The hero paints the sky for this minute at the
  * spot: real solar altitude drives the gradient, the disc and the glow.
- * The verdict floats above the horizon; the living sea bands roll below it,
+ * The wave height floats above the horizon; the living sea bands roll below it,
  * tinted by the current light. Chrome dissolves; the sea does the talking.
  */
 
 interface EiriHeroProps {
-  verdict: VerdictResult;
+  /** The board the engine picked for this hour, shown as a plain tag. */
+  board?: Board | undefined;
+  spotName: string;
   hour?: HourlyConditions | undefined;
   buoy?: BuoyObservation | undefined;
   nextTide?: TideEvent | undefined;
@@ -100,7 +96,8 @@ function GlassChip({ value, label, scene }: { value: string; label: string; scen
 }
 
 export function EiriHero({
-  verdict,
+  board,
+  spotName,
   hour,
   buoy,
   nextTide,
@@ -110,9 +107,10 @@ export function EiriHero({
 }: EiriHeroProps) {
   const { theme } = useAppTheme();
   const scene = useScene(latitude, longitude);
-  const label = VERDICT_LABEL[verdict.verdict];
-  const isGo = verdict.verdict === 'go';
-  const seaColour = theme.tokens.sea[verdict.verdict];
+  const facts = surfHourFacts(hour);
+  const tag = boardTag(board);
+  // One sea colour whatever the forecast: the bands show the sea, not a judgement.
+  const seaColour = theme.tokens.sea.maybe;
 
   return (
     <header
@@ -179,10 +177,10 @@ export function EiriHero({
               fontWeight: 600,
               letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: isGo ? '#FFE0AA' : scene.textMuted,
+              color: scene.textMuted,
             }}
           >
-            {label.irish}
+            Tonnta · Waves now
           </p>
           <h1
             style={{
@@ -193,38 +191,44 @@ export function EiriHero({
               lineHeight: 1,
               letterSpacing: '-0.015em',
               color: scene.text,
-              textShadow: isGo ? `0 0 60px rgba(232, 163, 61, ${0.2 + scene.glow * 0.25})` : 'none',
             }}
           >
-            <span className="tonnta-visually-hidden">Donabate surf today — </span>
-            {label.english}
+            <span className="tonnta-visually-hidden">{spotName} surf conditions: waves </span>
+            {facts.waveHeight}
           </h1>
           <p
             style={{
               margin: '10px auto 0',
               maxWidth: '32ch',
-              fontSize: 15,
+              fontFamily: "'Spline Sans Mono', monospace",
+              fontSize: 13,
               lineHeight: 1.5,
               color: scene.textMuted,
             }}
           >
-            {verdict.reason}
+            period {facts.wavePeriod} · gusts {facts.windGust} · sea {facts.seaTemp}
           </p>
-          {verdict.board !== undefined ? (
-            <p style={{ margin: '16px 0 0' }}>
+          {tag !== undefined ? (
+            <p style={{ margin: '16px 0 0', fontSize: 12, color: scene.textMuted }}>
+              Board{' '}
               <em
                 style={{
                   fontStyle: 'normal',
-                  background: theme.tokens.accent,
-                  color: theme.tokens.accentContrast,
+                  marginLeft: 6,
+                  background:
+                    scene.phase === 'day' ? 'rgba(240, 246, 244, 0.5)' : 'rgba(10, 28, 33, 0.42)',
+                  border: `1px solid ${
+                    scene.phase === 'day' ? 'rgba(15, 34, 41, 0.2)' : 'rgba(214, 228, 224, 0.16)'
+                  }`,
+                  color: scene.text,
                   fontFamily: "'Clash Display', sans-serif",
                   fontWeight: 600,
                   fontSize: 14,
-                  padding: '8px 18px',
+                  padding: '6px 16px',
                   borderRadius: 999,
                 }}
               >
-                {BOARD_LABEL[verdict.board]} day
+                {tag}
               </em>
             </p>
           ) : null}
@@ -242,9 +246,7 @@ export function EiriHero({
                 color: scene.textMuted,
               }}
             >
-              {WIND_STATE_LABEL[hour.windState]} {Math.round(hour.windSpeedKmh)}km/h{' '}
-              {compassPoint(hour.windDirectionDeg)}
-              {hour.seaTempC !== undefined ? ` · sea ${hour.seaTempC.toFixed(1)}°C` : ''}
+              wind {facts.windSpeed} {facts.windDirection} · {facts.windState}
             </p>
           ) : null}
           <div style={{ display: 'flex', gap: 8 }}>
@@ -280,7 +282,7 @@ export function EiriHero({
         </div>
       </div>
 
-      <SeaBands hour={hour} verdict={verdict.verdict} colour={seaColour} />
+      <SeaBands hour={hour} colour={seaColour} />
     </header>
   );
 }

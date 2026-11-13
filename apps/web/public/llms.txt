@@ -1,12 +1,13 @@
 # Tonnta
 
-> Tonnta (Irish for "waves") answers one question about Donabate beach in North County Dublin, Ireland: is it worth going down to surf right now, and what board should you bring? The verdict is GO, MAYBE, FLAT or BLOWN OUT, derived from live wave, wind and tide data and refreshed every 15 minutes.
+> Tonnta (Irish for "waves") shows surf conditions for Donabate beach in North County Dublin, Ireland: wave height and period, wind speed, gusts and direction, tides, buoy readings and sea temperature, refreshed every 15 minutes. The website gives facts, not advice, and leaves the decision to the surfer.
 
-Donabate beach sits at 53.487°N, -6.107°E and faces ENE (70°), so westerly and south-westerly wind blows offshore and clean while north-easterly through south-easterly wind blows onshore and messy. Waves at or above 0.4 m with wind at or below 25 km/h are a GO; the board call is SUP, foamie or longboard. Snámh mode reads the same sea for swimmers, including EPA bathing-water notices. Data comes from Open-Meteo marine models, Marine Institute buoy and tide observations, Met Éireann and the EPA.
+Donabate beach sits at 53.487°N, -6.107°E and faces ENE (70°), so westerly and south-westerly wind blows offshore and clean while north-easterly through south-easterly wind blows onshore and messy. A board tag (SUP, foamie or longboard) is a rough guide to kit only. Snámh mode reads the same sea for swimmers, including EPA bathing-water notices. Data comes from Open-Meteo marine models, Marine Institute buoy and tide observations, Met Éireann and the EPA.
 
 ## Pages
 
-- [Today's verdict](https://tonnta.surf/): current surf verdict, board call, seven-day outlook, live buoy readings and tide times for Donabate
+- [Today's conditions](https://tonnta.surf/): current waves and wind, board tag, seven-day outlook, live buoy readings and tide times for Donabate
+- [About this information](https://tonnta.surf/about): where each data source comes from and what the board tag means
 - [Session log](https://tonnta.surf/log): log a surf or swim session against the conditions it happened in
 - [Tonnta Pro](https://tonnta.surf/pro): what the paid alerts cover and what they cost
 

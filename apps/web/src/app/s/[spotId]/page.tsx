@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: SpotPageProps): Promise<Metad
   return {
     ...indexing,
     title: `${spot.name} surf conditions`,
-    description: `Live surf verdict, wave and wind forecast for ${spot.name}, ${spot.region}.`,
+    description: `Live surf conditions for ${spot.name}, ${spot.region}: wave height, wind, tides and buoy readings.`,
     alternates: { canonical: spot.id === DEFAULT_SPOT_ID ? '/' : `/s/${spot.id}` },
   };
 }
