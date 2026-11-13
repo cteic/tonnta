@@ -24,7 +24,7 @@ reviews:
     # One review when a PR opens, then on request with `@coderabbitai review`.
     # Re-reviewing every push burns the free plan's hourly limit on a stack.
     auto_incremental_review: false
-    ignore_title_keywords: ['wip', 'do not review']
+    ignore_title_keywords: ['[wip]', 'do not review']
   path_filters:
     - '!**/pnpm-lock.yaml'
     - '!**/package-lock.json'
@@ -138,7 +138,9 @@ knowledge_base:
     enabled: true
     filePatterns:
       - 'AGENTS.md'
-      - 'DESIGN.md'
-      - 'docs/adr/*.md'
+      - files: 'docs/DESIGN.md'
+        applyTo: 'apps/**, packages/**'
+      - files: 'docs/adr/*.md'
+        applyTo: 'apps/**, packages/**, docs/adr/**'
   learnings:
     scope: local
