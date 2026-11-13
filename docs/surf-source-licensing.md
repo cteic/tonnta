@@ -93,7 +93,8 @@ contact was made during this task.
 
 - **Tide datum:** the prediction dataset summary mentions LAT, but the requested
   `Water_Level_ODMalin` variable explicitly identifies **OD Malin**. The gauge's
-  `Water_Level_OD_Malin` does too. Current UI says “heights vs mean sea level”.
+  `Water_Level_OD_Malin` does too. The baseline UI incorrectly said “heights vs
+  mean sea level”; the correction documented below replaces that label.
   Preserve the named vertical datum in the contract and obtain a defensible
   display explanation rather than silently equating LAT, OD Malin and local MSL.
   Do not apply an unverified offset.
@@ -122,6 +123,38 @@ contact was made during this task.
 - `packages/web-conditions/src/forecast-sections.tsx`: tide-height label.
 
 This document completes the source inventory and evidence baseline. It does not
-complete commercial migration, attribution UI, datum changes, rate testing, or
+complete commercial migration, attribution UI, datum conversions, rate testing, or
 provider confirmation. Re-check linked terms before launch or monetization, when
 selecting new datasets/models, and whenever provider terms materially change.
+
+## Tide datum correction (verified 13 November 2026)
+
+The shared web forecast and native live-gauge card must say **relative to OD
+Malin**, not mean sea level. The adapter passes through signed metre values;
+this label correction does not change heights, tide times, trends or scoring.
+The MCP text also names OD Malin; its next-event payload adds `datum: "OD Malin"`
+alongside the unchanged `heightM` value.
+
+- [Prediction variable metadata](https://erddap.marine.ie/erddap/info/IMI_TidePrediction_HighLow/index.html):
+  the selected `Water_Level_ODMalin` declares `sea_level_datum: OD Malin` and
+  `units: metres`. The dataset-wide summary mentions LAT, but that does not
+  describe the selected OD Malin column.
+- [Gauge variable metadata](https://erddap.marine.ie/erddap/info/IrishNationalTideGaugeNetwork/index.html):
+  the selected `Water_Level_OD_Malin` declares `sea_level_datum: Ordnance Datum
+Malin (OD Malin)` and `units: metres`.
+- Donabate uses prediction station `Skerries` and gauge `Skerries Harbour`;
+  official distinct station rows return latitude/longitude `53.585, -6.108117`
+  and `53.585, -6.1081`, respectively. These remain nearby reference stations,
+  not measurements at Donabate beach. Reproduce with `stationID,latitude,longitude`
+  filtered to `stationID="Skerries"` in the prediction table, and
+  `station_id,latitude,longitude` filtered to `station_id="Skerries Harbour"`
+  in the observation table, each with `distinct()`. The selected height variable
+  metadata applies to these rows; station identity does not supply a datum offset.
+
+OD Malin is not interchangeable with a station's local mean sea level or Lowest
+Astronomical Tide (LAT). No station-specific conversion has been established
+here, so none is applied. These values must not be presented as depth above the
+seabed. Adapter regressions deliberately include differing LAT and OD Malin
+columns, negative heights and missing OD Malin columns. Web tests render the
+forecast label and empty state; the native label regression is a source-level
+check, not a device acceptance test.

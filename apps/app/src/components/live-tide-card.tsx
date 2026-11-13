@@ -82,7 +82,7 @@ export function LiveTideCard({ spotId }: LiveTideCardProps) {
               </Text>
             ) : null}
           </XStack>
-          <Body muted>Above mean sea level (OD Malin).</Body>
+          <Body muted>Height relative to OD Malin.</Body>
           <XStack height={SPARK_HEIGHT} alignItems="flex-end" gap={3} accessibilityElementsHidden>
             {state.readings.map((reading, index) => (
               <YStack

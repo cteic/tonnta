@@ -66,7 +66,8 @@ pnpm format && pnpm lint && pnpm typecheck && pnpm test:unit
 
 ## Domain notes
 
-- Tide heights are relative to mean sea level — label them as such; an unlabelled
-  height is ambiguous and misleads at a glance.
+- Marine Institute tide heights are metres relative to OD Malin. Label that
+  datum explicitly; do not relabel as local mean sea level or LAT, or convert
+  without a verified station-specific transformation.
 - Conditions are a judgement call built from several sources. When they
   disagree, show the disagreement rather than averaging it away.

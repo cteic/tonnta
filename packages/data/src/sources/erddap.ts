@@ -88,7 +88,7 @@ export async function fetchBuoyObservation(
 
 /**
  * Observed water levels from a tide gauge over the last `minutes`, oldest
- * first. The network reports every 5 minutes, about 10 minutes behind.
+ * first, in metres relative to OD Malin (no datum conversion). The network reports every 5 minutes, about 10 minutes behind.
  */
 export async function fetchTideGaugeReadings(
   stationId: string,
@@ -119,7 +119,7 @@ export async function fetchTideGaugeReadings(
   return readings.sort((a, b) => a.time.localeCompare(b.time));
 }
 
-/** Upcoming high/low tides for a prediction station (e.g. Skerries). */
+/** Upcoming high/low tides in metres relative to OD Malin, without datum conversion. */
 export async function fetchTideEvents(
   stationId: string,
   days = 3,

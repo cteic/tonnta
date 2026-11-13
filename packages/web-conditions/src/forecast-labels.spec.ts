@@ -7,7 +7,7 @@ import { getSpot } from '@tonnta/data';
 import type { DailySummary } from '@tonnta/types';
 import { ThemeProvider } from '@tonnta/web-shell';
 
-import { DayStrip } from './forecast-sections';
+import { DayStrip, TideCard } from './forecast-sections';
 
 const spot = getSpot('donabate');
 if (spot === undefined) throw new Error('Missing Donabate');
@@ -38,5 +38,24 @@ describe('Daily forecast labels', () => {
     delete noWindow.bestWindow;
     const html = render(createElement(DayStrip, { days: [noWindow], spot }));
     expect(html).toContain('No GO window forecast');
+  });
+});
+
+describe('Tide datum labels', () => {
+  it('labels signed forecast heights with the adapter datum, not mean sea level', () => {
+    const html = render(
+      createElement(TideCard, {
+        tides: [{ time: '2026-11-09T12:00:00Z', kind: 'low', heightM: -1.2 }],
+        spot,
+      })
+    );
+    expect(html).toContain('-1.2');
+    expect(html).toContain('heights relative to OD Malin');
+    expect(html).not.toContain('mean sea level');
+  });
+  it('retains the unavailable state without implying a measured height', () => {
+    const html = render(createElement(TideCard, { tides: [], spot }));
+    expect(html).toContain('Tide times are unavailable right now.');
+    expect(html).not.toContain('heights relative to');
   });
 });

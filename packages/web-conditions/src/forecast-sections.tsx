@@ -177,7 +177,7 @@ export function TideCard({ tides, spot }: { tides: TideEvent[]; spot: Spot }) {
       </div>
       {upcoming.length > 0 ? (
         <p style={{ ...MONO, margin: '12px 0 0', fontSize: 11, color: tokens.textSubtle }}>
-          heights vs mean sea level · Marine Institute
+          heights relative to OD Malin · Marine Institute
         </p>
       ) : null}
     </section>

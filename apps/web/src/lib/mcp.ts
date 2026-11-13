@@ -237,7 +237,7 @@ export function buildConditionsSummary(conditions: SpotConditions, now: Date): s
   const tide = nextTide(conditions.tides, now);
   if (tide !== undefined) {
     lines.push(
-      `Tide is ${tide.kind === 'high' ? 'coming in' : 'going out'} — next ${tide.kind} water ${formatDayName(tide.time, spot.timezone)} ${formatHour(tide.time, spot.timezone)} at ${tide.heightM.toFixed(1)}m.`
+      `Tide is ${tide.kind === 'high' ? 'coming in' : 'going out'} — next ${tide.kind} water ${formatDayName(tide.time, spot.timezone)} ${formatHour(tide.time, spot.timezone)} at ${tide.heightM.toFixed(1)}m relative to OD Malin.`
     );
   }
 
@@ -336,7 +336,7 @@ export function buildConditionsPayload(
   if (tide !== undefined) {
     payload.tide = {
       state: tide.kind === 'high' ? 'rising' : 'falling',
-      nextEvent: { kind: tide.kind, time: tide.time, heightM: tide.heightM },
+      nextEvent: { kind: tide.kind, time: tide.time, heightM: tide.heightM, datum: 'OD Malin' },
     };
   }
   if (live && conditions.nextWindow !== undefined) {

@@ -493,3 +493,14 @@ it('expires notice retrieval metadata even with negative weather advice', () => 
   expect(result.waterQualityStatus).toBe('not-reported');
   expect(result.validUntil).toBe(new Date(NOW.getTime() + 900_000).toISOString());
 });
+
+describe('MCP tide datum', () => {
+  it('names the datum in text and structured output without converting the height', () => {
+    const conditions = conditionsFixture();
+    conditions.tides = [{ time: '2026-08-18T14:20:00.000Z', kind: 'low', heightM: -1.234 }];
+    expect(buildConditionsSummary(conditions, NOW)).toContain('-1.2m relative to OD Malin');
+    expect(buildConditionsPayload(conditions, NOW).tide).toMatchObject({
+      nextEvent: { heightM: -1.234, datum: 'OD Malin' },
+    });
+  });
+});

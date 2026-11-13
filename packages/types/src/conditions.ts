@@ -123,7 +123,7 @@ export interface DailySummary {
   bestWindow?: { start: string; end: string };
 }
 
-/** One observed water level from a tide gauge. Heights are metres above OD Malin, roughly mean sea level. */
+/** One observed water level from a tide gauge. Heights are metres relative to OD Malin, not local mean sea level or LAT. */
 export interface TideGaugeReading {
   time: string; // ISO 8601, UTC
   levelM: number;
@@ -131,6 +131,7 @@ export interface TideGaugeReading {
 
 export type TideTrend = 'rising' | 'falling' | 'slack';
 
+/** Predicted high/low water. Heights are metres relative to OD Malin. */
 export interface TideEvent {
   time: string; // ISO 8601, UTC
   kind: 'high' | 'low';
