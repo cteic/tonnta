@@ -1,7 +1,7 @@
 export const SITE_NAME = 'Tonnta';
-export const SITE_TAGLINE = 'Is it worth going down?';
+export const SITE_TAGLINE = 'Donabate surf conditions, at a glance.';
 export const SITE_DESCRIPTION =
-  'Live surf conditions, verdict and board call for Donabate — waves, wind, tides and alerts.';
+  'Live surf conditions for Donabate: waves, wind, tides, buoy readings and sea temperature, with a board tag. Information, not advice.';
 
 /**
  * The one host that is allowed into a search index. Everything else — Pages

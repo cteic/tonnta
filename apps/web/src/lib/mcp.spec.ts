@@ -53,6 +53,7 @@ function conditionsFixture(): SpotConditions {
     headline: { kind: 'verdict', hour: CURRENT_HOUR, result: NOW_VERDICT },
     currentHour: CURRENT_HOUR,
     days: [],
+    dayFacts: [],
     hours: [CURRENT_HOUR],
     tides: [{ time: '2026-08-18T14:20:00.000Z', kind: 'high', heightM: 3.9 }],
     swimNow: { verdict: 'ok', reason: 'Choppy but swimmable.', nearHighTide: true },

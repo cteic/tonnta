@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { getSpot, headlineFor, sunTimes } from '@tonnta/data';
+import { getSpot, headlineFor, summarizeDayFacts, sunTimes } from '@tonnta/data';
 import type { HourlyConditions } from '@tonnta/types';
 
 import type { SpotConditions } from './conditions';
@@ -26,6 +26,7 @@ const initial: SpotConditions = {
   hours,
   tides: [],
   days: [],
+  dayFacts: [],
   warnings: [],
   swimWindows: [],
   headline: headlineFor(hours, spot, start + 12 * 3_600_000),
@@ -56,8 +57,12 @@ describe('Local clock forecast refresh', () => {
   });
 
   it('requires fresh checks even when downloaded hours still cover tomorrow', () => {
-    const stale = conditionsAt(initial, initial.loadedAt + 3_600_000);
+    const stale = conditionsAt(
+      { ...initial, dayFacts: summarizeDayFacts(hours, spot) },
+      initial.loadedAt + 3_600_000
+    );
     expect(stale.headline.kind).toBe('none');
+    expect(stale.dayFacts).toEqual([]);
     expect(stale.swimWindows).toEqual([]);
     expect(stale.nextWindow).toBeUndefined();
   });

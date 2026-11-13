@@ -2,7 +2,8 @@ import { ImageResponse } from 'next/og';
 
 import { SITE_TAGLINE } from '@/lib/site';
 
-export const alt = 'Tonnta — is it worth going down? Surf conditions for Donabate, Co. Dublin.';
+export const alt =
+  'Tonnta: surf conditions for Donabate, Co. Dublin. Waves, wind, tides and buoy readings.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -12,7 +13,7 @@ const SLATE_SWELL = '#3E5C66';
 const FOG = '#E8ECEB';
 const DAWN_AMBER = '#E8A33D';
 
-/** Link unfurl card: harbour water, rolling sea bands, the question. */
+/** Link unfurl card: harbour water, rolling sea bands, the facts on offer. */
 export default function OpengraphImage() {
   return new ImageResponse(
     <div
@@ -93,7 +94,7 @@ export default function OpengraphImage() {
             maxWidth: 820,
           }}
         >
-          Live verdict, board call, tides and buoy readings — the whole sea in five seconds.
+          Waves, wind, tides and buoy readings in one place. You decide.
         </div>
       </div>
 
@@ -109,15 +110,15 @@ export default function OpengraphImage() {
           tonnta<span style={{ color: DAWN_AMBER }}>.</span>
         </div>
         <div style={{ display: 'flex', gap: 16 }}>
-          {['GO', 'MAYBE', 'FLAT', 'BLOWN OUT'].map((word) => (
+          {['WAVES', 'WIND', 'TIDES', 'BUOY'].map((word) => (
             <div
               key={word}
               style={{
                 display: 'flex',
                 padding: '10px 20px',
                 borderRadius: 999,
-                border: `2px solid ${word === 'GO' ? DAWN_AMBER : 'rgba(232,236,235,0.28)'}`,
-                color: word === 'GO' ? DAWN_AMBER : '#A9BDBF',
+                border: '2px solid rgba(232,236,235,0.28)',
+                color: '#A9BDBF',
                 fontSize: 22,
                 fontWeight: 600,
                 letterSpacing: 1,
