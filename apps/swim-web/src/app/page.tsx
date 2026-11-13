@@ -1,16 +1,21 @@
 import type { Metadata } from 'next';
 
-import { DEFAULT_SPOT_ID } from '@tonnta/data';
+import { bathingWatersByCounty } from '@tonnta/data';
 
-import { SwimScreen } from '@/components/swim-screen';
-import { spotMetadata } from '@/lib/metadata';
+import { BeachList } from '@/components/beach-list';
+import { PageFrame } from '@/components/page-frame';
+import { homeMetadata } from '@/lib/metadata';
 
 export const dynamic = 'force-dynamic';
 
 export function generateMetadata(): Promise<Metadata> {
-  return spotMetadata(DEFAULT_SPOT_ID);
+  return homeMetadata();
 }
 
 export default function HomePage() {
-  return <SwimScreen spotId={DEFAULT_SPOT_ID} />;
+  return (
+    <PageFrame>
+      <BeachList groups={bathingWatersByCounty()} />
+    </PageFrame>
+  );
 }
