@@ -1,10 +1,10 @@
 'use client';
 
 import { formatHour } from '@tonnta/data';
-import type { Spot, SwimVerdictResult, VerdictResult } from '@tonnta/types';
+import type { HourlyConditions, Spot, SwimVerdictResult } from '@tonnta/types';
 import { useAppTheme } from '@tonnta/web-shell';
 
-import { VERDICT_LABEL } from './format';
+import { surfFactsLine, surfHourFacts } from './surf-facts';
 
 const SWIM_LABEL: Record<string, string> = {
   great: 'PERFECT',
@@ -17,19 +17,18 @@ interface DarkHeroProps {
   mode: 'surf' | 'snamh';
   sunrise?: string | undefined;
   firstLightTime?: string | undefined;
-  surf?: VerdictResult | undefined;
+  /** Surf mode: the first light hour, shown as plain facts. */
+  surfHour?: HourlyConditions | undefined;
   swim?: SwimVerdictResult | undefined;
 }
 
 function firstLightPreview(
   mode: 'surf' | 'snamh',
-  surf: VerdictResult | undefined,
+  surfHour: HourlyConditions | undefined,
   swim: SwimVerdictResult | undefined
 ): string | undefined {
   if (mode === 'surf') {
-    return surf === undefined
-      ? undefined
-      : `${VERDICT_LABEL[surf.verdict].english}. ${surf.reason}`;
+    return surfHour === undefined ? undefined : surfFactsLine(surfHourFacts(surfHour));
   }
   return swim === undefined
     ? undefined
@@ -41,10 +40,10 @@ function firstLightPreview(
  * gives the next sunrise and what first light looks like instead. One hero
  * for every theme, so the safety message reads the same in all of them.
  */
-export function DarkHero({ spot, mode, sunrise, firstLightTime, surf, swim }: DarkHeroProps) {
+export function DarkHero({ spot, mode, sunrise, firstLightTime, surfHour, swim }: DarkHeroProps) {
   const { theme } = useAppTheme();
   const { tokens } = theme;
-  const preview = firstLightPreview(mode, surf, swim);
+  const preview = firstLightPreview(mode, surfHour, swim);
   // The first light hour can start a few minutes before sunrise; never show a time before it.
   const firstLightAt =
     firstLightTime !== undefined && sunrise !== undefined && sunrise > firstLightTime
@@ -97,10 +96,12 @@ export function DarkHero({ spot, mode, sunrise, firstLightTime, surf, swim }: Da
           }}
         >
           <span className="tonnta-visually-hidden">{spot.name}: </span>
-          Out of the water
+          {mode === 'surf' ? 'Dark now' : 'Out of the water'}
         </h1>
         <p style={{ margin: 0, maxWidth: 440, fontSize: 16, lineHeight: 1.5, color: '#9FB0B3' }}>
-          It is dark at {spot.name}, so there is no verdict until it is light.
+          {mode === 'surf'
+            ? `It is dark at ${spot.name}.`
+            : `It is dark at ${spot.name}, so there is no verdict until it is light.`}
           {sunrise !== undefined ? ` Sunrise is at ${formatHour(sunrise, spot.timezone)}.` : ''}
         </p>
         {preview !== undefined && firstLightAt !== undefined ? (

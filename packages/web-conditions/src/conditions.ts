@@ -12,12 +12,14 @@ import {
   getSpot,
   headlineFor,
   nextGoodWindow,
+  summarizeDayFacts,
   summarizeDays,
 } from '@tonnta/data';
 import type { GoodWindow, Headline, SwimWindow } from '@tonnta/data';
 import type {
   BuoyObservation,
   DailySummary,
+  DayFacts,
   HourlyConditions,
   Spot,
   SwimVerdictResult,
@@ -52,6 +54,8 @@ export interface SpotConditions {
   currentHour?: HourlyConditions;
   nextWindow?: GoodWindow;
   days: DailySummary[];
+  /** Plain per-day facts for the surf site's week strip: ranges, no verdict. */
+  dayFacts: DayFacts[];
   hours: HourlyConditions[];
   tides: TideEvent[];
   buoy?: BuoyObservation;
@@ -128,6 +132,7 @@ export async function loadSpotConditions(
     now,
     headline,
     days: summarizeDays(hours, spot),
+    dayFacts: summarizeDayFacts(hours, spot),
     hours,
     tides,
     swimNow,

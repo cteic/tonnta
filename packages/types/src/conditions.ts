@@ -105,6 +105,23 @@ export interface DailySummary {
   bestWindow?: { start: string; end: string };
 }
 
+/**
+ * Plain per-day facts over the daylight hours of one spot-local day. No
+ * verdict: ranges and a prevailing wind direction the surfer reads for themselves.
+ */
+export interface DayFacts {
+  date: string; // YYYY-MM-DD in spot-local time
+  minWaveHeightM: number;
+  maxWaveHeightM: number;
+  minWavePeriodS: number;
+  maxWavePeriodS: number;
+  minWindSpeedKmh: number;
+  maxWindSpeedKmh: number;
+  maxWindGustKmh: number;
+  /** Circular mean of the hourly wind directions, degrees the wind comes FROM. */
+  windDirectionDeg: number;
+}
+
 /** One observed water level from a tide gauge. Heights are metres above OD Malin, roughly mean sea level. */
 export interface TideGaugeReading {
   time: string; // ISO 8601, UTC
