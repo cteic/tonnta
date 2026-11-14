@@ -178,21 +178,25 @@ describeFeature(feature, ({ Scenario }) => {
     When('I build the sitemap entries', () => {
       entries = buildSitemapEntries(origin, lastModified);
     });
-    Then('it lists the home page, the session log and the Pro page as absolute URLs', () => {
-      expect(entries.slice(0, 3).map((entry) => entry.url)).toEqual([
-        `${origin}/`,
-        `${origin}/log`,
-        `${origin}/pro`,
-      ]);
-      expect(entries.every((entry) => entry.lastModified === lastModified)).toBe(true);
-      expect(entries.every((entry) => entry.url.startsWith(`${origin}/`))).toBe(true);
-    });
+    Then(
+      'it lists the home page, the session log, the Pro page and the privacy policy as absolute URLs',
+      () => {
+        expect(entries.slice(0, 4).map((entry) => entry.url)).toEqual([
+          `${origin}/`,
+          `${origin}/log`,
+          `${origin}/pro`,
+          `${origin}/privacy`,
+        ]);
+        expect(entries.every((entry) => entry.lastModified === lastModified)).toBe(true);
+        expect(entries.every((entry) => entry.url.startsWith(`${origin}/`))).toBe(true);
+      }
+    );
     And('it lists a spot route for every spot except the default one', () => {
       const expected = SPOTS.filter((spot) => spot.id !== DEFAULT_SPOT_ID).map(
         (spot) => `${origin}/s/${spot.id}`
       );
       expect(expected.length).toBeGreaterThan(0);
-      expect(entries.slice(3).map((entry) => entry.url)).toEqual(expected);
+      expect(entries.slice(4).map((entry) => entry.url)).toEqual(expected);
       expect(entries.map((entry) => entry.url)).not.toContain(`${origin}/s/${DEFAULT_SPOT_ID}`);
     });
     And('the home page is the highest priority entry', () => {
