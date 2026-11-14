@@ -1,30 +1,28 @@
-'use client';
+import type { ShellLink } from '@tonnta/web-shell';
+import { ShellFooter } from '@tonnta/web-shell';
 
-import { useAppTheme } from '@/themes/theme-context';
+import { APP_IDENTITIES, type Activity, spotPath } from '@/lib/activity';
 
-export function AppFooter() {
-  const { theme } = useAppTheme();
-  const { tokens } = theme;
-
+export function AppFooter({
+  activity = 'surf',
+  spotId = 'donabate',
+}: {
+  activity?: Activity;
+  spotId?: string;
+}) {
+  const links: ShellLink[] = [];
+  if (activity === 'surf') {
+    links.push({ label: 'Loga · Beach checks', href: `/log?spot=${encodeURIComponent(spotId)}` });
+  }
+  links.push({
+    label: `Open the ${activity === 'surf' ? 'swimming' : 'surfing'} app`,
+    href: spotPath(activity === 'surf' ? 'swim' : 'surf', spotId),
+  });
+  const identity = APP_IDENTITIES[activity];
   return (
-    <footer
-      style={{
-        maxWidth: 720,
-        margin: '0 auto',
-        padding: '32px 24px 40px',
-        borderTop: `1px solid ${tokens.border}`,
-      }}
-    >
-      <p style={{ margin: '0 0 10px', fontSize: 13 }}>
-        <a href="/log" style={{ color: tokens.textSoft }}>
-          Loga · Session log
-        </a>
-      </p>
-      <p style={{ margin: 0, fontSize: 12, lineHeight: 1.7, color: tokens.textSubtle }}>
-        Tonnta — <em>waves</em>, as Gaeilge. Data: Marine Institute (CC BY 4.0), Met Éireann,
-        Open-Meteo (CC BY 4.0). Forecasts are open-water estimates; breaking waves at the beach are
-        often smaller. Sea state is advice, not a lifeguard — know your limits.
-      </p>
-    </footer>
+    <ShellFooter
+      links={links}
+      notice={`${identity.name} · ${identity.label}. Data: Marine Institute (CC BY 4.0), Met Éireann, Open-Meteo (CC BY 4.0). Forecasts are open-water estimates; breaking waves at the beach are often smaller. Sea state is advice, not a lifeguard. Know your limits.`}
+    />
   );
 }

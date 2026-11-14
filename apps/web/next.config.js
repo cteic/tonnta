@@ -19,6 +19,8 @@ const nextConfig = {
     '@tonnta/ui',
     '@tonnta/data',
     '@tonnta/types',
+    '@tonnta/web-conditions',
+    '@tonnta/web-shell',
     'react-native',
     'react-native-web',
     'tamagui',
