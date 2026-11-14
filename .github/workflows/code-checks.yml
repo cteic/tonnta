@@ -44,6 +44,8 @@ jobs:
       - run: pnpm build:packages
       - run: pnpm build:web
 
+      # Skipped on release PRs (dev to main): each commit there was linted on
+      # its way into dev, and older history predates commitlint.
       - name: Commitlint
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && !(github.head_ref == 'dev' && github.base_ref == 'main')
         run: pnpm exec commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }}
