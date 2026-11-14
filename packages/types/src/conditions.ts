@@ -9,6 +9,22 @@
 
 export type SpotId = string;
 
+/** Per-spot verdict tuning — what counts as flat/go differs per coast. */
+export interface VerdictThresholds {
+  /** Below this the sea is flat (m). */
+  flatBelowM: number;
+  /** At or above this it's rideable (m). */
+  goFromM: number;
+  /** Optional conservative GO gate on modeled mean wave period, not a calibrated surf threshold. */
+  minGoPeriodS?: number;
+  /** Max wind for a clean GO (km/h). */
+  maxWindKmh: number;
+  /** Wind allowance when it's blowing offshore (km/h). */
+  maxWindOffshoreKmh: number;
+  /** Onshore wind above this kills the day regardless of waves (km/h). */
+  blownOnshoreKmh: number;
+}
+
 export interface Spot {
   id: SpotId;
   name: string;
@@ -25,6 +41,12 @@ export interface Spot {
   buoyStationId?: string;
   /** Nearest tide-prediction station on ERDDAP (e.g. "Skerries"). */
   tideStationId?: string;
+  /** Nearest live tide gauge on the Irish National Tide Gauge Network (e.g. "Skerries Harbour"). */
+  tideGaugeId?: string;
+  /** EPA bathing-water beach id (data.epa.ie), where the spot is a bathing water. */
+  epaBeachId?: string;
+  /** Verdict tuning for this coast; defaults apply when omitted. */
+  thresholds?: VerdictThresholds;
 }
 
 export type WindState = 'offshore' | 'cross-off' | 'cross' | 'cross-on' | 'onshore' | 'glassy';
@@ -39,6 +61,8 @@ export interface HourlyConditions {
   windDirectionDeg: number;
   windState: WindState;
   seaTempC?: number;
+  /** WMO weather code from the forecast, for example 95 for a thunderstorm. */
+  weatherCode?: number;
 }
 
 export type Verdict = 'go' | 'maybe' | 'flat' | 'blown';
@@ -53,6 +77,24 @@ export interface VerdictResult {
   reason: string;
 }
 
+export type SwimVerdict = 'great' | 'ok' | 'no';
+
+export interface SwimVerdictResult {
+  verdict: SwimVerdict;
+  /** One human sentence: "Calm as a pond and 15.2°C — get in." */
+  reason: string;
+  /** Within ±2h of high tide — the swimmable window at a shallow beach. */
+  nearHighTide: boolean;
+}
+
+/** An active EPA bathing-water incident for a beach. */
+export interface WaterQualityAlert {
+  beachId: string;
+  beachName: string;
+  restrictionInPlace: boolean;
+  startDate?: string;
+}
+
 export interface DailySummary {
   date: string; // YYYY-MM-DD in spot-local time
   verdict: Verdict;
@@ -62,6 +104,14 @@ export interface DailySummary {
   /** Best surfable window in spot-local time, when one exists. */
   bestWindow?: { start: string; end: string };
 }
+
+/** One observed water level from a tide gauge. Heights are metres above OD Malin, roughly mean sea level. */
+export interface TideGaugeReading {
+  time: string; // ISO 8601, UTC
+  levelM: number;
+}
+
+export type TideTrend = 'rising' | 'falling' | 'slack';
 
 export interface TideEvent {
   time: string; // ISO 8601, UTC

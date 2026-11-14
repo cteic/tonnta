@@ -1,0 +1,62 @@
+import type { WaterQualityAlert } from '@tonnta/types';
+
+import { isRecord } from '../guards';
+
+/**
+ * EPA bathing-water incidents (data.epa.ie) — the official source behind
+ * beaches.ie. The alerts endpoint returns every active incident nationally
+ * (a handful of rows); we filter for our beach. Balcarrick's id lives on
+ * the spot config. Attribution: "Water quality: EPA".
+ */
+
+const ALERTS_URL = 'https://data.epa.ie/bw/api/v1/alerts';
+
+export async function fetchWaterQualityAlert(
+  beachId: string,
+  fetchImpl: typeof fetch = fetch
+): Promise<WaterQualityAlert | undefined> {
+  const response = await fetchImpl(ALERTS_URL);
+  if (!response.ok) {
+    throw new Error(`EPA bathing alerts: HTTP ${response.status}`);
+  }
+  return findBeachAlert(await response.json(), beachId);
+}
+
+/**
+ * Fails closed: only an explicit "no" (any case) or `false` lifts a restriction.
+ * An unexpected value must never make a closed beach look open.
+ */
+export function isRestrictionInPlace(value: unknown): boolean {
+  if (value === false) return false;
+  if (typeof value === 'string' && value.trim().toLowerCase() === 'no') return false;
+  return true;
+}
+
+/** Pure parser, exported for tests. */
+export function findBeachAlert(payload: unknown, beachId: string): WaterQualityAlert | undefined {
+  if (!isRecord(payload) || !Array.isArray(payload.list)) {
+    throw new Error('EPA bathing alerts: unexpected response shape');
+  }
+  // A beach can have several incidents. An active restriction must win over
+  // a lifted one, whatever order the API lists them in.
+  const alerts: WaterQualityAlert[] = [];
+  for (const item of payload.list) {
+    if (!isRecord(item)) {
+      continue;
+    }
+    if (item.beach_id !== beachId) {
+      continue;
+    }
+    const beachName = typeof item.beach_name === 'string' ? item.beach_name : beachId;
+    const alert: WaterQualityAlert = {
+      beachId,
+      beachName,
+      restrictionInPlace: isRestrictionInPlace(item.has_bathing_restriction_in_place),
+    };
+    if (typeof item.incident_start_date === 'string') {
+      alert.startDate = item.incident_start_date;
+    }
+    alerts.push(alert);
+  }
+  return alerts.find((alert) => alert.restrictionInPlace) ?? alerts[0];
+}
