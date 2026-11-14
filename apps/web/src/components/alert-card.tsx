@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import { useAppTheme } from '@tonnta/web-shell';
+
 import {
   DEFAULT_ALERT_THRESHOLDS,
   buildSubscribePayload,
@@ -9,7 +11,6 @@ import {
   urlBase64ToUint8Array,
 } from '@/lib/alerts';
 import { ALERTS_URL, VAPID_PUBLIC_KEY } from '@/lib/site';
-import { useAppTheme } from '@/themes/theme-context';
 
 /**
  * Alert opt-in: one switch, no account. The push subscription endpoint is

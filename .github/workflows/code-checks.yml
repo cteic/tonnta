@@ -43,6 +43,7 @@ jobs:
       - run: pnpm test
       - run: pnpm build:packages
       - run: pnpm build:web
+      - run: pnpm build:swim-web
 
       - name: Commitlint
         if: github.event_name == 'pull_request'

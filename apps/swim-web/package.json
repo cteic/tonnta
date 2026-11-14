@@ -1,0 +1,46 @@
+{
+  "name": "@tonnta/swim-web",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "clean:tamagui": "rm -rf .tamagui",
+    "clean": "rm -rf .tamagui .next",
+    "generate-tamagui-css": "node scripts/generate-tamagui-css.mjs",
+    "dev": "pnpm run clean:tamagui && pnpm run generate-tamagui-css && next dev --webpack -p 3001",
+    "build": "pnpm run clean:tamagui && pnpm run generate-tamagui-css && next build --webpack",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test:unit": "vitest run --passWithNoTests",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload"
+  },
+  "dependencies": {
+    "@opennextjs/cloudflare": "^1.20.12",
+    "@tonnta/data": "workspace:*",
+    "@tonnta/types": "workspace:*",
+    "@tonnta/ui": "workspace:*",
+    "@tonnta/web-conditions": "workspace:*",
+    "@tonnta/web-shell": "workspace:*",
+    "next": "16.4.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-native-web": "^0.21.0",
+    "tamagui": "2.0.0-rc.42"
+  },
+  "devDependencies": {
+    "@amiceli/vitest-cucumber": "4.7.0",
+    "@tamagui/core": "2.0.0-rc.42",
+    "@tamagui/next-plugin": "2.0.0-rc.42",
+    "@tamagui/web": "2.0.0-rc.42",
+    "@tonnta/tsconfig-config": "workspace:*",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.6",
+    "wrangler": "^4.151.3"
+  }
+}

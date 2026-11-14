@@ -1,13 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 
-import { JsonLd } from '@/components/json-ld';
-import { TamaguiClientProvider } from '@/components/tamagui-provider';
+import { JsonLd, ShellRoot } from '@tonnta/web-shell';
+import '@tonnta/web-shell/globals.css';
+
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site';
 import { buildSiteGraph } from '@/lib/structured-data';
-import { ThemeProvider } from '@/themes/theme-context';
 
 import '../../public/tamagui.css';
-import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -41,30 +40,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link
-          rel="preload"
-          href="/fonts/ClashDisplay-Semibold.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/GeneralSans-Regular.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-      </head>
-      <body>
-        <JsonLd data={buildSiteGraph()} />
-        <TamaguiClientProvider>
-          <ThemeProvider>{children}</ThemeProvider>
-        </TamaguiClientProvider>
-      </body>
-    </html>
-  );
+  return <ShellRoot before={<JsonLd data={buildSiteGraph()} />}>{children}</ShellRoot>;
 }
