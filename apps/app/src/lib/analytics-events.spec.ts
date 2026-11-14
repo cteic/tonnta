@@ -16,7 +16,18 @@ function donabate(): Spot {
 }
 
 function outlook(now: VerdictResult): SpotOutlook {
-  return { spot: donabate(), now, days: [], hours: [] };
+  return {
+    spot: donabate(),
+    loadedAt: Date.now(),
+    forecastHours: [],
+    now,
+    headline: { kind: 'none' },
+    days: [],
+    hours: [],
+    tides: [],
+    swimNow: { verdict: 'no', reason: 'fixture', nearHighTide: false },
+    swimWindows: [],
+  };
 }
 
 describeFeature(feature, ({ Scenario }) => {
@@ -52,6 +63,7 @@ describeFeature(feature, ({ Scenario }) => {
         time: new Date(Date.UTC(2026, 9, 21, index)).toISOString(),
         waveHeightM: 0.5,
         windSpeedKmh: 15,
+        daylight: true,
         verdict: index === 15 ? 'flat' : 'go',
       }));
     });

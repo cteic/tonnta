@@ -12,9 +12,12 @@ const START = Date.parse('2026-10-20T15:00:00Z');
 const HOUR_MS = 60 * 60 * 1000;
 
 function hourAt(index: number, overrides: Partial<HourVerdict>): HourVerdict {
+  const start = START + index * HOUR_MS;
   return {
-    time: new Date(START + index * HOUR_MS).toISOString().replace('.000Z', 'Z'),
+    time: new Date(start).toISOString().replace('.000Z', 'Z'),
     verdict: 'go',
+    daylight: true,
+    validUntil: new Date(start + HOUR_MS).toISOString(),
     board: 'foamie',
     reason: '0.7m at 4s and the wind is manageable, worth going down.',
     waveHeightM: 0.68,
@@ -26,6 +29,7 @@ function hourAt(index: number, overrides: Partial<HourVerdict>): HourVerdict {
 
 function timeline(first: Partial<HourVerdict>): VerdictTimeline {
   return {
+    schemaVersion: 2,
     spot: { id: 'donabate', name: 'Donabate', irishName: 'Domhnach Bat' },
     generatedAt: new Date(START).toISOString(),
     hours: Array.from({ length: 24 }, (_, index) => hourAt(index, index === 0 ? first : {})),
@@ -103,16 +107,17 @@ describeFeature(feature, ({ Scenario }) => {
         if (source === undefined) throw new Error('no timeline');
         entries = toTimelineEntries(source);
       });
-      Then('there is one entry per hour', () => {
-        expect(entries).toHaveLength(24);
+      Then('the timeline ends with an update-needed entry', () => {
+        expect(entries).toHaveLength(2);
+        expect(entries.at(-1)?.props.status).toBe('unavailable');
         expect((entries[1]?.date.getTime() ?? 0) - (entries[0]?.date.getTime() ?? 0)).toBe(HOUR_MS);
       });
       And('the first entry is dated 15:00 UTC', () => {
         expect(entries[0]?.date.toISOString()).toBe('2026-10-20T15:00:00.000Z');
       });
-      And('its footer reads "Donabate · 16:00"', () => {
+      And('its footer reads "Donabate · Tue 16:00–17:00"', () => {
         // Irish Standard Time on 20 October: UTC+1.
-        expect(entries[0]?.props.footer).toBe('Donabate · 16:00');
+        expect(entries[0]?.props.footer).toBe('Donabate · Tue 16:00–17:00');
       });
     }
   );

@@ -19,6 +19,7 @@ function hourAt(index: number, overrides: Partial<ChartHour> = {}): ChartHour {
     time: new Date(START + index * HOUR_MS).toISOString(),
     waveHeightM: 0.4 + (index % 6) * 0.1,
     windSpeedKmh: 10 + index,
+    daylight: true,
     verdict: VERDICTS[index % VERDICTS.length] ?? 'go',
     ...overrides,
   };

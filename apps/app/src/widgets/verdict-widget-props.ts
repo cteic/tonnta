@@ -7,6 +7,7 @@
  * so anything they load at import time must be self-contained.
  */
 export interface VerdictWidgetProps {
+  status: 'forecast' | 'dark' | 'unavailable';
   verdict: string;
   irish: string;
   board: string;
@@ -21,6 +22,7 @@ export interface VerdictWidgetProps {
 
 /** Shown before the first successful fetch. Hex values are `colors.harbour`, `dawnAmber`, `inkOnDark` and `mutedOnDark`. */
 export const PLACEHOLDER_PROPS: VerdictWidgetProps = {
+  status: 'unavailable',
   verdict: 'Tonnta',
   irish: 'Domhnach Bat',
   board: '',

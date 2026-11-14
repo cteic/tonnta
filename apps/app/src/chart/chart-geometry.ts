@@ -21,6 +21,7 @@ export interface VerdictBand {
   x: number;
   width: number;
   verdict: Verdict;
+  daylight: boolean;
 }
 
 export interface AxisTick {
@@ -93,6 +94,7 @@ export function buildChartGeometry(hours: ChartHour[], box: ChartBox): ChartGeom
       x: box.left + slot * index,
       width: slot,
       verdict: hour.verdict,
+      daylight: hour.daylight,
     })),
     waveLine: wavePoints.length === 0 ? '' : `M${wavePoints.join(' L')}`,
     waveArea,
@@ -119,7 +121,7 @@ export function longestGoRun(hours: ChartHour[]): { start: string; end: string }
   let best: { from: number; to: number } | undefined;
   let runStart = -1;
   hours.forEach((hour, index) => {
-    if (hour.verdict === 'go') {
+    if (hour.daylight && hour.verdict === 'go') {
       if (runStart === -1) runStart = index;
       if (best === undefined || index - runStart > best.to - best.from)
         best = { from: runStart, to: index };

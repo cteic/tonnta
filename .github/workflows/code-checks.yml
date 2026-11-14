@@ -43,6 +43,7 @@ jobs:
       - run: pnpm test
       - run: pnpm build:packages
       - run: pnpm build:web
+      - run: pnpm build:swim-web
 
       # Skipped on release PRs (dev to main): each commit there was linted on
       # its way into dev, and older history predates commitlint.

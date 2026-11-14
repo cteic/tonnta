@@ -34,7 +34,10 @@ function VerdictWidgetLayout(props: VerdictWidgetProps) {
           {props.board}
         </Text>
       ) : null}
-      <Text color={props.mutedColor} maxLines={1} style={{ fontSize: 10 }}>
+      <Text color={props.mutedColor} maxLines={2} style={{ fontSize: 10 }}>
+        {props.reason}
+      </Text>
+      <Text color={props.mutedColor} maxLines={2} style={{ fontSize: 10 }}>
         {props.footer}
       </Text>
     </Column>

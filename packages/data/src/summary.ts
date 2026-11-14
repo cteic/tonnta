@@ -7,17 +7,15 @@ import type {
   WindState,
 } from '@tonnta/types';
 
+import { isDaylightHour } from './daylight';
 import type { VerdictThresholds } from './verdict';
 import { assessHour, spotThresholds } from './verdict';
 
 /**
  * Aggregation over the hourly forecast: the 7-day strip and the "next good
- * window" card both come from here. Only daylight-ish hours count — nobody
+ * window" card both come from here. Only complete daylight hours count: nobody
  * is paddling out at Donabate at 2am.
  */
-
-const SESSION_START_HOUR = 6;
-const SESSION_END_HOUR = 22;
 
 export interface GoodWindow {
   start: string; // ISO time of first good hour (UTC)
@@ -29,12 +27,6 @@ export interface GoodWindow {
 interface LocalStamp {
   date: string; // YYYY-MM-DD
   hour: number;
-}
-
-/** True when the time falls in local session hours (06:00–22:00) at the spot. */
-export function isSessionTime(isoTime: string, timezone: string): boolean {
-  const stamp = localStamp(isoTime, timezone);
-  return stamp !== undefined && isSessionHour(stamp);
 }
 
 function localStamp(isoTime: string, timezone: string): LocalStamp | undefined {
@@ -59,10 +51,6 @@ function localStamp(isoTime: string, timezone: string): LocalStamp | undefined {
     return undefined;
   }
   return { date: `${year}-${month}-${day}`, hour: Number(hour) };
-}
-
-function isSessionHour(stamp: LocalStamp): boolean {
-  return stamp.hour >= SESSION_START_HOUR && stamp.hour < SESSION_END_HOUR;
 }
 
 const VERDICT_RANK: Record<Verdict, number> = { go: 3, maybe: 2, flat: 1, blown: 0 };
@@ -111,12 +99,14 @@ export function findGoodWindows(
   };
 
   for (const hour of hours) {
-    const stamp = localStamp(hour.time, spot.timezone);
     const isGo =
-      stamp !== undefined &&
-      isSessionHour(stamp) &&
+      isDaylightHour(hour.time, spot) &&
       assessHour(hour, spot, thresholds ?? spotThresholds(spot)).verdict === 'go';
     if (isGo) {
+      const previous = current.at(-1);
+      if (previous !== undefined && Date.parse(hour.time) - Date.parse(previous.time) !== HOUR_MS) {
+        flush();
+      }
       current.push(hour);
     } else {
       flush();
@@ -153,7 +143,7 @@ export function summarizeDays(
   const byDate = new Map<string, HourlyConditions[]>();
   for (const hour of hours) {
     const stamp = localStamp(hour.time, spot.timezone);
-    if (stamp === undefined || !isSessionHour(stamp)) {
+    if (stamp === undefined || !isDaylightHour(hour.time, spot)) {
       continue;
     }
     const bucket = byDate.get(stamp.date) ?? [];

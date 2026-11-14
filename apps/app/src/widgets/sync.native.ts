@@ -10,7 +10,7 @@ import { refreshVerdictWidget } from './refresh';
 export const VERDICT_REFRESH_TASK = 'tonnta-verdict-widget-refresh';
 
 /** Minutes. The OS treats this as a floor and runs the task when it suits it. */
-const REFRESH_INTERVAL_MIN = 60;
+const REFRESH_INTERVAL_MIN = 15;
 
 // Task definitions must run at module load, before the OS can wake the app for one.
 TaskManager.defineTask(VERDICT_REFRESH_TASK, async () => {

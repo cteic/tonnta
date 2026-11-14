@@ -15,6 +15,8 @@ export interface VerdictThresholds {
   flatBelowM: number;
   /** At or above this it's rideable (m). */
   goFromM: number;
+  /** Optional conservative GO gate on modeled mean wave period, not a calibrated surf threshold. */
+  minGoPeriodS?: number;
   /** Max wind for a clean GO (km/h). */
   maxWindKmh: number;
   /** Wind allowance when it's blowing offshore (km/h). */
@@ -59,6 +61,8 @@ export interface HourlyConditions {
   windDirectionDeg: number;
   windState: WindState;
   seaTempC?: number;
+  /** WMO weather code from the forecast, for example 95 for a thunderstorm. */
+  weatherCode?: number;
 }
 
 export type Verdict = 'go' | 'maybe' | 'flat' | 'blown';

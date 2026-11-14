@@ -194,4 +194,20 @@ describeFeature(feature, ({ Scenario }) => {
       expect(result?.reason).toContain('Under 0.6m');
     });
   });
+
+  Scenario('A thunderstorm blocks a GO', ({ Given, When, Then }) => {
+    let hour: HourlyConditions | undefined;
+    let result: VerdictResult | undefined;
+    Given('clean GO waves under a thunderstorm at Donabate', () => {
+      hour = { ...hourWith(0.6, 5, 12, 'west-southwest'), weatherCode: 95 };
+    });
+    When('I assess the hour for Donabate', () => {
+      if (hour === undefined) throw new Error('no hour');
+      result = assessHour(hour, spot);
+    });
+    Then('the verdict should not be GO and the reason should name the lightning', () => {
+      expect(result?.verdict).toBe('blown');
+      expect(result?.reason).toContain('Lightning');
+    });
+  });
 });

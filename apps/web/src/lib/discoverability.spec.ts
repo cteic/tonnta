@@ -196,7 +196,11 @@ describeFeature(feature, ({ Scenario }) => {
         (spot) => `${origin}/s/${spot.id}`
       );
       expect(expected.length).toBeGreaterThan(0);
-      expect(entries.slice(4).map((entry) => entry.url)).toEqual(expected);
+      expect(
+        entries
+          .filter((entry) => entry.url.includes('/s/') && !entry.url.includes('/swim/'))
+          .map((entry) => entry.url)
+      ).toEqual(expected);
       expect(entries.map((entry) => entry.url)).not.toContain(`${origin}/s/${DEFAULT_SPOT_ID}`);
     });
     And('the home page is the highest priority entry', () => {
