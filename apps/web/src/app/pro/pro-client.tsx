@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 import { isRecord } from '@tonnta/data';
 
+import { existingPushEndpoint } from '@/lib/alerts';
 import {
   CHECKOUT_URL_ANNUAL,
   CHECKOUT_URL_FOUNDER,
@@ -100,14 +101,13 @@ export function ProClient() {
     setConfirm('confirming');
     (async () => {
       try {
-        const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.getSubscription();
-        if (subscription === null) {
+        const endpoint = await existingPushEndpoint(navigator);
+        if (endpoint === undefined) {
           setConfirm('needs-alerts');
           return;
         }
         const response = await fetch(
-          `${PRO_API_URL}/pro/confirm?token=${encodeURIComponent(token)}&endpoint=${encodeURIComponent(subscription.endpoint)}`
+          `${PRO_API_URL}/pro/confirm?token=${encodeURIComponent(token)}&endpoint=${encodeURIComponent(endpoint)}`
         );
         if (response.ok) {
           setConfirm('confirmed');
