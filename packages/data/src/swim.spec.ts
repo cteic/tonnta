@@ -10,7 +10,8 @@ import type {
 } from '@tonnta/types';
 
 import { isRecord } from './guards';
-import { findBeachAlert } from './sources/epa-bathing';
+import { findBeachAlert, isRestrictionInPlace } from './sources/epa-bathing';
+import { fetchTideEvents } from './sources/erddap';
 import { getSpot } from './spots';
 import type { SwimWindow } from './swim';
 import { applyWaterQuality, assessSwimHour, findSwimWindows } from './swim';
@@ -242,6 +243,45 @@ describeFeature(feature, ({ Scenario }) => {
       });
     }
   );
+
+  Scenario('An unexpected restriction value keeps the beach restricted', ({ Then, And }) => {
+    Then('a restriction of "YES", "yes", true or an unknown value is in place', () => {
+      for (const value of ['YES', 'yes', true, 'Partial', undefined, null]) {
+        expect(isRestrictionInPlace(value)).toBe(true);
+      }
+    });
+    And('only "No", "no" or false lifts it', () => {
+      for (const value of ['No', 'no', ' NO ', false]) {
+        expect(isRestrictionInPlace(value)).toBe(false);
+      }
+    });
+  });
+
+  Scenario('An unknown tide category is skipped', ({ Given, When, Then }) => {
+    let fetchImpl: typeof fetch = fetch;
+    let events: Awaited<ReturnType<typeof fetchTideEvents>> = [];
+    Given('a tide prediction service with a high, a low and an unknown category', () => {
+      fetchImpl = async () => {
+        const body = {
+          table: {
+            columnNames: ['time', 'stationID', 'tide_time_category', 'Water_Level_ODMalin'],
+            rows: [
+              ['2026-07-04T10:00:00Z', 'Skerries', 'HIGH', 1.9],
+              ['2026-07-04T16:10:00Z', 'Skerries', 'LOW', -1.2],
+              ['2026-07-04T22:20:00Z', 'Skerries', 'SLACK', 0.1],
+            ],
+          },
+        };
+        return new Response(JSON.stringify(body), { status: 200 });
+      };
+    });
+    When('I fetch the tide events', async () => {
+      events = await fetchTideEvents('Skerries', 3, fetchImpl);
+    });
+    Then('the unknown category is skipped rather than called low', () => {
+      expect(events.map((event) => event.kind)).toEqual(['high', 'low']);
+    });
+  });
 
   Scenario('A calm day splits at the high-tide band', ({ Given, When, Then, And }) => {
     let hours: HourlyConditions[] = [];

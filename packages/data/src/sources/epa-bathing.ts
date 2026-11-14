@@ -22,6 +22,16 @@ export async function fetchWaterQualityAlert(
   return findBeachAlert(await response.json(), beachId);
 }
 
+/**
+ * Fails closed: only an explicit "no" (any case) or `false` lifts a restriction.
+ * An unexpected value must never make a closed beach look open.
+ */
+export function isRestrictionInPlace(value: unknown): boolean {
+  if (value === false) return false;
+  if (typeof value === 'string' && value.trim().toLowerCase() === 'no') return false;
+  return true;
+}
+
 /** Pure parser, exported for tests. */
 export function findBeachAlert(payload: unknown, beachId: string): WaterQualityAlert | undefined {
   if (!isRecord(payload) || !Array.isArray(payload.list)) {
@@ -41,7 +51,7 @@ export function findBeachAlert(payload: unknown, beachId: string): WaterQualityA
     const alert: WaterQualityAlert = {
       beachId,
       beachName,
-      restrictionInPlace: item.has_bathing_restriction_in_place === 'Yes',
+      restrictionInPlace: isRestrictionInPlace(item.has_bathing_restriction_in_place),
     };
     if (typeof item.incident_start_date === 'string') {
       alert.startDate = item.incident_start_date;

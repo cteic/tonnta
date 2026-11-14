@@ -119,6 +119,14 @@ export async function fetchTideGaugeReadings(
   return readings.sort((a, b) => a.time.localeCompare(b.time));
 }
 
+/** Only an explicit HIGH or LOW counts; anything else is skipped rather than guessed. */
+export function tideKind(raw: string): 'high' | 'low' | undefined {
+  const value = raw.trim().toUpperCase();
+  if (value === 'HIGH') return 'high';
+  if (value === 'LOW') return 'low';
+  return undefined;
+}
+
 /** Upcoming high/low tides for a prediction station (e.g. Skerries). */
 export async function fetchTideEvents(
   stationId: string,
@@ -145,7 +153,8 @@ export async function fetchTideEvents(
     if (typeof time !== 'string' || typeof kindRaw !== 'string' || heightM === undefined) {
       continue;
     }
-    const kind = kindRaw.toUpperCase() === 'HIGH' ? 'high' : 'low';
+    const kind = tideKind(kindRaw);
+    if (kind === undefined) continue;
     events.push({ time, kind, heightM });
   }
   return events.sort((a, b) => a.time.localeCompare(b.time));
