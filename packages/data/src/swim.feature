@@ -53,3 +53,29 @@ Feature: Snámh swim verdict engine
     Given an EPA alerts payload with a restriction for another beach
     When I parse the payload for Balcarrick
     Then no alert should be found
+
+  Scenario: An active restriction wins over a lifted one at the same beach
+    Given an EPA alerts payload listing a lifted incident before an active one for Balcarrick
+    When I parse the payload for Balcarrick
+    Then the parsed alert should have a restriction in place
+
+  Scenario: A calm day splits at the high-tide band
+    Given calm water from 09:00 to 21:00 Irish time and a high tide at 15:00
+    When I find the swim windows
+    Then the first window runs from 13:00 to the 17:00 hour, around that high tide
+    And the low-water stretches either side are separate windows
+
+  Scenario: A swim window that has ended is not offered
+    Given calm water from 09:00 to 11:00 Irish time and rough water after
+    When I find the swim windows at 14:00
+    Then there are no swim windows
+
+  Scenario: No swimming in a thunderstorm
+    Given calm water under a thunderstorm
+    When I assess the swim
+    Then the swim verdict should be no because of lightning
+
+  Scenario: A swim window in progress starts at the hour in progress
+    Given calm water from 09:00 to 13:00 Irish time
+    When I find the swim windows at 11:30
+    Then the window starts at 11:00

@@ -8,10 +8,31 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  // Production. Pushes to main deploy here; Cloudflare creates the DNS
+  // records and certificates for these hostnames on deploy.
+  "workers_dev": true,
+  "routes": [
+    { "pattern": "tonnta.surf", "custom_domain": true },
+    { "pattern": "www.tonnta.surf", "custom_domain": true }
+  ],
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
       "service": "tonnta-web"
     }
-  ]
+  ],
+  "env": {
+    // Pushes to dev deploy here, on workers.dev only.
+    "staging": {
+      "name": "tonnta-web-staging",
+      "routes": [],
+      "workers_dev": true,
+      "services": [
+        {
+          "binding": "WORKER_SELF_REFERENCE",
+          "service": "tonnta-web-staging"
+        }
+      ]
+    }
+  }
 }

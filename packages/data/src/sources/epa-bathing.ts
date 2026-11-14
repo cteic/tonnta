@@ -27,6 +27,9 @@ export function findBeachAlert(payload: unknown, beachId: string): WaterQualityA
   if (!isRecord(payload) || !Array.isArray(payload.list)) {
     throw new Error('EPA bathing alerts: unexpected response shape');
   }
+  // A beach can have several incidents. An active restriction must win over
+  // a lifted one, whatever order the API lists them in.
+  const alerts: WaterQualityAlert[] = [];
   for (const item of payload.list) {
     if (!isRecord(item)) {
       continue;
@@ -43,7 +46,7 @@ export function findBeachAlert(payload: unknown, beachId: string): WaterQualityA
     if (typeof item.incident_start_date === 'string') {
       alert.startDate = item.incident_start_date;
     }
-    return alert;
+    alerts.push(alert);
   }
-  return undefined;
+  return alerts.find((alert) => alert.restrictionInPlace) ?? alerts[0];
 }

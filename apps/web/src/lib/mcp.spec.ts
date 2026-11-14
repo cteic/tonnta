@@ -1,12 +1,18 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { getSpot, isRecord } from '@tonnta/data';
-import type { HourlyConditions, Spot } from '@tonnta/types';
+import { getSpot, isRecord, sunTimes } from '@tonnta/data';
+import type { HourlyConditions, Spot, VerdictResult } from '@tonnta/types';
+import type { SpotConditions } from '@tonnta/web-conditions';
 
-import type { SpotConditions } from './conditions';
 import type { JsonRpcResponse } from './mcp';
-import { MCP_PROTOCOL_VERSION, SURF_TOOL_NAME, handleMcpRequest } from './mcp';
+import {
+  MCP_PROTOCOL_VERSION,
+  SURF_TOOL_NAME,
+  buildConditionsPayload,
+  buildConditionsSummary,
+  handleMcpRequest,
+} from './mcp';
 import { SITE_URL } from './site';
 
 const feature = await loadFeature('./mcp.feature');
@@ -33,14 +39,18 @@ const CURRENT_HOUR: HourlyConditions = {
   seaTempC: 15.2,
 };
 
+const NOW_VERDICT: VerdictResult = {
+  verdict: 'go',
+  board: 'longboard',
+  reason: '0.6m at 5s and the wind is clean — worth going down.',
+};
+
 function conditionsFixture(): SpotConditions {
   return {
     spot: spotNamed('donabate'),
-    now: {
-      verdict: 'go',
-      board: 'longboard',
-      reason: '0.6m at 5s and the wind is clean — worth going down.',
-    },
+    loadedAt: NOW.getTime(),
+    now: NOW_VERDICT,
+    headline: { kind: 'verdict', hour: CURRENT_HOUR, result: NOW_VERDICT },
     currentHour: CURRENT_HOUR,
     days: [],
     hours: [CURRENT_HOUR],
@@ -268,5 +278,133 @@ describeFeature(feature, ({ Scenario }) => {
     Then('nothing is returned', () => {
       expect(response).toBeUndefined();
     });
+  });
+});
+
+describe('live MCP daylight and freshness', () => {
+  function at(clock: number): SpotConditions {
+    const conditions = conditionsFixture();
+    const hour = {
+      ...CURRENT_HOUR,
+      time: new Date(Math.floor(clock / 3_600_000) * 3_600_000).toISOString(),
+    };
+    return { ...conditions, loadedAt: clock - 1000, hours: [hour], currentHour: hour };
+  }
+
+  it('recomputes cached positive verdicts on both sides of sunrise and sunset', () => {
+    const spot = spotNamed('donabate');
+    const { sunrise, sunset } = sunTimes(NOW.getTime(), spot.latitude, spot.longitude);
+    if (sunrise === undefined || sunset === undefined) throw new Error('missing sun times');
+    for (const [clock, dark] of [
+      [sunrise - 1, true],
+      [Math.ceil(sunrise), false],
+      [sunrise + 1, false],
+      [sunset - 1, false],
+      [Math.floor(sunset), false],
+      [sunset + 1, true],
+    ] as const) {
+      const conditions = at(clock);
+      const payload = buildConditionsPayload(conditions, new Date(clock));
+      const summary = buildConditionsSummary(conditions, new Date(clock));
+      expect(payload.schemaVersion).toBe(2);
+      expect(payload.verdict === 'dark').toBe(dark);
+      if (dark) {
+        expect(payload.swimVerdict).toBe('dark');
+        expect(payload.board).toBeUndefined();
+        expect(payload.nextGoodWindow).toBeUndefined();
+        expect(payload.forecastHour).toBeDefined();
+        expect(summary).toContain('Stay out of the water');
+        expect(summary).not.toContain('Board call');
+        expect(summary).not.toContain('GO');
+      } else {
+        expect(payload.verdict).toBe('go');
+      }
+    }
+  });
+
+  it('reports unavailable instead of positive or flat for stale and missing coverage', () => {
+    for (const conditions of [
+      { ...conditionsFixture(), loadedAt: NOW.getTime() - 3_600_000 },
+      { ...conditionsFixture(), hours: [] },
+      { ...conditionsFixture(), hours: [{ ...CURRENT_HOUR, time: '2026-08-18T10:00:00Z' }] },
+      { ...conditionsFixture(), hours: [{ ...CURRENT_HOUR, time: '2026-08-18T08:00:00Z' }] },
+    ]) {
+      const payload = buildConditionsPayload(conditions, NOW);
+      expect(payload.verdict).toBe('unavailable');
+      expect(payload.swimVerdict).toBe('unavailable');
+      expect(payload.board).toBeUndefined();
+      expect(payload.forecastHour).toBeUndefined();
+      expect(buildConditionsSummary(conditions, NOW)).toContain('UNAVAILABLE');
+    }
+  });
+
+  it('reads the clock after loading so a sunset crossed during fetch is dark', async () => {
+    const spot = spotNamed('donabate');
+    const { sunset } = sunTimes(NOW.getTime(), spot.latitude, spot.longitude);
+    if (sunset === undefined) throw new Error('missing sunset');
+    let clock = sunset - 1;
+    const response = await handleMcpRequest(
+      {
+        jsonrpc: '2.0',
+        id: 44,
+        method: 'tools/call',
+        params: { name: SURF_TOOL_NAME },
+      },
+      {
+        now: () => new Date(clock),
+        loadConditions: async () => {
+          clock = sunset + 1;
+          return at(clock);
+        },
+      }
+    );
+    expect(resultOf(response).structuredContent).toMatchObject({
+      verdict: 'dark',
+      swimVerdict: 'dark',
+    });
+  });
+  it('bounds live validity by hour end, freshness and sunset', () => {
+    const spot = spotNamed('donabate');
+    const { sunset } = sunTimes(NOW.getTime(), spot.latitude, spot.longitude);
+    if (sunset === undefined) throw new Error('missing sunset');
+    const clock = Math.floor(sunset) - 60_000;
+    const nearingSunset = buildConditionsPayload(at(clock), new Date(clock));
+    expect(nearingSunset.validUntil).toBe(new Date(sunset).toISOString());
+    expect(buildConditionsPayload(conditionsFixture(), NOW).validUntil).toBe(
+      '2026-08-18T10:00:00.000Z'
+    );
+    expect(
+      buildConditionsPayload({ ...conditionsFixture(), loadedAt: NOW.getTime() - 3_599_000 }, NOW)
+        .validUntil
+    ).toBe('2026-08-18T09:00:01.000Z');
+    expect(buildConditionsPayload({ ...conditionsFixture(), hours: [] }, NOW).validUntil).toBe(
+      NOW.toISOString()
+    );
+  });
+});
+
+describe('MCP window interval semantics', () => {
+  it('reports the end of the last forecast hour in prose and structured output', () => {
+    const conditions = conditionsFixture();
+    conditions.hours = [
+      { ...CURRENT_HOUR, waveHeightM: 0.1 },
+      { ...CURRENT_HOUR, time: '2026-08-18T10:00:00.000Z' },
+    ];
+    expect(buildConditionsSummary(conditions, NOW)).toContain('11:00–12:00');
+    expect(buildConditionsPayload(conditions, NOW).nextGoodWindow).toMatchObject({
+      start: '2026-08-18T10:00:00.000Z',
+      end: '2026-08-18T11:00:00.000Z',
+    });
+  });
+});
+
+describe('MCP local surf uncertainty', () => {
+  it('recomputes short-period uncertainty instead of repeating a stale positive hero', () => {
+    const conditions = conditionsFixture();
+    conditions.hours = [{ ...CURRENT_HOUR, wavePeriodS: 3 }];
+    const payload = buildConditionsPayload(conditions, NOW);
+    expect(payload.verdict).toBe('maybe');
+    expect(payload.board).toBeUndefined();
+    expect(buildConditionsSummary(conditions, NOW)).toContain('Short-period sea');
   });
 });

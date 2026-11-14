@@ -1,7 +1,13 @@
-import { DEFAULT_SPOT_ID, SPOTS, getSpot, isRecord } from '@tonnta/data';
+import {
+  DEFAULT_SPOT_ID,
+  MAX_FORECAST_AGE_MS,
+  SPOTS,
+  getSpot,
+  isRecord,
+  sunTimes,
+} from '@tonnta/data';
 import type { Spot, TideEvent } from '@tonnta/types';
-
-import type { SpotConditions } from '@/lib/conditions';
+import type { SpotConditions } from '@tonnta/web-conditions';
 import {
   BOARD_LABEL,
   VERDICT_LABEL,
@@ -9,7 +15,10 @@ import {
   compassPoint,
   formatDayName,
   formatHour,
-} from '@/lib/format';
+  formatHourRange,
+} from '@tonnta/web-conditions';
+import { conditionsAt } from '@tonnta/web-conditions';
+
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 
 /**
@@ -81,7 +90,7 @@ export const SURF_TOOL: McpTool = {
   name: SURF_TOOL_NAME,
   title: 'Get surf conditions',
   description:
-    'Answer "is it worth surfing today?" for a Tonnta surf spot, defaulting to Donabate beach, County Dublin, Ireland. Returns the current verdict (GO, MAYBE, FLAT or BLOWN OUT), wave height and period, wind speed, direction and whether it is onshore or offshore, the tide state, sea temperature, and the board call (SUP, foamie or longboard) with the reasoning.',
+    'Answer "is it worth surfing today?" for a Tonnta surf spot, defaulting to Donabate beach, County Dublin, Ireland. Returns the current verdict (GO, MAYBE, FLAT, BLOWN OUT, DARK or UNAVAILABLE), wave height and period, wind speed, direction and whether it is onshore or offshore, the tide state, sea temperature, and the board call (SUP, foamie or longboard) with the reasoning.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -166,16 +175,43 @@ function spotUrl(spot: Spot): string {
   return spot.id === DEFAULT_SPOT_ID ? `${SITE_URL}/` : `${SITE_URL}/s/${spot.id}`;
 }
 
+function livePresentation(conditions: SpotConditions) {
+  if (conditions.headline.kind === 'dark') {
+    return {
+      verdict: 'dark',
+      label: 'DARK',
+      spokenLabel: 'DARK',
+      reason: 'It is dark. Stay out of the water. No live surf, swim or board recommendation.',
+    };
+  }
+  if (conditions.headline.kind === 'none') {
+    return {
+      verdict: 'unavailable',
+      label: 'UNAVAILABLE',
+      spokenLabel: 'UNAVAILABLE',
+      reason: 'Current forecast unavailable. Check again before heading out.',
+    };
+  }
+  const label = VERDICT_LABEL[conditions.now.verdict];
+  return {
+    verdict: conditions.now.verdict,
+    label: label.english,
+    spokenLabel: `${label.english} (${label.irish})`,
+    reason: conditions.now.reason,
+  };
+}
+
 /**
  * The prose half of the tool result. Agents quote sentences far more
  * reliably than they quote JSON, so this is what leads the response.
  */
 export function buildConditionsSummary(conditions: SpotConditions, now: Date): string {
-  const { spot, now: verdict, currentHour } = conditions;
-  const label = VERDICT_LABEL[verdict.verdict];
+  conditions = conditionsAt(conditions, now.getTime());
+  const { spot, now: verdict, currentHour, headline } = conditions;
+  const presentation = livePresentation(conditions);
   const lines: string[] = [
-    `${spot.name}, ${spot.region}, ${COUNTRY_NAME[spot.country]} — ${label.english} (${label.irish}).`,
-    verdict.reason,
+    `${spot.name}, ${spot.region}, ${COUNTRY_NAME[spot.country]}: ${presentation.spokenLabel}.`,
+    presentation.reason,
   ];
 
   if (currentHour !== undefined) {
@@ -187,7 +223,7 @@ export function buildConditionsSummary(conditions: SpotConditions, now: Date): s
     );
   }
 
-  if (verdict.board !== undefined) {
+  if (headline.kind === 'verdict' && verdict.board !== undefined) {
     lines.push(`Board call: bring the ${BOARD_LABEL[verdict.board]}.`);
   }
 
@@ -199,9 +235,9 @@ export function buildConditionsSummary(conditions: SpotConditions, now: Date): s
   }
 
   const window = conditions.nextWindow;
-  if (window !== undefined && verdict.verdict !== 'go') {
+  if (headline.kind === 'verdict' && window !== undefined && verdict.verdict !== 'go') {
     lines.push(
-      `Next good window: ${formatDayName(window.start, spot.timezone)} ${formatHour(window.start, spot.timezone)}–${formatHour(window.end, spot.timezone)}.`
+      `Next good window: ${formatDayName(window.start, spot.timezone)} ${formatHourRange(window.start, window.end, spot.timezone)}.`
     );
   }
 
@@ -218,10 +254,28 @@ export function buildConditionsPayload(
   conditions: SpotConditions,
   now: Date
 ): Record<string, unknown> {
-  const { spot, currentHour } = conditions;
+  conditions = conditionsAt(conditions, now.getTime());
+  const { spot, currentHour, headline } = conditions;
+  const live = headline.kind === 'verdict';
+  const presentation = livePresentation(conditions);
   const tide = nextTide(conditions.tides, now);
 
+  let validUntil = now.getTime();
+  if (currentHour !== undefined) {
+    validUntil = Math.min(
+      Date.parse(currentHour.time) + 3_600_000,
+      conditions.loadedAt + MAX_FORECAST_AGE_MS
+    );
+    if (live) {
+      const { sunset } = sunTimes(now.getTime(), spot.latitude, spot.longitude);
+      if (sunset !== undefined) validUntil = Math.min(validUntil, sunset);
+    }
+  }
+
   const payload: Record<string, unknown> = {
+    schemaVersion: 2,
+    evaluatedAt: now.toISOString(),
+    validUntil: new Date(validUntil).toISOString(),
     spot: {
       id: spot.id,
       name: spot.name,
@@ -231,15 +285,15 @@ export function buildConditionsPayload(
       longitude: spot.longitude,
       timezone: spot.timezone,
     },
-    verdict: conditions.now.verdict,
-    verdictLabel: VERDICT_LABEL[conditions.now.verdict].english,
-    reason: conditions.now.reason,
-    swimVerdict: conditions.swimNow.verdict,
+    verdict: presentation.verdict,
+    verdictLabel: presentation.label,
+    reason: presentation.reason,
+    swimVerdict: live ? conditions.swimNow.verdict : presentation.verdict,
     warnings: conditions.warnings,
     source: spotUrl(spot),
   };
 
-  if (conditions.now.board !== undefined) {
+  if (live && conditions.now.board !== undefined) {
     payload.board = conditions.now.board;
   }
   if (currentHour !== undefined) {
@@ -262,10 +316,10 @@ export function buildConditionsPayload(
       nextEvent: { kind: tide.kind, time: tide.time, heightM: tide.heightM },
     };
   }
-  if (conditions.nextWindow !== undefined) {
+  if (live && conditions.nextWindow !== undefined) {
     payload.nextGoodWindow = {
       start: conditions.nextWindow.start,
-      end: conditions.nextWindow.end,
+      end: new Date(Date.parse(conditions.nextWindow.end) + 3_600_000).toISOString(),
       ...(conditions.nextWindow.board !== undefined ? { board: conditions.nextWindow.board } : {}),
     };
   }
@@ -308,8 +362,8 @@ async function callTool(
   }
 
   try {
-    const now = deps.now();
     const conditions = await deps.loadConditions(args.spotId);
+    const now = deps.now();
     return success(id, {
       content: [{ type: 'text', text: buildConditionsSummary(conditions, now) }],
       structuredContent: buildConditionsPayload(conditions, now),

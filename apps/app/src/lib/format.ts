@@ -2,20 +2,8 @@ import type { Board, Verdict, WindState } from '@tonnta/types';
 
 /** Display formatting, all in the spot's local clock. */
 
-export function formatHour(isoTime: string, timezone: string): string {
-  return new Intl.DateTimeFormat('en-IE', {
-    timeZone: timezone,
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(new Date(isoTime));
-}
-
-export function formatDayName(isoDateOrTime: string, timezone: string): string {
-  return new Intl.DateTimeFormat('en-IE', {
-    timeZone: timezone,
-    weekday: 'short',
-  }).format(new Date(isoDateOrTime));
-}
+// Shared with the web app and the widgets, so their clocks agree.
+export { formatDayName, formatHour, formatHourRange } from '@tonnta/data';
 
 export const VERDICT_LABEL: Record<Verdict, { english: string; irish: string }> = {
   go: { english: 'GO', irish: 'Téigh' },

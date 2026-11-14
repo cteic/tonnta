@@ -20,10 +20,11 @@ Feature: Spot registry and per-spot thresholds
     When I assess the hour at El Cotillo
     Then the verdict should be flat
 
-  Scenario: A spot without its own thresholds uses the defaults
+  Scenario: Donabate keeps its small-wave threshold with a period guard
     Given the spot id donabate
     When I resolve its thresholds
     Then the go-from threshold is 0.4m
+    And the minimum GO period is 4 seconds
 
   Scenario: A Fuerteventura spot carries its own thresholds
     Given the spot id el-cotillo

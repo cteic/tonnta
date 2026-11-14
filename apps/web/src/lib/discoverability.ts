@@ -42,6 +42,7 @@ const FIXED_PATHS: readonly PublicPath[] = [
   { path: '/', priority: 1, changeFrequency: 'hourly' },
   { path: '/log', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/pro', priority: 0.5, changeFrequency: 'monthly' },
+  { path: '/privacy', priority: 0.2, changeFrequency: 'monthly' },
 ];
 
 /**

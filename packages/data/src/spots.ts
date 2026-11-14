@@ -15,8 +15,18 @@ export const SPOTS: readonly Spot[] = [
     longitude: -6.107,
     timezone: 'Europe/Dublin',
     facing: 70,
+    // Provisional uncertainty guard, not a measured local surfability boundary.
+    thresholds: {
+      flatBelowM: 0.3,
+      goFromM: 0.4,
+      minGoPeriodS: 4,
+      maxWindKmh: 25,
+      maxWindOffshoreKmh: 30,
+      blownOnshoreKmh: 35,
+    },
     buoyStationId: 'M2',
     tideStationId: 'Skerries',
+    tideGaugeId: 'Skerries Harbour',
     epaBeachId: 'IEEABWC020_0000_0100',
   },
   {

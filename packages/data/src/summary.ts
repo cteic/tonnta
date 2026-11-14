@@ -7,17 +7,15 @@ import type {
   WindState,
 } from '@tonnta/types';
 
+import { isDaylightHour } from './daylight';
 import type { VerdictThresholds } from './verdict';
 import { assessHour, spotThresholds } from './verdict';
 
 /**
  * Aggregation over the hourly forecast: the 7-day strip and the "next good
- * window" card both come from here. Only daylight-ish hours count — nobody
+ * window" card both come from here. Only complete daylight hours count: nobody
  * is paddling out at Donabate at 2am.
  */
-
-const SESSION_START_HOUR = 6;
-const SESSION_END_HOUR = 22;
 
 export interface GoodWindow {
   start: string; // ISO time of first good hour (UTC)
@@ -29,12 +27,6 @@ export interface GoodWindow {
 interface LocalStamp {
   date: string; // YYYY-MM-DD
   hour: number;
-}
-
-/** True when the time falls in local session hours (06:00–22:00) at the spot. */
-export function isSessionTime(isoTime: string, timezone: string): boolean {
-  const stamp = localStamp(isoTime, timezone);
-  return stamp !== undefined && isSessionHour(stamp);
 }
 
 function localStamp(isoTime: string, timezone: string): LocalStamp | undefined {
@@ -59,10 +51,6 @@ function localStamp(isoTime: string, timezone: string): LocalStamp | undefined {
     return undefined;
   }
   return { date: `${year}-${month}-${day}`, hour: Number(hour) };
-}
-
-function isSessionHour(stamp: LocalStamp): boolean {
-  return stamp.hour >= SESSION_START_HOUR && stamp.hour < SESSION_END_HOUR;
 }
 
 const VERDICT_RANK: Record<Verdict, number> = { go: 3, maybe: 2, flat: 1, blown: 0 };
@@ -111,12 +99,14 @@ export function findGoodWindows(
   };
 
   for (const hour of hours) {
-    const stamp = localStamp(hour.time, spot.timezone);
     const isGo =
-      stamp !== undefined &&
-      isSessionHour(stamp) &&
+      isDaylightHour(hour.time, spot) &&
       assessHour(hour, spot, thresholds ?? spotThresholds(spot)).verdict === 'go';
     if (isGo) {
+      const previous = current.at(-1);
+      if (previous !== undefined && Date.parse(hour.time) - Date.parse(previous.time) !== HOUR_MS) {
+        flush();
+      }
       current.push(hour);
     } else {
       flush();
@@ -127,15 +117,22 @@ export function findGoodWindows(
   return windows.sort((a, b) => b.hours.length - a.hours.length || a.start.localeCompare(b.start));
 }
 
-/** The next upcoming GO window in chronological order, if any. */
+const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * The next GO window that has not ended by `now`, in chronological order. A
+ * window in progress counts. The forecast starts at midnight, so without
+ * `now` a morning window would still read as "next" in the afternoon.
+ */
 export function nextGoodWindow(
   hours: HourlyConditions[],
   spot: Spot,
+  now: number,
   thresholds?: VerdictThresholds
 ): GoodWindow | undefined {
-  return findGoodWindows(hours, spot, thresholds ?? spotThresholds(spot)).sort((a, b) =>
-    a.start.localeCompare(b.start)
-  )[0];
+  return findGoodWindows(hours, spot, thresholds ?? spotThresholds(spot))
+    .filter((window) => Date.parse(window.end) + HOUR_MS > now)
+    .sort((a, b) => a.start.localeCompare(b.start))[0];
 }
 
 export function summarizeDays(
@@ -146,7 +143,7 @@ export function summarizeDays(
   const byDate = new Map<string, HourlyConditions[]>();
   for (const hour of hours) {
     const stamp = localStamp(hour.time, spot.timezone);
-    if (stamp === undefined || !isSessionHour(stamp)) {
+    if (stamp === undefined || !isDaylightHour(hour.time, spot)) {
       continue;
     }
     const bucket = byDate.get(stamp.date) ?? [];
@@ -156,7 +153,7 @@ export function summarizeDays(
 
   const summaries: DailySummary[] = [];
   for (const [date, dayHours] of byDate) {
-    let bestVerdict: Verdict = 'flat';
+    let bestVerdict: Verdict = 'blown';
     let board: Board | undefined;
     let maxWave = 0;
     const windStates: WindState[] = [];

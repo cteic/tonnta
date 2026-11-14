@@ -1,4 +1,5 @@
-import { loadSpotConditions } from '@/lib/conditions';
+import { loadSpotConditions } from '@tonnta/web-conditions/server';
+
 import { handleMcpRequest } from '@/lib/mcp';
 
 export const dynamic = 'force-dynamic';

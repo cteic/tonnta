@@ -1,14 +1,11 @@
 import webPush from 'web-push';
 
-import {
-  assessHour,
-  fetchHourlyConditions,
-  findGoodWindows,
-  getSpot,
-  isRecord,
-} from '@tonnta/data';
-import type { Spot } from '@tonnta/types';
+import { assessHour, fetchHourlyConditions, getSpot, isRecord } from '@tonnta/data';
+import type { HourlyConditions, Spot } from '@tonnta/types';
 
+import { parseUnsubscribeEndpoint, upcomingAlertWindow } from './alerts';
+import { allowedOrigins, withCors } from './cors';
+import { handleLive } from './live';
 import { handleConfirm, handleFounderCount, handleRestore } from './pro';
 import { handleVerdict } from './verdict';
 
@@ -16,6 +13,8 @@ export interface Env {
   CACHE: KVNamespace;
   DB: D1Database;
   SITE_ORIGIN: string;
+  /** Further origins allowed to call the alert endpoints, comma-separated. */
+  ALLOWED_ORIGINS?: string;
   VAPID_PUBLIC_KEY: string;
   VAPID_PRIVATE_KEY: string;
   VAPID_SUBJECT: string;
@@ -96,13 +95,11 @@ async function handleSubscribe(request: Request, env: Env): Promise<Response> {
 }
 
 async function handleUnsubscribe(request: Request, env: Env): Promise<Response> {
-  const body = parseSubscribeBody(await request.json().catch(() => undefined));
-  if (body === undefined) {
+  const endpoint = parseUnsubscribeEndpoint(await request.json().catch(() => undefined));
+  if (endpoint === undefined) {
     return json({ error: 'endpoint is required' }, 400, env);
   }
-  await env.DB.prepare('DELETE FROM alert_subscriptions WHERE endpoint = ?1')
-    .bind(body.endpoint)
-    .run();
+  await env.DB.prepare('DELETE FROM alert_subscriptions WHERE endpoint = ?1').bind(endpoint).run();
   return json({ ok: true }, 200, env);
 }
 
@@ -130,11 +127,14 @@ async function checkAndAlert(env: Env): Promise<void> {
     const spot: Spot | undefined = getSpot(spotId);
     if (spot === undefined) continue;
 
-    const hours = await fetchHourlyConditions(spot);
-    const next24h = hours.filter(
-      (hour) => new Date(hour.time).getTime() - now < 24 * 60 * 60 * 1000
-    );
-    const window = findGoodWindows(next24h, spot)[0];
+    let hours: HourlyConditions[];
+    try {
+      hours = await fetchHourlyConditions(spot);
+    } catch {
+      // One spot's forecast failing must not cost every later spot its alerts.
+      continue;
+    }
+    const window = upcomingAlertWindow(hours, spot, now);
     if (window === undefined) continue;
     const firstHour = window.hours[0];
     if (firstHour === undefined) continue;
@@ -184,35 +184,46 @@ async function checkAndAlert(env: Env): Promise<void> {
   }
 }
 
+async function route(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  const url = new URL(request.url);
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: corsHeaders(env) });
+  }
+  if (url.pathname === '/health') {
+    return json({ ok: true }, 200, env);
+  }
+  if (url.pathname === '/verdict' && request.method === 'GET') {
+    return handleVerdict(url, env.CACHE);
+  }
+  if (url.pathname === '/subscribe' && request.method === 'POST') {
+    return handleSubscribe(request, env);
+  }
+  if (url.pathname === '/subscribe' && request.method === 'DELETE') {
+    return handleUnsubscribe(request, env);
+  }
+  if (url.pathname === '/live' && request.method === 'GET') {
+    return handleLive(url, env.CACHE, (promise) => ctx.waitUntil(promise));
+  }
+  const respond = (body: unknown, status: number): Response => json(body, status, env);
+  if (url.pathname === '/pro/founder-count' && request.method === 'GET') {
+    return handleFounderCount(env, respond);
+  }
+  if (url.pathname === '/pro/restore' && request.method === 'POST') {
+    return handleRestore(request, env, respond);
+  }
+  if (url.pathname === '/pro/confirm' && request.method === 'GET') {
+    return handleConfirm(request, env, respond);
+  }
+  return json({ error: 'not found' }, 404, env);
+}
+
 const worker = {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: corsHeaders(env) });
-    }
-    if (url.pathname === '/health') {
-      return json({ ok: true }, 200, env);
-    }
-    if (url.pathname === '/verdict' && request.method === 'GET') {
-      return handleVerdict(url, env.CACHE);
-    }
-    if (url.pathname === '/subscribe' && request.method === 'POST') {
-      return handleSubscribe(request, env);
-    }
-    if (url.pathname === '/subscribe' && request.method === 'DELETE') {
-      return handleUnsubscribe(request, env);
-    }
-    const respond = (body: unknown, status: number): Response => json(body, status, env);
-    if (url.pathname === '/pro/founder-count' && request.method === 'GET') {
-      return handleFounderCount(env, respond);
-    }
-    if (url.pathname === '/pro/restore' && request.method === 'POST') {
-      return handleRestore(request, env, respond);
-    }
-    if (url.pathname === '/pro/confirm' && request.method === 'GET') {
-      return handleConfirm(request, env, respond);
-    }
-    return json({ error: 'not found' }, 404, env);
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    return withCors(
+      await route(request, env, ctx),
+      request.headers.get('Origin'),
+      allowedOrigins(env.SITE_ORIGIN, env.ALLOWED_ORIGINS)
+    );
   },
 
   async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
