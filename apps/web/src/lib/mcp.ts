@@ -7,8 +7,7 @@ import {
   sunTimes,
 } from '@tonnta/data';
 import type { Spot, TideEvent } from '@tonnta/types';
-
-import type { SpotConditions } from '@/lib/conditions';
+import type { SpotConditions } from '@tonnta/web-conditions';
 import {
   BOARD_LABEL,
   VERDICT_LABEL,
@@ -17,8 +16,9 @@ import {
   formatDayName,
   formatHour,
   formatHourRange,
-} from '@/lib/format';
-import { conditionsAt } from '@/lib/live-conditions';
+} from '@tonnta/web-conditions';
+import { conditionsAt } from '@tonnta/web-conditions';
+
 import { SITE_NAME, SITE_URL } from '@/lib/site';
 
 /**

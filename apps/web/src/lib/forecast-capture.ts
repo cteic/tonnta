@@ -1,6 +1,5 @@
 import { assessHour, isDaylightHour, isForecastFresh } from '@tonnta/data';
-
-import type { SpotConditions } from './conditions';
+import type { SpotConditions } from '@tonnta/web-conditions';
 
 /** Save retained, future-facing hourly model data, never manufacture a past forecast. */
 export function forecastHoursToCapture(conditions: SpotConditions, capturedAt: number) {

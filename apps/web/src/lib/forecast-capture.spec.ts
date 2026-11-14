@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 
 import { getSpot, isDaylightHour } from '@tonnta/data';
 import type { HourlyConditions } from '@tonnta/types';
+import type { SpotConditions } from '@tonnta/web-conditions';
 
-import type { SpotConditions } from './conditions';
 import { forecastHoursToCapture } from './forecast-capture';
 
 const spot = getSpot('donabate');

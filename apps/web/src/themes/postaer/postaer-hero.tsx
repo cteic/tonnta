@@ -3,8 +3,7 @@
 import { useState } from 'react';
 
 import type { HourlyConditions, Spot, VerdictResult } from '@tonnta/types';
-
-import { BOARD_LABEL } from '@/lib/format';
+import { BOARD_LABEL } from '@tonnta/web-conditions';
 
 import { sharePoster } from './poster-export';
 import type { PosterInput } from './poster-scene';

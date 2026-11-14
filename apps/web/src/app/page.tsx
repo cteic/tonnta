@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 import { DEFAULT_SPOT_ID, getSpot } from '@tonnta/data';
+import { JsonLd } from '@tonnta/web-shell';
 
-import { JsonLd } from '@/components/json-ld';
 import { SpotScreen } from '@/components/spot-screen';
 import { WebMcpTools } from '@/components/webmcp-tools';
 import { indexingMetadata } from '@/lib/page-metadata';

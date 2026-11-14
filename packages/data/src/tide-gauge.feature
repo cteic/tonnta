@@ -24,3 +24,8 @@ Feature: Reading the live tide gauge
     Given gauge readings that climb 2 cm every 5 minutes
     When I take the readings after 16:05
     Then only the 16:10 and 16:15 readings remain
+
+  Scenario: A cursor with milliseconds marks the same instant
+    Given gauge readings that climb 2 cm every 5 minutes
+    When I take the readings after 16:05 written with milliseconds
+    Then only the 16:10 and 16:15 readings remain

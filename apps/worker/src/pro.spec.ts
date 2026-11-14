@@ -2,7 +2,15 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
 import type { TokenRow } from './pro';
-import { compareTokens, founderRemaining, isTokenValid, parseRestoreBody } from './pro';
+import {
+  compareTokens,
+  founderRemaining,
+  handleConfirm,
+  isTokenValid,
+  parseRestoreBody,
+} from './pro';
+import type { TestDatabase } from './testing/sqlite-d1';
+import { createTestDatabase } from './testing/sqlite-d1';
 
 const feature = await loadFeature('./pro.feature');
 
@@ -14,6 +22,32 @@ function tokenRow(offsetMinutes: number, used: boolean): TokenRow {
     expires_at: new Date(NOW + offsetMinutes * 60 * 1000).toISOString(),
     used_at: used ? new Date(NOW - 60 * 1000).toISOString() : null,
   };
+}
+
+const EMAIL = 'surfer@example.com';
+const TOKEN = 'a'.repeat(64);
+
+function seedPurchase(db: TestDatabase): void {
+  const expires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  db.exec(
+    `INSERT INTO entitlements (email, tier) VALUES ('${EMAIL}', 'founder');
+     INSERT INTO magic_tokens (token, email, expires_at) VALUES ('${TOKEN}', '${EMAIL}', '${expires}');`
+  );
+}
+
+function subscribe(db: TestDatabase, endpoint: string): void {
+  db.exec(
+    `INSERT INTO alert_subscriptions (endpoint, p256dh, auth_key) VALUES ('${endpoint}', 'k', 'a');`
+  );
+}
+
+function confirm(db: TestDatabase, endpoint: string): Promise<Response> {
+  const url = `https://worker.test/pro/confirm?token=${TOKEN}&endpoint=${encodeURIComponent(endpoint)}`;
+  return handleConfirm(
+    new Request(url),
+    { DB: db },
+    (body, status) => new Response(JSON.stringify(body), { status })
+  );
 }
 
 describeFeature(feature, ({ Scenario }) => {
@@ -142,4 +176,60 @@ describeFeature(feature, ({ Scenario }) => {
       expect(parsed).toBeUndefined();
     });
   });
+
+  Scenario(
+    'Two requests with one restore link link only one device',
+    ({ Given, When, Then, And }) => {
+      const db = createTestDatabase();
+      let statuses: number[] = [];
+
+      Given('a Pro purchase, a fresh restore link and two devices with alerts on', () => {
+        seedPurchase(db);
+        subscribe(db, 'https://push.test/a');
+        subscribe(db, 'https://push.test/b');
+      });
+      When('both devices open the link at the same moment', async () => {
+        const responses = await Promise.all([
+          confirm(db, 'https://push.test/a'),
+          confirm(db, 'https://push.test/b'),
+        ]);
+        statuses = responses.map((response) => response.status).sort();
+      });
+      Then('exactly one device is linked to the purchase', () => {
+        const linked = db.query(
+          `SELECT endpoint FROM alert_subscriptions WHERE entitlement_email = '${EMAIL}'`
+        );
+        expect(linked).toHaveLength(1);
+      });
+      And('the other request is told the link has expired', () => {
+        expect(statuses).toEqual([200, 400]);
+      });
+    }
+  );
+
+  Scenario(
+    'A link opened before alerts are on still works afterwards',
+    ({ Given, When, Then, And }) => {
+      const db = createTestDatabase();
+      let first = 0;
+      let second = 0;
+
+      Given('a Pro purchase and a fresh restore link', () => {
+        seedPurchase(db);
+      });
+      When('a device opens the link before turning alerts on', async () => {
+        first = (await confirm(db, 'https://push.test/c')).status;
+      });
+      And('it turns alerts on and opens the link again', async () => {
+        subscribe(db, 'https://push.test/c');
+        second = (await confirm(db, 'https://push.test/c')).status;
+      });
+      Then('the first attempt asks it to turn alerts on', () => {
+        expect(first).toBe(409);
+      });
+      And('the second attempt links the device', () => {
+        expect(second).toBe(200);
+      });
+    }
+  );
 });
