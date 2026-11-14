@@ -11,7 +11,7 @@ import {
   formatDayDate,
   formatDayName,
   formatHour,
-  formatWindowRange,
+  formatHourRange,
 } from '@/lib/format';
 import type { ThemeTokens } from '@/themes/registry';
 import { useAppTheme } from '@/themes/theme-context';
@@ -57,7 +57,7 @@ export function NextWindowCard({ window, spot }: { window: GoodWindow; spot: Spo
         }}
       >
         {formatDayName(window.start, spot.timezone)}{' '}
-        {formatWindowRange(window.start, window.end, spot.timezone)}
+        {formatHourRange(window.start, window.end, spot.timezone)}
       </p>
       {first !== undefined ? (
         <p style={{ ...MONO, margin: 0, fontSize: 13, color: tokens.textSoft }}>
