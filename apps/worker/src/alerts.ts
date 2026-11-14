@@ -28,3 +28,44 @@ export function parseUnsubscribeEndpoint(payload: unknown): string | undefined {
     ? payload.endpoint
     : undefined;
 }
+
+/**
+ * Alert a subscription at most once per horizon. A shorter cooldown re-announces
+ * a window that was announced up to a day ahead.
+ */
+export const ALERT_COOLDOWN_MS = ALERT_HORIZON_MS;
+
+/** `lastAlertedAt` is D1's `datetime('now')`: UTC without a zone suffix. */
+export function isCoolingDown(lastAlertedAt: string | null, now: number): boolean {
+  if (lastAlertedAt === null) return false;
+  const last = Date.parse(`${lastAlertedAt}Z`);
+  return Number.isFinite(last) && now - last < ALERT_COOLDOWN_MS;
+}
+
+const HOUR_MS = 60 * 60 * 1000;
+
+/** The first hour of the window that has not ended yet, so a window already under way reports what is still to come. */
+export function alertHour(window: GoodWindow, now: number): HourlyConditions | undefined {
+  return window.hours.find((hour) => Date.parse(hour.time) + HOUR_MS > now);
+}
+
+/** Push services browsers use. The cron POSTs to the stored endpoint, so any other host is refused. */
+const PUSH_SERVICE_HOSTS = [
+  'fcm.googleapis.com',
+  'updates.push.services.mozilla.com',
+  'web.push.apple.com',
+  '.notify.windows.com',
+];
+
+export function isPushServiceEndpoint(endpoint: string): boolean {
+  let url: URL;
+  try {
+    url = new URL(endpoint);
+  } catch {
+    return false;
+  }
+  if (url.protocol !== 'https:') return false;
+  return PUSH_SERVICE_HOSTS.some((host) =>
+    host.startsWith('.') ? url.hostname.endsWith(host) : url.hostname === host
+  );
+}

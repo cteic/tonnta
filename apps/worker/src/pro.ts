@@ -100,7 +100,7 @@ export class ConsoleEmailSender implements EmailSender {
   }
 }
 
-export function chooseEmailSender(env: Env): EmailSender {
+export function chooseEmailSender(env: Pick<Env, 'RESEND_API_KEY' | 'EMAIL_FROM'>): EmailSender {
   if (env.RESEND_API_KEY !== undefined && env.EMAIL_FROM !== undefined) {
     return new ResendEmailSender(env.RESEND_API_KEY, env.EMAIL_FROM);
   }
@@ -161,10 +161,22 @@ export async function handleFounderCount(env: Env, json: JsonResponder): Promise
   return json({ sold, cap: FOUNDER_CAP, remaining: founderRemaining(sold) }, 200);
 }
 
+export interface RestoreEnv {
+  DB: SqlDatabase;
+  CACHE: {
+    get(key: string): Promise<string | null>;
+    put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
+  };
+  SITE_ORIGIN: string;
+  RESEND_API_KEY?: string;
+  EMAIL_FROM?: string;
+}
+
 export async function handleRestore(
   request: Request,
-  env: Env,
-  json: JsonResponder
+  env: RestoreEnv,
+  json: JsonResponder,
+  sender: EmailSender = chooseEmailSender(env)
 ): Promise<Response> {
   const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
   const rateKey = `rl:restore:${ip}`;
@@ -184,7 +196,7 @@ export async function handleRestore(
     "SELECT email FROM entitlements WHERE email = ?1 AND status = 'active'"
   )
     .bind(body.email)
-    .first<{ email: string }>();
+    .first();
 
   if (entitlement !== null) {
     const token = newToken();
@@ -193,11 +205,17 @@ export async function handleRestore(
       .bind(token, body.email, expiresAt)
       .run();
     const link = `${env.SITE_ORIGIN}/pro?token=${token}`;
-    await chooseEmailSender(env).send(
-      body.email,
-      'Restore Tonnta Pro on this device',
-      `Open this link on the device you want alerts on (valid 15 minutes):\n\n${link}\n\nIf you didn't request this, ignore it — nothing changes.`
-    );
+    try {
+      await sender.send(
+        body.email,
+        'Restore Tonnta Pro on this device',
+        `Open this link on the device you want alerts on (valid 15 minutes):\n\n${link}\n\nIf you didn't request this, ignore it — nothing changes.`
+      );
+    } catch (error) {
+      // A failed send must not change the reply, or the reply reveals who has bought.
+      // Log the cause only: the link is a bearer credential.
+      console.error('restore email failed', error instanceof Error ? error.message : error);
+    }
   }
 
   return json(
