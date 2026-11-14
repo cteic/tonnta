@@ -2,7 +2,7 @@
   "name": "@tonnta/tsconfig-config",
   "version": "0.1.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-only",
   "exports": {
     "./tsconfig.base.json": "./tsconfig.base.json",
     "./tsconfig.react.json": "./tsconfig.react.json",
