@@ -88,6 +88,43 @@ server closes the stream (every 15 minutes), and backs off on failure.
 Point a dev build at a local worker with `EXPO_PUBLIC_LIVE_URL`, the same way
 as the widget's `EXPO_PUBLIC_VERDICT_URL`.
 
+## Analytics and error tracking
+
+PostHog (US cloud, project 678247) through `posthog-react-native`, set up in
+`src/lib/analytics.tsx`:
+
+- screen views, app lifecycle events, and the named events in
+  `src/lib/analytics-events.ts` (`outlook_viewed`, `chart_scrubbed`)
+- uncaught exceptions, unhandled promise rejections and render errors. These
+  also need exception autocapture switched on in the PostHog project's error
+  tracking settings, which override the SDK
+- no session replay, no touch autocapture, nothing that identifies a person
+
+Development builds send nothing. To check events from a dev build, start Metro
+with `EXPO_PUBLIC_POSTHOG_DEV=1`, and add `EXPO_PUBLIC_POSTHOG_DEBUG=1` to log
+each capture and flush to the Metro console.
+
+Stack traces are minified until source maps are uploaded at build time, which
+needs `posthog-cli` and a personal API key in the build environment.
+
+## CI and releases
+
+| What                                            | Where                              | When                                       |
+| ----------------------------------------------- | ---------------------------------- | ------------------------------------------ |
+| Expo doctor, iOS and Android bundle export      | `.github/workflows/mobile.yml`     | Every PR touching the app or packages      |
+| Preview builds (iOS simulator app, Android APK) | `.eas/workflows/preview-build.yml` | Label a PR `preview-build`                 |
+| Over-the-air update to the `preview` channel    | `.eas/workflows/deploy-update.yml` | Push to `dev` touching the app or packages |
+| Maestro flows on an Android emulator            | `.github/workflows/e2e.yml`        | Label a PR `e2e`                           |
+
+Updates use a fingerprint runtime version: an update reaches only the builds
+whose native code it matches. A native change (a new native module, an
+`app.json` plugin change) needs a new build, and the fingerprint makes that
+explicit instead of shipping JavaScript that crashes on old binaries.
+
+The EAS workflows run once the GitHub repository is connected to the Expo
+project. Maestro runs in GitHub Actions rather than EAS: the repository is
+public, so the runner minutes cost nothing, where EAS charges per Maestro job.
+
 ## UI smoke test (Maestro)
 
 With the app installed on a booted simulator (`pnpm ios` leaves it running):
@@ -99,6 +136,14 @@ maestro test .maestro        # launches the app and waits for the verdict headin
 
 The flow is `.maestro/home.yaml`. It asserts on `testID="verdict-heading"`,
 so it passes whatever the sea is doing.
+
+To run it headless, with no simulator window, boot the device without the
+Simulator app or start the emulator with no window:
+
+```sh
+xcrun simctl boot "iPhone 18 Pro"                  # iOS: boots without opening Simulator.app
+emulator -avd <avd-name> -no-window -no-audio &    # Android
+```
 
 ## Placeholder assets
 

@@ -78,3 +78,11 @@ export function formatLevel(levelM: number): string {
   const sign = levelM < 0 ? '−' : '+';
   return `${sign}${Math.abs(levelM).toFixed(2)} m`;
 }
+
+/** How long ago the stream last spoke, short enough for a status line. */
+export function formatSince(elapsedMs: number): string {
+  const seconds = Math.max(0, Math.floor(elapsedMs / 1000));
+  if (seconds < 5) return 'just now';
+  if (seconds < 60) return `${seconds}s ago`;
+  return `${Math.floor(seconds / 60)} min ago`;
+}

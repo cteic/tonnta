@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 
 import { TamaguiProvider, colors, tamaguiConfig } from '@tonnta/ui';
 
+import { AnalyticsProvider } from '@/lib/analytics';
 import { useVerdictWidgetSync } from '@/widgets/sync';
 
 /**
@@ -14,18 +15,20 @@ import { useVerdictWidgetSync } from '@/widgets/sync';
 export default function RootLayout() {
   useVerdictWidgetSync();
   return (
-    <TamaguiProvider
-      config={tamaguiConfig}
-      defaultTheme="dawn"
-      disableInjectCSS={Platform.OS === 'web'}
-    >
-      <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.harbour },
-        }}
-      />
-    </TamaguiProvider>
+    <AnalyticsProvider>
+      <TamaguiProvider
+        config={tamaguiConfig}
+        defaultTheme="dawn"
+        disableInjectCSS={Platform.OS === 'web'}
+      >
+        <StatusBar style="light" />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.harbour },
+          }}
+        />
+      </TamaguiProvider>
+    </AnalyticsProvider>
   );
 }
