@@ -24,6 +24,8 @@ crons = ["0 5-20 * * *"]
 [vars]
 # Site origin allowed to call the subscribe endpoints (CORS).
 SITE_ORIGIN = "https://tonnta.surf"
+# Other sites whose pages call the alert endpoints: www and the dev staging worker.
+ALLOWED_ORIGINS = "https://www.tonnta.surf,https://tonnta-web-staging.pete-9c4.workers.dev"
 
 # Secrets (set via `wrangler secret put <NAME>`):
 #   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT (mailto:)

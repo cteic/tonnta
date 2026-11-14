@@ -93,21 +93,28 @@ describeFeature(feature, ({ Scenario }) => {
     });
   });
 
-  Scenario('A spot without its own thresholds uses the defaults', ({ Given, When, Then }) => {
-    let spot: Spot | undefined;
-    let goFromM = 0;
+  Scenario(
+    'Donabate keeps its small-wave threshold with a period guard',
+    ({ Given, When, Then, And }) => {
+      let spot: Spot | undefined;
+      let goFromM = 0;
 
-    Given('the spot id donabate', () => {
-      spot = getSpot('donabate');
-    });
-    When('I resolve its thresholds', () => {
-      if (spot === undefined) throw new Error('spot missing');
-      goFromM = spotThresholds(spot).goFromM;
-    });
-    Then('the go-from threshold is 0.4m', () => {
-      expect(goFromM).toBe(0.4);
-    });
-  });
+      Given('the spot id donabate', () => {
+        spot = getSpot('donabate');
+      });
+      When('I resolve its thresholds', () => {
+        if (spot === undefined) throw new Error('spot missing');
+        goFromM = spotThresholds(spot).goFromM;
+      });
+      Then('the go-from threshold is 0.4m', () => {
+        expect(goFromM).toBe(0.4);
+      });
+      And('the minimum GO period is 4 seconds', () => {
+        if (spot === undefined) throw new Error('spot missing');
+        expect(spotThresholds(spot).minGoPeriodS).toBe(4);
+      });
+    }
+  );
 
   Scenario('A Fuerteventura spot carries its own thresholds', ({ Given, When, Then }) => {
     let spot: Spot | undefined;

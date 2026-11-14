@@ -2,7 +2,7 @@
   "name": "@tonnta/worker",
   "version": "0.1.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "dev": "wrangler dev",
     "build": "wrangler deploy --dry-run",

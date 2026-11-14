@@ -2,7 +2,7 @@
   "name": "@tonnta/ui",
   "version": "0.1.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-only",
   "type": "module",
   "description": "Cross-platform UI components and design tokens for Tonnta",
   "exports": {

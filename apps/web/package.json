@@ -2,7 +2,7 @@
   "name": "@tonnta/web",
   "version": "0.1.0",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
     "clean:tamagui": "rm -rf .tamagui",
@@ -23,6 +23,8 @@
     "@tonnta/data": "workspace:*",
     "@tonnta/types": "workspace:*",
     "@tonnta/ui": "workspace:*",
+    "@tonnta/web-conditions": "workspace:*",
+    "@tonnta/web-shell": "workspace:*",
     "next": "16.4.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

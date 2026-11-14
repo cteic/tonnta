@@ -4,6 +4,9 @@
     "slug": "tonnta",
     "owner": "cteic",
     "version": "0.1.0",
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
     "scheme": "tonnta",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,7 +16,10 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "ie.tonnta.app",
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -38,12 +44,41 @@
           "backgroundColor": "#0B161E",
           "imageWidth": 200
         }
-      ]
+      ],
+      [
+        "expo-widgets",
+        {
+          "enableAndroid": true,
+          "widgets": [
+            {
+              "name": "TonntaVerdict",
+              "displayName": "Tonnta",
+              "description": "Is it worth going down? The verdict for this hour.",
+              "ios": {
+                "supportedFamilies": ["systemSmall", "systemMedium"],
+                "initialLayout": "./src/widgets/verdict-widget.ios.tsx"
+              },
+              "android": {
+                "targetCellWidth": 2,
+                "targetCellHeight": 2,
+                "resizeMode": "both",
+                "initialLayout": "./src/widgets/verdict-widget.android.tsx"
+              }
+            }
+          ]
+        }
+      ],
+      "expo-background-task",
+      "expo-localization",
+      "expo-status-bar"
     ],
     "extra": {
       "eas": {
         "projectId": "4258949d-791a-4443-bff8-1a9e5c0213a1"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4258949d-791a-4443-bff8-1a9e5c0213a1"
     }
   }
 }
