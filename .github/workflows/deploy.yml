@@ -45,7 +45,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Deploy web worker (push) or upload preview version (PR)
+      - name: Deploy web (main to production, dev to staging) or upload a preview version (PR)
         id: deploy
         working-directory: apps/web
         run: |
@@ -53,9 +53,13 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             pnpm run upload 2>&1 | tee deploy.log
             URL=$(grep -oE 'https://[a-z0-9-]+-tonnta-web[a-z0-9.-]*\.workers\.dev' deploy.log | head -1)
-          else
+          elif [ "${{ github.ref_name }}" = "main" ]; then
             pnpm run deploy 2>&1 | tee deploy.log
-            URL=$(grep -oE 'https://tonnta-web[a-z0-9.-]*\.workers\.dev' deploy.log | head -1)
+            URL=https://tonnta.surf
+          else
+            pnpm exec opennextjs-cloudflare build 2>&1 | tee deploy.log
+            pnpm exec opennextjs-cloudflare deploy --env staging 2>&1 | tee -a deploy.log
+            URL=$(grep -oE 'https://tonnta-web-staging[a-z0-9.-]*\.workers\.dev' deploy.log | head -1)
           fi
           echo "url=$URL" >> "$GITHUB_OUTPUT"
       - name: Comment preview URL on PR
