@@ -10,6 +10,7 @@ import {
 import type { Spot } from '@tonnta/types';
 
 import { allowedOrigins, withCors } from './cors';
+import { handleLive } from './live';
 import { handleConfirm, handleFounderCount, handleRestore } from './pro';
 import { handleVerdict } from './verdict';
 
@@ -187,7 +188,7 @@ async function checkAndAlert(env: Env): Promise<void> {
   }
 }
 
-async function route(request: Request, env: Env): Promise<Response> {
+async function route(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   const url = new URL(request.url);
   if (request.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: corsHeaders(env) });
@@ -204,6 +205,9 @@ async function route(request: Request, env: Env): Promise<Response> {
   if (url.pathname === '/subscribe' && request.method === 'DELETE') {
     return handleUnsubscribe(request, env);
   }
+  if (url.pathname === '/live' && request.method === 'GET') {
+    return handleLive(url, env.CACHE, (promise) => ctx.waitUntil(promise));
+  }
   const respond = (body: unknown, status: number): Response => json(body, status, env);
   if (url.pathname === '/pro/founder-count' && request.method === 'GET') {
     return handleFounderCount(env, respond);
@@ -218,9 +222,9 @@ async function route(request: Request, env: Env): Promise<Response> {
 }
 
 const worker = {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     return withCors(
-      await route(request, env),
+      await route(request, env, ctx),
       request.headers.get('Origin'),
       allowedOrigins(env.SITE_ORIGIN, env.ALLOWED_ORIGINS)
     );
