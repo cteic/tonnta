@@ -52,3 +52,8 @@ Feature: Pro entitlement rails
     And it turns alerts on and opens the link again
     Then the first attempt asks it to turn alerts on
     And the second attempt links the device
+
+  Scenario: A failing email provider gives a buyer the same reply as anyone else
+    Given a Pro purchase and an email provider that is down
+    When the buyer and a stranger each ask for a restore link
+    Then both get the same 200 reply

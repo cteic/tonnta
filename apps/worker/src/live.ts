@@ -133,7 +133,12 @@ export function handleLive(
         await options.sleep(options.heartbeatMs);
         await send(': ping\n\n');
         if (beat % options.pollEveryBeats !== 0) continue;
-        readings = await cachedReadings(stationId, cache, options);
+        try {
+          readings = await cachedReadings(stationId, cache, options);
+        } catch {
+          // One failed poll skips this beat; the stream and its clients stay up.
+          continue;
+        }
         for (const reading of readingsAfter(readings, lastTime)) {
           const upTo = readings.filter((entry) => entry.time <= reading.time);
           await send(

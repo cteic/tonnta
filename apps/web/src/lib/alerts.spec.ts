@@ -2,7 +2,12 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
 import type { AlertSupport, SubscribePayload } from './alerts';
-import { buildSubscribePayload, detectAlertSupport, urlBase64ToUint8Array } from './alerts';
+import {
+  buildSubscribePayload,
+  detectAlertSupport,
+  existingPushEndpoint,
+  urlBase64ToUint8Array,
+} from './alerts';
 
 const feature = await loadFeature('./alerts.feature');
 
@@ -124,4 +129,20 @@ describeFeature(feature, ({ Scenario }) => {
       expect(support).toBe('supported');
     });
   });
+  Scenario(
+    'A device with no service worker reads no push endpoint instead of waiting',
+    ({ Given, When, Then }) => {
+      let source: Parameters<typeof existingPushEndpoint>[0] = {};
+      let endpoint: string | undefined = 'unset';
+      Given('a browser where no service worker is registered', () => {
+        source = { serviceWorker: { getRegistration: async () => undefined } };
+      });
+      When('I read the existing push endpoint', async () => {
+        endpoint = await existingPushEndpoint(source);
+      });
+      Then('there is none, and the read settles', () => {
+        expect(endpoint).toBeUndefined();
+      });
+    }
+  );
 });

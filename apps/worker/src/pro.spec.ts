@@ -6,6 +6,7 @@ import {
   compareTokens,
   founderRemaining,
   handleConfirm,
+  handleRestore,
   isTokenValid,
   parseRestoreBody,
 } from './pro';
@@ -229,6 +230,52 @@ describeFeature(feature, ({ Scenario }) => {
       });
       And('the second attempt links the device', () => {
         expect(second).toBe(200);
+      });
+    }
+  );
+  Scenario(
+    'A failing email provider gives a buyer the same reply as anyone else',
+    ({ Given, When, Then }) => {
+      let db: TestDatabase | undefined;
+      const replies: { status: number; body: string }[] = [];
+      Given('a Pro purchase and an email provider that is down', () => {
+        db = createTestDatabase();
+        seedPurchase(db);
+      });
+      When('the buyer and a stranger each ask for a restore link', async () => {
+        if (db === undefined) throw new Error('database not seeded');
+        const store = new Map<string, string>();
+        const env = {
+          DB: db,
+          CACHE: {
+            get: async (key: string) => store.get(key) ?? null,
+            put: async (key: string, value: string) => {
+              store.set(key, value);
+            },
+          },
+          SITE_ORIGIN: 'https://tonnta.test',
+        };
+        const down = {
+          send: async () => {
+            throw new Error('Resend: HTTP 503');
+          },
+        };
+        for (const email of [EMAIL, 'stranger@example.com']) {
+          const response = await handleRestore(
+            new Request('https://worker.test/pro/restore', {
+              method: 'POST',
+              body: JSON.stringify({ email }),
+            }),
+            env,
+            (body, status) => new Response(JSON.stringify(body), { status }),
+            down
+          );
+          replies.push({ status: response.status, body: await response.text() });
+        }
+      });
+      Then('both get the same 200 reply', () => {
+        expect(replies[0]?.status).toBe(200);
+        expect(replies[0]).toEqual(replies[1]);
       });
     }
   );

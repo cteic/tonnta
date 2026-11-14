@@ -166,4 +166,28 @@ describeFeature(feature, ({ Scenario }) => {
       });
     });
   });
+  Scenario('One failed poll does not end the stream', ({ Given, When, Then, And }) => {
+    let fetchImpl: typeof fetch = fetch;
+    let text = '';
+    Given('a gauge that fails one poll during the stream and then reports again', () => {
+      const healthy = fakeGauge([12, 14]);
+      let call = 0;
+      // Snapshot succeeds, the first poll gets a 503, the second poll has two new readings.
+      fetchImpl = async (input, init) => {
+        call += 1;
+        if (call === 2) return new Response('down', { status: 503 });
+        return healthy(input, init);
+      };
+    });
+    When('a client opens the live stream', async () => {
+      text = await (await openStream('donabate', { fetchImpl })).text();
+    });
+    Then('the stream sends the readings from the next good poll', () => {
+      const readings = parseEvents(text).filter((event) => event.event === 'reading');
+      expect(readings).toHaveLength(2);
+    });
+    And('the stream has no error event', () => {
+      expect(parseEvents(text).some((event) => event.event === 'error')).toBe(false);
+    });
+  });
 });

@@ -20,3 +20,9 @@ Feature: Live tide gauge stream for the app
     Given a gauge that is unreachable
     When a client opens the live stream
     Then the stream ends with an error event
+
+  Scenario: One failed poll does not end the stream
+    Given a gauge that fails one poll during the stream and then reports again
+    When a client opens the live stream
+    Then the stream sends the readings from the next good poll
+    And the stream has no error event

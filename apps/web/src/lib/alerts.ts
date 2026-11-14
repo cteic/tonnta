@@ -80,3 +80,24 @@ export function detectAlertSupport(
   if (isIos && navigatorLike.standalone !== true) return 'ios-needs-install';
   return 'unsupported';
 }
+
+interface ServiceWorkerSource {
+  serviceWorker?: {
+    getRegistration(): Promise<
+      { pushManager: { getSubscription(): Promise<{ endpoint: string } | null> } } | undefined
+    >;
+  };
+}
+
+/**
+ * This device's existing push endpoint, or undefined. Uses getRegistration,
+ * which settles at once: `serviceWorker.ready` never settles on a page that
+ * has not registered a worker, such as /pro opened from a restore link.
+ */
+export async function existingPushEndpoint(
+  source: ServiceWorkerSource
+): Promise<string | undefined> {
+  const registration = await source.serviceWorker?.getRegistration();
+  const subscription = await registration?.pushManager.getSubscription();
+  return subscription?.endpoint;
+}

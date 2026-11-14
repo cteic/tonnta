@@ -34,3 +34,8 @@ Feature: Alert subscription payloads
     Given a browser with service worker and push APIs
     When I detect alert support
     Then support is supported
+
+  Scenario: A device with no service worker reads no push endpoint instead of waiting
+    Given a browser where no service worker is registered
+    When I read the existing push endpoint
+    Then there is none, and the read settles

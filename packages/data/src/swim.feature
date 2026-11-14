@@ -59,6 +59,15 @@ Feature: Snámh swim verdict engine
     When I parse the payload for Balcarrick
     Then the parsed alert should have a restriction in place
 
+  Scenario: An unexpected restriction value keeps the beach restricted
+    Then a restriction of "YES", "yes", true or an unknown value is in place
+    And only "No", "no" or false lifts it
+
+  Scenario: An unknown tide category is skipped
+    Given a tide prediction service with a high, a low and an unknown category
+    When I fetch the tide events
+    Then the unknown category is skipped rather than called low
+
   Scenario: A calm day splits at the high-tide band
     Given calm water from 09:00 to 21:00 Irish time and a high tide at 15:00
     When I find the swim windows

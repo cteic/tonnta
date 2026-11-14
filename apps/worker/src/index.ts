@@ -3,7 +3,13 @@ import webPush from 'web-push';
 import { assessHour, fetchHourlyConditions, getSpot, isRecord } from '@tonnta/data';
 import type { HourlyConditions, Spot } from '@tonnta/types';
 
-import { parseUnsubscribeEndpoint, upcomingAlertWindow } from './alerts';
+import {
+  alertHour,
+  isCoolingDown,
+  isPushServiceEndpoint,
+  parseUnsubscribeEndpoint,
+  upcomingAlertWindow,
+} from './alerts';
 import { allowedOrigins, withCors } from './cors';
 import { handleLive } from './live';
 import { handleConfirm, handleFounderCount, handleRestore } from './pro';
@@ -64,8 +70,12 @@ function parseSubscribeBody(payload: unknown): SubscribePayload | undefined {
   if (typeof endpoint !== 'string' || typeof p256dh !== 'string' || typeof authKey !== 'string') {
     return undefined;
   }
+  if (!isPushServiceEndpoint(endpoint)) return undefined;
   const row: SubscribePayload = { endpoint, p256dh, auth_key: authKey };
-  if (typeof payload.spot_id === 'string') row.spot_id = payload.spot_id;
+  if (typeof payload.spot_id === 'string') {
+    if (getSpot(payload.spot_id) === undefined) return undefined;
+    row.spot_id = payload.spot_id;
+  }
   if (typeof payload.min_wave_m === 'number') row.min_wave_m = payload.min_wave_m;
   if (typeof payload.max_wind_kmh === 'number') row.max_wind_kmh = payload.max_wind_kmh;
   return row;
@@ -74,7 +84,14 @@ function parseSubscribeBody(payload: unknown): SubscribePayload | undefined {
 async function handleSubscribe(request: Request, env: Env): Promise<Response> {
   const body = parseSubscribeBody(await request.json().catch(() => undefined));
   if (body === undefined) {
-    return json({ error: 'endpoint, p256dh and auth_key are required' }, 400, env);
+    return json(
+      {
+        error:
+          'endpoint (an https push service URL), p256dh and auth_key are required, and spot_id must be a known spot',
+      },
+      400,
+      env
+    );
   }
   await env.DB.prepare(
     `INSERT INTO alert_subscriptions (endpoint, p256dh, auth_key, spot_id, min_wave_m, max_wind_kmh)
@@ -102,9 +119,6 @@ async function handleUnsubscribe(request: Request, env: Env): Promise<Response> 
   await env.DB.prepare('DELETE FROM alert_subscriptions WHERE endpoint = ?1').bind(endpoint).run();
   return json({ ok: true }, 200, env);
 }
-
-/** Re-alert at most once per 12 hours per subscription. */
-const ALERT_COOLDOWN_MS = 12 * 60 * 60 * 1000;
 
 async function checkAndAlert(env: Env): Promise<void> {
   const { results } = await env.DB.prepare(
@@ -136,22 +150,17 @@ async function checkAndAlert(env: Env): Promise<void> {
     }
     const window = upcomingAlertWindow(hours, spot, now);
     if (window === undefined) continue;
-    const firstHour = window.hours[0];
+    const firstHour = alertHour(window, now);
     if (firstHour === undefined) continue;
     const verdict = assessHour(firstHour, spot);
 
     const title = `${spot.name}: it's on`;
     const body =
-      `${firstHour.waveHeightM.toFixed(1)}m from ${new Date(window.start).toLocaleTimeString('en-IE', { hour: 'numeric', minute: '2-digit', timeZone: spot.timezone })}` +
+      `${firstHour.waveHeightM.toFixed(1)}m from ${new Date(firstHour.time).toLocaleTimeString('en-IE', { hour: 'numeric', minute: '2-digit', timeZone: spot.timezone })}` +
       (verdict.board !== undefined ? ` — bring the ${verdict.board}` : '');
 
     for (const subscriber of subscribers) {
-      if (
-        subscriber.last_alerted_at !== null &&
-        now - new Date(`${subscriber.last_alerted_at}Z`).getTime() < ALERT_COOLDOWN_MS
-      ) {
-        continue;
-      }
+      if (isCoolingDown(subscriber.last_alerted_at, now)) continue;
       if (firstHour.waveHeightM < subscriber.min_wave_m) continue;
       if (firstHour.windSpeedKmh > subscriber.max_wind_kmh) continue;
 
