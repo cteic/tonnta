@@ -1,6 +1,6 @@
 import type { HourlyConditions, Spot } from '@tonnta/types';
 
-import { isNumberArray, isRecord, isStringArray } from '../guards';
+import { isNullableNumberArray, isRecord, isStringArray } from '../guards';
 import { classifyWind } from '../verdict';
 
 /**
@@ -15,7 +15,7 @@ const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
 
 interface HourlySeries {
   time: string[];
-  series: Map<string, number[]>;
+  series: Map<string, (number | null)[]>;
 }
 
 function parseHourly(payload: unknown, keys: string[]): HourlySeries {
@@ -26,10 +26,12 @@ function parseHourly(payload: unknown, keys: string[]): HourlySeries {
   if (!isStringArray(hourly.time)) {
     throw new Error('Open-Meteo: missing hourly.time');
   }
-  const series = new Map<string, number[]>();
+  // Open-Meteo returns null for an hour it has no value for, for example sea
+  // temperature at a coastal grid cell. Keep the nulls; each hour decides.
+  const series = new Map<string, (number | null)[]>();
   for (const key of keys) {
     const values = hourly[key];
-    if (!isNumberArray(values) || values.length !== hourly.time.length) {
+    if (!isNullableNumberArray(values) || values.length !== hourly.time.length) {
       throw new Error(`Open-Meteo: missing or malformed hourly.${key}`);
     }
     series.set(key, values);
@@ -37,13 +39,8 @@ function parseHourly(payload: unknown, keys: string[]): HourlySeries {
   return { time: hourly.time, series };
 }
 
-function seriesValue(data: HourlySeries, key: string, index: number): number {
-  const values = data.series.get(key);
-  const value = values?.[index];
-  if (value === undefined) {
-    throw new Error(`Open-Meteo: missing ${key}[${index}]`);
-  }
-  return value;
+function seriesValue(data: HourlySeries, key: string, index: number): number | undefined {
+  return data.series.get(key)?.[index] ?? undefined;
 }
 
 export async function fetchHourlyConditions(
@@ -98,20 +95,38 @@ export async function fetchHourlyConditions(
     const windIndex = windIndexByTime.get(time);
     if (windIndex === undefined) continue;
 
+    const waveHeightM = seriesValue(marine, 'wave_height', i);
+    const wavePeriodS = seriesValue(marine, 'wave_period', i);
+    const waveDirectionDeg = seriesValue(marine, 'wave_direction', i);
     const windSpeedKmh = seriesValue(wind, 'wind_speed_10m', windIndex);
     const windDirectionDeg = seriesValue(wind, 'wind_direction_10m', windIndex);
-    hours.push({
+    const windGustKmh = seriesValue(wind, 'wind_gusts_10m', windIndex);
+    // An hour without waves or wind cannot be judged, so it is left out
+    // rather than failing the whole forecast.
+    if (
+      waveHeightM === undefined ||
+      wavePeriodS === undefined ||
+      waveDirectionDeg === undefined ||
+      windSpeedKmh === undefined ||
+      windDirectionDeg === undefined ||
+      windGustKmh === undefined
+    ) {
+      continue;
+    }
+    const hour: HourlyConditions = {
       // Open-Meteo emits "2026-07-03T11:00" with timezone=UTC; normalise to full ISO
       time: `${time}:00Z`,
-      waveHeightM: seriesValue(marine, 'wave_height', i),
-      wavePeriodS: seriesValue(marine, 'wave_period', i),
-      waveDirectionDeg: seriesValue(marine, 'wave_direction', i),
+      waveHeightM,
+      wavePeriodS,
+      waveDirectionDeg,
       windSpeedKmh,
-      windGustKmh: seriesValue(wind, 'wind_gusts_10m', windIndex),
+      windGustKmh,
       windDirectionDeg,
       windState: classifyWind(windDirectionDeg, windSpeedKmh, spot),
-      seaTempC: seriesValue(marine, 'sea_surface_temperature', i),
-    });
+    };
+    const seaTempC = seriesValue(marine, 'sea_surface_temperature', i);
+    if (seaTempC !== undefined) hour.seaTempC = seaTempC;
+    hours.push(hour);
   }
   return hours;
 }

@@ -127,15 +127,22 @@ export function findGoodWindows(
   return windows.sort((a, b) => b.hours.length - a.hours.length || a.start.localeCompare(b.start));
 }
 
-/** The next upcoming GO window in chronological order, if any. */
+const HOUR_MS = 60 * 60 * 1000;
+
+/**
+ * The next GO window that has not ended by `now`, in chronological order. A
+ * window in progress counts. The forecast starts at midnight, so without
+ * `now` a morning window would still read as "next" in the afternoon.
+ */
 export function nextGoodWindow(
   hours: HourlyConditions[],
   spot: Spot,
+  now: number,
   thresholds?: VerdictThresholds
 ): GoodWindow | undefined {
-  return findGoodWindows(hours, spot, thresholds ?? spotThresholds(spot)).sort((a, b) =>
-    a.start.localeCompare(b.start)
-  )[0];
+  return findGoodWindows(hours, spot, thresholds ?? spotThresholds(spot))
+    .filter((window) => Date.parse(window.end) + HOUR_MS > now)
+    .sort((a, b) => a.start.localeCompare(b.start))[0];
 }
 
 export function summarizeDays(
@@ -156,7 +163,7 @@ export function summarizeDays(
 
   const summaries: DailySummary[] = [];
   for (const [date, dayHours] of byDate) {
-    let bestVerdict: Verdict = 'flat';
+    let bestVerdict: Verdict = 'blown';
     let board: Board | undefined;
     let maxWave = 0;
     const windStates: WindState[] = [];

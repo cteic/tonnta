@@ -39,3 +39,16 @@ Feature: Pro entitlement rails
     Given a restore request without a usable email
     When I parse the restore body
     Then no restore email is produced
+
+  Scenario: Two requests with one restore link link only one device
+    Given a Pro purchase, a fresh restore link and two devices with alerts on
+    When both devices open the link at the same moment
+    Then exactly one device is linked to the purchase
+    And the other request is told the link has expired
+
+  Scenario: A link opened before alerts are on still works afterwards
+    Given a Pro purchase and a fresh restore link
+    When a device opens the link before turning alerts on
+    And it turns alerts on and opens the link again
+    Then the first attempt asks it to turn alerts on
+    And the second attempt links the device

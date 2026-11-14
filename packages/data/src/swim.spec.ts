@@ -9,6 +9,7 @@ import type {
   WaterQualityAlert,
 } from '@tonnta/types';
 
+import { isRecord } from './guards';
 import { findBeachAlert } from './sources/epa-bathing';
 import { getSpot } from './spots';
 import type { SwimWindow } from './swim';
@@ -216,4 +217,29 @@ describeFeature(feature, ({ Scenario }) => {
       expect(alert).toBeUndefined();
     });
   });
+
+  Scenario(
+    'An active restriction wins over a lifted one at the same beach',
+    ({ Given, When, Then }) => {
+      let payload: unknown;
+      let alert: WaterQualityAlert | undefined;
+
+      Given(
+        'an EPA alerts payload listing a lifted incident before an active one for Balcarrick',
+        () => {
+          const lifted = epaPayload(BALCARRICK_ID, 'No');
+          const active = epaPayload(BALCARRICK_ID, 'Yes');
+          const items = (value: unknown): unknown[] =>
+            isRecord(value) && Array.isArray(value.list) ? value.list : [];
+          payload = { count: 2, list: [...items(lifted), ...items(active)] };
+        }
+      );
+      When('I parse the payload for Balcarrick', () => {
+        alert = findBeachAlert(payload, BALCARRICK_ID);
+      });
+      Then('the parsed alert should have a restriction in place', () => {
+        expect(alert?.restrictionInPlace).toBe(true);
+      });
+    }
+  );
 });

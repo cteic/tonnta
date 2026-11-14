@@ -53,3 +53,8 @@ Feature: Snámh swim verdict engine
     Given an EPA alerts payload with a restriction for another beach
     When I parse the payload for Balcarrick
     Then no alert should be found
+
+  Scenario: An active restriction wins over a lifted one at the same beach
+    Given an EPA alerts payload listing a lifted incident before an active one for Balcarrick
+    When I parse the payload for Balcarrick
+    Then the parsed alert should have a restriction in place
