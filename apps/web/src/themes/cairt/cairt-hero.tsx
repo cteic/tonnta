@@ -1,7 +1,6 @@
 'use client';
 
 import type { BuoyObservation, HourlyConditions, Spot, VerdictResult } from '@tonnta/types';
-
 import {
   BOARD_LABEL,
   VERDICT_LABEL,
@@ -9,7 +8,7 @@ import {
   compassPoint,
   formatDayName,
   formatHour,
-} from '@/lib/format';
+} from '@tonnta/web-conditions';
 
 import { stampTreatment } from './stamp';
 

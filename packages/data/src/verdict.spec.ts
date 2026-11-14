@@ -176,4 +176,38 @@ describeFeature(feature, ({ Scenario }) => {
       });
     });
   }
+
+  Scenario("A spot's own flat threshold names its own height", ({ Given, When, Then }) => {
+    const elCotillo = getSpot('el-cotillo');
+    let hour: HourlyConditions | undefined;
+    let result: VerdictResult | undefined;
+
+    Given('0.5m waves at 4s with 12km/h wind at El Cotillo, which goes flat below 0.6m', () => {
+      hour = hourWith(0.5, 4, 12, 'north');
+    });
+    When('I assess the hour for El Cotillo', () => {
+      if (elCotillo === undefined || hour === undefined) throw new Error('fixture missing');
+      result = assessHour(hour, elCotillo);
+    });
+    Then('the verdict should be flat because it is under 0.6m', () => {
+      expect(result?.verdict).toBe('flat');
+      expect(result?.reason).toContain('Under 0.6m');
+    });
+  });
+
+  Scenario('A thunderstorm blocks a GO', ({ Given, When, Then }) => {
+    let hour: HourlyConditions | undefined;
+    let result: VerdictResult | undefined;
+    Given('clean GO waves under a thunderstorm at Donabate', () => {
+      hour = { ...hourWith(0.6, 5, 12, 'west-southwest'), weatherCode: 95 };
+    });
+    When('I assess the hour for Donabate', () => {
+      if (hour === undefined) throw new Error('no hour');
+      result = assessHour(hour, spot);
+    });
+    Then('the verdict should not be GO and the reason should name the lightning', () => {
+      expect(result?.verdict).toBe('blown');
+      expect(result?.reason).toContain('Lightning');
+    });
+  });
 });

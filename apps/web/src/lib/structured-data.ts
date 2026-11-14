@@ -213,7 +213,6 @@ export function buildWebApplication(): WebApplicationSchema {
       'Board call — SUP, foamie or longboard, with the reasoning',
       'Seven-day outlook and the next good surfable window',
       'Live buoy observations, tide times and sea temperature',
-      'Snámh mode — the same sea read for swimmers',
       'Push alerts when the waves and wind line up',
     ],
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },

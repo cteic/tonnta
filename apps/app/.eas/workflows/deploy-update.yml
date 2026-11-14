@@ -1,0 +1,17 @@
+# Ship JavaScript changes to installed preview builds without a store release.
+# Builds on the `preview` channel pick the update up on their next launch, as
+# long as its runtime fingerprint matches; native changes need a new build.
+name: Deploy preview update
+
+on:
+  push:
+    branches: ['dev']
+    paths: ['apps/app/**', 'packages/**']
+
+jobs:
+  update_preview:
+    name: Publish to the preview channel
+    type: update
+    params:
+      channel: preview
+      message: ${{ github.event.head_commit.message }}
