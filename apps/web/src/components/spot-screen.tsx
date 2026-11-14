@@ -1,5 +1,6 @@
 import { AppFooter } from '@/components/app-footer';
 import { HomeView } from '@/components/home-view';
+import type { Activity } from '@/lib/activity';
 import { loadSpotConditions } from '@/lib/conditions';
 
 /**
@@ -9,13 +10,19 @@ import { loadSpotConditions } from '@/lib/conditions';
  * `AppFooter` is a `<footer>`. Wrapping both in a `<main>` would nest one
  * landmark inside another and put the footer inside the main content.
  */
-export async function SpotScreen({ spotId }: { spotId: string }) {
+export async function SpotScreen({
+  spotId,
+  activity = 'surf',
+}: {
+  spotId: string;
+  activity?: Activity;
+}) {
   const conditions = await loadSpotConditions(spotId);
 
   return (
     <>
-      <HomeView conditions={conditions} />
-      <AppFooter />
+      <HomeView conditions={conditions} activity={activity} />
+      <AppFooter activity={activity} spotId={spotId} />
     </>
   );
 }

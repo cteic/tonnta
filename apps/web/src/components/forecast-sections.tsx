@@ -11,7 +11,7 @@ import {
   formatDayDate,
   formatDayName,
   formatHour,
-  formatWindowRange,
+  formatHourRange,
 } from '@/lib/format';
 import type { ThemeTokens } from '@/themes/registry';
 import { useAppTheme } from '@/themes/theme-context';
@@ -57,7 +57,7 @@ export function NextWindowCard({ window, spot }: { window: GoodWindow; spot: Spo
         }}
       >
         {formatDayName(window.start, spot.timezone)}{' '}
-        {formatWindowRange(window.start, window.end, spot.timezone)}
+        {formatHourRange(window.start, window.end, spot.timezone)}
       </p>
       {first !== undefined ? (
         <p style={{ ...MONO, margin: 0, fontSize: 13, color: tokens.textSoft }}>
@@ -121,13 +121,15 @@ export function DayStrip({ days, spot }: { days: DailySummary[]; spot: Spot }) {
                   color: isGo ? tokens.accent : tokens.text,
                 }}
               >
-                {day.maxWaveHeightM.toFixed(1)}m
+                {day.maxWaveHeightM.toFixed(1)}m max
               </p>
               <p style={{ margin: 0, fontSize: 11, color: tokens.textSubtle }}>
-                {VERDICT_LABEL[day.verdict].english.toLowerCase()}
+                Best forecast: {VERDICT_LABEL[day.verdict].english.toLowerCase()}
+              </p>
+              <p style={{ margin: '4px 0 0', fontSize: 10, color: tokens.textSubtle }}>
                 {day.bestWindow !== undefined
-                  ? ` · ${formatHour(day.bestWindow.start, spot.timezone)}`
-                  : ''}
+                  ? `GO window ${formatHourRange(day.bestWindow.start, day.bestWindow.end, spot.timezone)}`
+                  : 'No GO window forecast'}
               </p>
             </div>
           );
@@ -223,7 +225,7 @@ export function BuoyCard({ buoy, spot }: { buoy: BuoyObservation; spot: Spot }) 
       </div>
       <p style={{ ...MONO, margin: '14px 0 0', fontSize: 11, color: tokens.textSubtle }}>
         reported {formatDayName(buoy.time, spot.timezone)} {formatHour(buoy.time, spot.timezone)} ·
-        Marine Institute
+        Marine Institute · offshore measurement, not beach surf
       </p>
     </section>
   );

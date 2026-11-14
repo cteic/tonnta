@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
 import { AlertCard } from '@/components/alert-card';
+import { DarkHero } from '@/components/dark-hero';
 import {
   BuoyCard,
   DayStrip,
@@ -15,92 +14,27 @@ import { SnamhHero } from '@/components/snamh-hero';
 import { SwimWindowsCard } from '@/components/snamh-sections';
 import { SpotSwitcher } from '@/components/spot-switcher';
 import { ThemePicker } from '@/components/theme-picker';
+import { useForecastCapture } from '@/components/use-forecast-capture';
+import { useLiveConditions } from '@/components/use-live-conditions';
+import { APP_IDENTITIES, type Activity } from '@/lib/activity';
 import type { SpotConditions } from '@/lib/conditions';
 import { CairtHero } from '@/themes/cairt/cairt-hero';
 import { EiriHero } from '@/themes/eiri/eiri-hero';
 import { PostaerHero } from '@/themes/postaer/postaer-hero';
 import { useAppTheme } from '@/themes/theme-context';
 
-/**
- * One spot, two audiences: Tonn (surf) and Snámh (swim) read the same sea.
- * The toggle persists per device — a swimmer opens straight into swim mode.
- */
-
-type Mode = 'surf' | 'snamh';
-
-const MODE_KEY = 'tonnta-mode';
-
-function useMode(): [Mode, (mode: Mode) => void] {
-  const [mode, setMode] = useState<Mode>('surf');
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(MODE_KEY);
-    if (stored === 'snamh') {
-      setMode('snamh');
-    }
-  }, []);
-
-  function update(next: Mode): void {
-    setMode(next);
-    window.localStorage.setItem(MODE_KEY, next);
-  }
-
-  return [mode, update];
-}
-
-function ModeToggle({ mode, onChange }: { mode: Mode; onChange: (mode: Mode) => void }) {
-  const { theme } = useAppTheme();
-  const { tokens } = theme;
-  const options: { value: Mode; label: string }[] = [
-    { value: 'surf', label: 'Tonn · surf' },
-    { value: 'snamh', label: 'Snámh · swim' },
-  ];
-  return (
-    <div
-      role="tablist"
-      aria-label="Surf or swim conditions"
-      style={{
-        display: 'inline-flex',
-        gap: 4,
-        padding: 4,
-        borderRadius: 999,
-        border: `1px solid ${tokens.border}`,
-        background: tokens.surface,
-      }}
-    >
-      {options.map((option) => {
-        const active = option.value === mode;
-        return (
-          <button
-            key={option.value}
-            role="tab"
-            aria-selected={active}
-            type="button"
-            onClick={() => {
-              onChange(option.value);
-            }}
-            style={{
-              padding: '6px 14px',
-              borderRadius: 999,
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: "'General Sans', sans-serif",
-              fontSize: 13,
-              fontWeight: 600,
-              background: active ? tokens.toggleActiveBg : 'transparent',
-              color: active ? tokens.toggleActiveText : tokens.textSoft,
-            }}
-          >
-            {option.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-export function HomeView({ conditions }: { conditions: SpotConditions }) {
-  const [mode, setMode] = useMode();
+/** The URL owns the activity; device preferences never change a shared forecast. */
+export function HomeView({
+  conditions: initialConditions,
+  activity = 'surf',
+}: {
+  conditions: SpotConditions;
+  activity?: Activity;
+}) {
+  const conditions = useLiveConditions(initialConditions);
+  const forecastCaptureFailed = useForecastCapture(initialConditions, activity);
+  const mode = activity === 'swim' ? 'snamh' : 'surf';
+  const identity = APP_IDENTITIES[activity];
   const { theme } = useAppTheme();
   const { tokens } = theme;
   const { spot } = conditions;
@@ -132,6 +66,50 @@ export function HomeView({ conditions }: { conditions: SpotConditions }) {
     surfHero = <PostaerHero spot={spot} verdict={conditions.now} hour={conditions.currentHour} />;
   }
 
+  const { headline } = conditions;
+  const isDark = headline.kind === 'dark';
+  const swimHero = (
+    <SnamhHero
+      swim={conditions.swimNow}
+      hour={conditions.currentHour}
+      waterQuality={conditions.waterQuality}
+    />
+  );
+  const swimWindows =
+    conditions.waterQuality?.restrictionInPlace === true ? (
+      <p>
+        Swim windows are unavailable while a bathing restriction is in place. Follow the current
+        local notice.
+      </p>
+    ) : (
+      <SwimWindowsCard windows={conditions.swimWindows} spot={spot} />
+    );
+  let hero =
+    headline.kind === 'dark' ? (
+      <DarkHero
+        spot={spot}
+        mode={mode}
+        sunrise={headline.sunrise}
+        firstLightTime={headline.firstLight?.hour.time}
+        surf={headline.firstLight?.result}
+        swim={conditions.swimFirstLight}
+      />
+    ) : (
+      <>{mode === 'surf' ? surfHero : swimHero}</>
+    );
+
+  if (headline.kind === 'none') {
+    hero = (
+      <header style={{ maxWidth: 720, margin: '0 auto', padding: '24px' }}>
+        <h1>Current conditions unavailable</h1>
+        <p>
+          We do not have a forecast for this hour. Reload to check for updates and check local
+          advice before entering the water.
+        </p>
+      </header>
+    );
+  }
+
   return (
     <>
       <div style={{ background: tokens.nav }}>
@@ -156,7 +134,8 @@ export function HomeView({ conditions }: { conditions: SpotConditions }) {
                 letterSpacing: -0.5,
               }}
             >
-              tonnta<span style={{ color: tokens.accent }}>.</span>
+              {identity.name}
+              <span style={{ color: tokens.accent }}>.</span>
             </span>
             <span
               style={{
@@ -165,27 +144,18 @@ export function HomeView({ conditions }: { conditions: SpotConditions }) {
                 color: tokens.textSoft,
               }}
             >
-              {spot.name} · {spot.region}
+              {identity.label} · {spot.name} · {spot.region}
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <SpotSwitcher activeSpotId={spot.id} />
-            <ModeToggle mode={mode} onChange={setMode} />
+            <SpotSwitcher activeSpotId={spot.id} activity={activity} />
             <ThemePicker />
           </div>
         </nav>
       </div>
 
       <main>
-        {mode === 'surf' ? (
-          surfHero
-        ) : (
-          <SnamhHero
-            swim={conditions.swimNow}
-            hour={conditions.currentHour}
-            waterQuality={conditions.waterQuality}
-          />
-        )}
+        {hero}
 
         <div
           style={{
@@ -198,14 +168,41 @@ export function HomeView({ conditions }: { conditions: SpotConditions }) {
         >
           <Warnings warnings={conditions.warnings} />
           {mode === 'surf' ? (
+            <section
+              style={{ padding: 16, border: `1px solid ${tokens.border}`, borderRadius: 12 }}
+            >
+              <p style={{ margin: '0 0 8px', fontSize: 14, color: tokens.textSoft }}>
+                These are regional sea estimates, not measured breaking waves at {spot.name}. A GO
+                is a forecast possibility, not a safety clearance or a promise of good surf.
+              </p>
+              <a href={`/log?spot=${encodeURIComponent(spot.id)}`} style={{ color: tokens.accent }}>
+                Been to the beach? Add a quick check
+              </a>
+              <p style={{ margin: '8px 0 0', fontSize: 12, color: tokens.textSubtle }}>
+                Save what you saw and whether it was good enough for you. Private on this device. No
+                automatic forecast changes.
+              </p>
+              {forecastCaptureFailed ? (
+                <p
+                  role="status"
+                  style={{ margin: '8px 0 0', fontSize: 12, color: tokens.textSoft }}
+                >
+                  This device could not save the forecast comparison. You can still record a beach
+                  check without a matching forecast.
+                </p>
+              ) : null}
+            </section>
+          ) : null}
+          {mode === 'surf' ? (
             <>
-              {conditions.nextWindow !== undefined && conditions.now.verdict !== 'go' ? (
+              {conditions.nextWindow !== undefined &&
+              (isDark || conditions.now.verdict !== 'go') ? (
                 <NextWindowCard window={conditions.nextWindow} spot={spot} />
               ) : null}
               <DayStrip days={conditions.days} spot={spot} />
             </>
           ) : (
-            <SwimWindowsCard windows={conditions.swimWindows} spot={spot} />
+            swimWindows
           )}
           {conditions.buoy !== undefined ? <BuoyCard buoy={conditions.buoy} spot={spot} /> : null}
           <TideCard tides={conditions.tides} spot={spot} />

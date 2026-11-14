@@ -6,13 +6,20 @@ import { useRouter } from 'next/navigation';
 
 import { SPOTS } from '@tonnta/data';
 
+import { type Activity, spotPath } from '@/lib/activity';
 import { useAppTheme } from '@/themes/theme-context';
 
 /**
  * Spot switcher — a small nav affordance opening a panel of spots grouped
  * by region. Donabate lives at `/`; every other spot at `/s/<id>`.
  */
-export function SpotSwitcher({ activeSpotId }: { activeSpotId: string }) {
+export function SpotSwitcher({
+  activeSpotId,
+  activity = 'surf',
+}: {
+  activeSpotId: string;
+  activity?: Activity;
+}) {
   const router = useRouter();
   const { theme } = useAppTheme();
   const { tokens } = theme;
@@ -35,7 +42,7 @@ export function SpotSwitcher({ activeSpotId }: { activeSpotId: string }) {
 
   function go(spotId: string): void {
     setOpen(false);
-    router.push(spotId === 'donabate' ? '/' : `/s/${spotId}`);
+    router.push(spotPath(activity, spotId));
   }
 
   return (
