@@ -2,10 +2,10 @@
 
 import type { SwimWindow } from '@tonnta/data';
 import type { Spot } from '@tonnta/types';
+import type { ThemeTokens } from '@tonnta/web-shell';
+import { useAppTheme } from '@tonnta/web-shell';
 
-import { formatDayName, formatHour } from '@/lib/format';
-import type { ThemeTokens } from '@/themes/registry';
-import { useAppTheme } from '@/themes/theme-context';
+import { formatDayName, formatHour, formatHourRange } from '@/lib/format';
 
 function cardStyle(tokens: ThemeTokens): React.CSSProperties {
   return {
@@ -57,10 +57,12 @@ export function SwimWindowsCard({ windows, spot }: { windows: SwimWindow[]; spot
                   }}
                 >
                   {formatDayName(window.start, spot.timezone)}{' '}
-                  {formatHour(window.start, spot.timezone)}–{formatHour(window.end, spot.timezone)}
+                  {formatHourRange(window.start, window.end, spot.timezone)}
                 </span>
                 <span style={{ ...MONO, fontSize: 12, color: tokens.textSoft }}>
-                  {window.nearHighTide ? 'near high tide' : 'low-ish tide — long walk out'}
+                  {window.highTide !== undefined
+                    ? `around high tide, ${formatHour(window.highTide, spot.timezone)}`
+                    : 'low water, a long walk out'}
                   {first?.seaTempC !== undefined ? ` · ${first.seaTempC.toFixed(1)}°C` : ''}
                 </span>
               </div>

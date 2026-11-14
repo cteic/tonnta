@@ -36,6 +36,7 @@ packages/
   data/      forecast/tide/buoy data access
   types/     shared domain types
   ui/        Tamagui components and tokens
+  web-shell/ root document, fonts, themes and page chrome shared by every website
   {eslint,prettier,tsconfig}-config/
 ```
 

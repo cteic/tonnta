@@ -1,7 +1,5 @@
-import type { StructuredDataGraph } from '@/lib/structured-data';
-
 interface JsonLdProps {
-  data: StructuredDataGraph;
+  data: object;
 }
 
 /**
