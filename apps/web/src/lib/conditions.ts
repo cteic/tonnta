@@ -3,16 +3,18 @@ import {
   applyWaterQuality,
   assessHour,
   assessSwimHour,
+  currentHourOf,
   fetchBuoyObservation,
   fetchHourlyConditions,
   fetchTideEvents,
   fetchWaterQualityAlert,
   findSwimWindows,
   getSpot,
+  headlineFor,
   nextGoodWindow,
   summarizeDays,
 } from '@tonnta/data';
-import type { GoodWindow, SwimWindow } from '@tonnta/data';
+import type { GoodWindow, Headline, SwimWindow } from '@tonnta/data';
 import type {
   BuoyObservation,
   DailySummary,
@@ -39,8 +41,12 @@ function cachedFetch(revalidateS: number): typeof fetch {
 
 export interface SpotConditions {
   spot: Spot;
-  /** Verdict for the current hour (or next session hour if it's night). */
+  /** Verdict for the hour in progress. */
   now: VerdictResult;
+  /** What the hero leads with: the verdict in daylight, sunrise and first light after dark. */
+  headline: Headline;
+  /** After dark, the swim verdict for the first light hour. */
+  swimFirstLight?: SwimVerdictResult;
   currentHour?: HourlyConditions;
   nextWindow?: GoodWindow;
   days: DailySummary[];
@@ -54,11 +60,6 @@ export interface SpotConditions {
   waterQuality?: WaterQualityAlert;
   /** Set when a source failed and the screen is degraded. */
   warnings: string[];
-}
-
-function currentOrNextHour(hours: HourlyConditions[]): HourlyConditions | undefined {
-  const nowIso = new Date().toISOString();
-  return hours.find((hour) => hour.time >= nowIso) ?? hours.at(-1);
 }
 
 export async function loadSpotConditions(
@@ -101,7 +102,9 @@ export async function loadSpotConditions(
     waterQualityResult.status === 'fulfilled' ? waterQualityResult.value : undefined;
   // A failed EPA fetch degrades silently: the conditions verdict still stands.
 
-  const currentHour = currentOrNextHour(hours);
+  const nowMs = Date.now();
+  const currentHour = currentHourOf(hours, nowMs);
+  const headline = headlineFor(hours, spot, nowMs);
   const now: VerdictResult =
     currentHour !== undefined
       ? assessHour(currentHour, spot)
@@ -116,17 +119,24 @@ export async function loadSpotConditions(
   const result: SpotConditions = {
     spot,
     now,
+    headline,
     days: summarizeDays(hours, spot),
     hours,
     tides,
     swimNow,
-    swimWindows: findSwimWindows(hours, tides, spot).slice(0, 3),
+    swimWindows: findSwimWindows(hours, tides, spot, nowMs).slice(0, 3),
     warnings,
   };
   if (currentHour !== undefined) {
     result.currentHour = currentHour;
   }
-  const window = nextGoodWindow(hours, spot);
+  if (headline.kind === 'dark' && headline.firstLight !== undefined) {
+    result.swimFirstLight = applyWaterQuality(
+      assessSwimHour(headline.firstLight.hour, tides),
+      waterQuality
+    );
+  }
+  const window = nextGoodWindow(hours, spot, nowMs);
   if (window !== undefined) {
     result.nextWindow = window;
   }
