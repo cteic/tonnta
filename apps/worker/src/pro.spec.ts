@@ -1,5 +1,5 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 
 import type { TokenRow } from './pro';
 import {
@@ -276,6 +276,93 @@ describeFeature(feature, ({ Scenario }) => {
       Then('both get the same 200 reply', () => {
         expect(replies[0]?.status).toBe(200);
         expect(replies[0]).toEqual(replies[1]);
+      });
+    }
+  );
+
+  function restoreWithoutEmailKeys(
+    Given: (name: string, step: () => void) => void,
+    When: (name: string, step: () => Promise<void>) => void,
+    Then: (name: string, step: () => void) => void,
+    given: string,
+    siteOrigin: string
+  ): { logged: () => string } {
+    let db: TestDatabase | undefined;
+    let status = 0;
+    const lines: string[] = [];
+    Given(given, () => {
+      db = createTestDatabase();
+      seedPurchase(db);
+    });
+    When('the buyer asks for a restore link', async () => {
+      if (db === undefined) throw new Error('database not seeded');
+      const store = new Map<string, string>();
+      const capture = (...parts: unknown[]): void => {
+        lines.push(parts.map(String).join(' '));
+      };
+      const spies = [
+        vi.spyOn(console, 'log').mockImplementation(capture),
+        vi.spyOn(console, 'info').mockImplementation(capture),
+        vi.spyOn(console, 'warn').mockImplementation(capture),
+        vi.spyOn(console, 'error').mockImplementation(capture),
+      ];
+      try {
+        const response = await handleRestore(
+          new Request('https://worker.test/pro/restore', {
+            method: 'POST',
+            body: JSON.stringify({ email: EMAIL }),
+          }),
+          {
+            DB: db,
+            CACHE: {
+              get: async (key: string) => store.get(key) ?? null,
+              put: async (key: string, value: string) => {
+                store.set(key, value);
+              },
+            },
+            SITE_ORIGIN: siteOrigin,
+          },
+          (body, code) => new Response(JSON.stringify(body), { status: code })
+        );
+        status = response.status;
+      } finally {
+        for (const spy of spies) spy.mockRestore();
+      }
+    });
+    Then('the reply is the usual 200', () => {
+      expect(status).toBe(200);
+    });
+    return { logged: () => lines.join('\n') };
+  }
+
+  Scenario(
+    'A deployed worker with no email keys never logs the restore link',
+    ({ Given, When, Then, And }) => {
+      const { logged } = restoreWithoutEmailKeys(
+        Given,
+        When,
+        Then,
+        'a Pro purchase on a deployed worker with no email keys',
+        'https://tonnta.surf'
+      );
+      And('no log line contains the restore link', () => {
+        expect(logged()).not.toContain('/pro?token=');
+        expect(logged()).toContain('email is not configured');
+      });
+    }
+  );
+  Scenario(
+    'A local worker with no email keys logs the restore link',
+    ({ Given, When, Then, And }) => {
+      const { logged } = restoreWithoutEmailKeys(
+        Given,
+        When,
+        Then,
+        'a Pro purchase on a local worker with no email keys',
+        'http://localhost:3000'
+      );
+      And('a log line contains the restore link', () => {
+        expect(logged()).toContain('http://localhost:3000/pro?token=');
       });
     }
   );
