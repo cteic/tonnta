@@ -100,11 +100,33 @@ export class ConsoleEmailSender implements EmailSender {
   }
 }
 
-export function chooseEmailSender(env: Pick<Env, 'RESEND_API_KEY' | 'EMAIL_FROM'>): EmailSender {
+/**
+ * Refuses to send. A deployed worker with no email keys must not fall back to
+ * the console sender: the restore link is a bearer credential and would land
+ * in the worker logs.
+ */
+export class UnconfiguredEmailSender implements EmailSender {
+  async send(): Promise<void> {
+    throw new Error('email is not configured: set RESEND_API_KEY and EMAIL_FROM');
+  }
+}
+
+function isLocalOrigin(origin: string): boolean {
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
+
+export function chooseEmailSender(
+  env: Pick<Env, 'RESEND_API_KEY' | 'EMAIL_FROM' | 'SITE_ORIGIN'>
+): EmailSender {
   if (env.RESEND_API_KEY !== undefined && env.EMAIL_FROM !== undefined) {
     return new ResendEmailSender(env.RESEND_API_KEY, env.EMAIL_FROM);
   }
-  return new ConsoleEmailSender();
+  return isLocalOrigin(env.SITE_ORIGIN) ? new ConsoleEmailSender() : new UnconfiguredEmailSender();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

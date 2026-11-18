@@ -57,3 +57,15 @@ Feature: Pro entitlement rails
     Given a Pro purchase and an email provider that is down
     When the buyer and a stranger each ask for a restore link
     Then both get the same 200 reply
+
+  Scenario: A deployed worker with no email keys never logs the restore link
+    Given a Pro purchase on a deployed worker with no email keys
+    When the buyer asks for a restore link
+    Then the reply is the usual 200
+    And no log line contains the restore link
+
+  Scenario: A local worker with no email keys logs the restore link
+    Given a Pro purchase on a local worker with no email keys
+    When the buyer asks for a restore link
+    Then the reply is the usual 200
+    And a log line contains the restore link
