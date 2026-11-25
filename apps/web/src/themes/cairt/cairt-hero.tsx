@@ -1,27 +1,25 @@
 'use client';
 
-import type { BuoyObservation, HourlyConditions, Spot, VerdictResult } from '@tonnta/types';
+import type { Board, BuoyObservation, HourlyConditions, Spot } from '@tonnta/types';
 import {
-  BOARD_LABEL,
-  VERDICT_LABEL,
-  WIND_STATE_LABEL,
-  compassPoint,
+  boardTag,
   formatDayName,
   formatHour,
+  surfFactsLine,
+  surfHourFacts,
 } from '@tonnta/web-conditions';
 
-import { stampTreatment } from './stamp';
-
 /**
- * An Cairt — the harbourmaster's chart. The verdict is stamped on chart
+ * An Cairt: the harbourmaster's chart. The wave height is stamped on chart
  * paper over the depth contours of the bay; everything else is plate
- * lettering and soundings. Magenta appears only when the stamp says GO.
+ * lettering and soundings, all in one ink whatever the forecast.
  * Deliberately single-scheme: a chart is printed once. ("Night passage"
  * dimming needs scheme-aware tokens in the theme engine — noted in the PR.)
  */
 
 interface CairtHeroProps {
-  verdict: VerdictResult;
+  /** The board the engine picked for this hour, shown as a plain tag. */
+  board?: Board | undefined;
   hour?: HourlyConditions | undefined;
   buoy?: BuoyObservation | undefined;
   spot: Spot;
@@ -97,10 +95,10 @@ function Contours({ ink }: { ink: ChartInk }) {
   );
 }
 
-export function CairtHero({ verdict, hour, buoy, spot }: CairtHeroProps) {
+export function CairtHero({ board, hour, buoy, spot }: CairtHeroProps) {
   const ink = CHART_INK;
-  const stamp = stampTreatment(verdict.verdict);
-  const label = VERDICT_LABEL[verdict.verdict];
+  const facts = surfHourFacts(hour);
+  const tag = boardTag(board);
   const correctedTo =
     buoy !== undefined
       ? `${formatDayName(buoy.time, spot.timezone)} ${formatHour(buoy.time, spot.timezone)}`.toUpperCase()
@@ -158,9 +156,10 @@ export function CairtHero({ verdict, hour, buoy, spot }: CairtHeroProps) {
               color: ink.marginalia,
             }}
           >
-            {label.irish} · notice to surfers
+            Tonnta · waves now at {spot.name}
           </p>
-          <div style={{ position: 'relative', display: 'inline-block', marginTop: 12 }}>
+          <h1 style={{ position: 'relative', display: 'inline-block', margin: '12px 0 0' }}>
+            <span className="tonnta-visually-hidden">{spot.name} surf conditions: waves </span>
             <span
               className="cairt-stamp"
               style={{
@@ -169,79 +168,58 @@ export function CairtHero({ verdict, hour, buoy, spot }: CairtHeroProps) {
                 fontWeight: 700,
                 fontSize: 'clamp(46px, 11vw, 72px)',
                 lineHeight: 1,
-                color: stamp.ink,
-                background: stamp.fill,
-                border: `4px double ${stamp.ink}`,
+                color: ink.ink,
+                background: 'transparent',
+                border: `4px double ${ink.ink}`,
                 borderRadius: 6,
                 padding: '4px 18px 8px',
                 transform: 'rotate(-3deg)',
                 animation: 'cairtPress 250ms cubic-bezier(0.34, 1.4, 0.64, 1) both',
               }}
             >
-              {label.english}
+              {facts.waveHeight}
             </span>
-            {stamp.barred ? (
-              <span
-                aria-hidden
-                style={{
-                  position: 'absolute',
-                  left: '-4%',
-                  right: '-4%',
-                  top: '50%',
-                  height: 5,
-                  background: stamp.ink,
-                  transform: 'rotate(-24deg)',
-                  borderRadius: 3,
-                }}
-              />
-            ) : null}
-          </div>
+          </h1>
           <p
             style={{
               margin: '16px 0 0',
-              maxWidth: '34ch',
-              fontSize: 14,
+              maxWidth: '40ch',
+              fontFamily: MONO,
+              fontSize: 12,
               lineHeight: 1.55,
               color: ink.ink,
             }}
           >
-            {verdict.reason}
+            {surfFactsLine(facts)}
           </p>
-          {verdict.board !== undefined ? (
-            <span
+          {tag !== undefined ? (
+            <p
               style={{
-                display: 'inline-block',
-                marginTop: 14,
+                margin: '14px 0 0',
                 fontFamily: MONO,
                 fontSize: 11.5,
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
-                border: `1.5px solid ${ink.ink}`,
-                color: ink.ink,
-                background: ink.panel,
-                padding: '6px 12px',
+                color: ink.marginalia,
               }}
             >
-              {BOARD_LABEL[verdict.board]} day
-            </span>
+              Board{' '}
+              <span
+                style={{
+                  display: 'inline-block',
+                  marginLeft: 6,
+                  border: `1.5px solid ${ink.ink}`,
+                  color: ink.ink,
+                  background: ink.panel,
+                  padding: '6px 12px',
+                }}
+              >
+                {tag}
+              </span>
+            </p>
           ) : null}
         </div>
 
-        {hour !== undefined ? (
-          <p
-            style={{
-              margin: '22px 0 0',
-              fontFamily: MONO,
-              fontSize: 12,
-              color: ink.ink,
-            }}
-          >
-            {hour.waveHeightM.toFixed(1)}m @ {Math.round(hour.wavePeriodS)}s ·{' '}
-            {WIND_STATE_LABEL[hour.windState]} {Math.round(hour.windSpeedKmh)}km/h{' '}
-            {compassPoint(hour.windDirectionDeg)}
-            {hour.seaTempC !== undefined ? ` · sea ${hour.seaTempC.toFixed(1)}°C` : ''}
-          </p>
-        ) : null}
         <p
           style={{
             margin: '10px 0 0',

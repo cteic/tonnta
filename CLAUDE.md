@@ -1,8 +1,9 @@
 # Tonnta — agent instructions
 
-Tonnta (Irish: _waves_) is a surf-conditions companion for Donabate, Co. Dublin.
-It answers one question in five seconds: is it worth going down, and what board
-do I bring?
+Tonnta (Irish: _waves_) is a facts-first surf-conditions companion for Donabate,
+Co. Dublin. It shows waves, wind, tides and buoy readings faster than other surf
+sites, with a plain board tag, and leaves the call to the surfer. It gives no
+verdict and no advice.
 
 ## Scoped instruction files
 

@@ -3,6 +3,7 @@ export type {
   Board,
   BuoyObservation,
   DailySummary,
+  DayFacts,
   HourlyConditions,
   Spot,
   SpotId,

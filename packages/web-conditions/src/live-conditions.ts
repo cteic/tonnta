@@ -50,6 +50,7 @@ export function conditionsAt(conditions: SpotConditions, nowMs: number): SpotCon
   };
   if (!fresh) {
     updated.days = [];
+    updated.dayFacts = [];
     updated.warnings = [
       ...conditions.warnings,
       'Conditions need to be checked again. Reload before heading out.',
