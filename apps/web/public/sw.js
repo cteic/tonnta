@@ -1,12 +1,6 @@
-var CACHE_NAME = 'tonnta-shell-v1';
-
-self.addEventListener('install', function (event) {
+// Forecasts must never be presented as current when the network is unavailable.
+self.addEventListener('install', function () {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
-      return cache.add('/');
-    })
-  );
 });
 
 self.addEventListener('activate', function (event) {
@@ -16,11 +10,11 @@ self.addEventListener('activate', function (event) {
       .then(function (names) {
         return Promise.all(
           names
-            .filter(function (n) {
-              return n !== CACHE_NAME;
+            .filter(function (name) {
+              return name.startsWith('tonnta-shell-');
             })
-            .map(function (n) {
-              return caches.delete(n);
+            .map(function (name) {
+              return caches.delete(name);
             })
         );
       })
@@ -35,17 +29,23 @@ self.addEventListener('fetch', function (event) {
 
   var url = new URL(event.request.url);
 
-  // Never intercept cross-origin requests (FPL worker, Supabase, etc.)
+  // Never intercept cross-origin requests.
   if (url.origin !== self.location.origin) return;
 
-  // Never cache API routes or FPL data paths — live scores must always be fresh
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/fpl')) return;
+  // Never intercept API requests.
+  if (url.pathname.startsWith('/api/')) return;
 
-  // Navigate: network-first, fall back to cached shell for offline
+  // Do not substitute one activity or spot with cached conditions from another.
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(function () {
-        return caches.match('/');
+        return new Response(
+          '<!doctype html><html lang="en"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Conditions unavailable offline</title><body><main><h1>You are offline</h1><p>Live sea conditions are unavailable. Reconnect and reload before making plans. Do not rely on an old forecast for water safety.</p><button onclick="location.reload()">Try again</button></main></body></html>',
+          {
+            status: 503,
+            headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' },
+          }
+        );
       })
     );
   }

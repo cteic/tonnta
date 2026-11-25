@@ -1,0 +1,36 @@
+{
+  "name": "@tonnta/web-conditions",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "type": "module",
+  "description": "Spot conditions for Tonnta websites: the server loader, live re-evaluation, formatters and the conditions UI",
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test:unit": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@tonnta/data": "workspace:*",
+    "@tonnta/types": "workspace:*",
+    "@tonnta/web-shell": "workspace:*"
+  },
+  "peerDependencies": {
+    "next": "16.4.2",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tonnta/tsconfig-config": "workspace:*",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "next": "16.4.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.6"
+  }
+}

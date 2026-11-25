@@ -4,6 +4,7 @@ import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from '@/lib/site';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
+    id: '/',
     name: SITE_NAME,
     short_name: SITE_NAME,
     description: `${SITE_NAME} — ${SITE_TAGLINE} ${SITE_DESCRIPTION}`,
