@@ -2,15 +2,15 @@
 
 import { applySwimWaterQuality, formatHour } from '@tonnta/data';
 import type {
+  HourlyConditions,
   Spot,
   SwimVerdictResult,
-  VerdictResult,
   WaterQualityAlert,
   WaterQualityStatus,
 } from '@tonnta/types';
 import { useAppTheme } from '@tonnta/web-shell';
 
-import { VERDICT_LABEL } from './format';
+import { surfFactsLine, surfHourFacts } from './surf-facts';
 
 const SWIM_LABEL: Record<string, string> = {
   great: 'CALM CONDITIONS',
@@ -23,7 +23,8 @@ interface DarkHeroProps {
   mode: 'surf' | 'snamh';
   sunrise?: string | undefined;
   firstLightTime?: string | undefined;
-  surf?: VerdictResult | undefined;
+  /** Surf mode: the first light hour, shown as plain facts. */
+  surfHour?: HourlyConditions | undefined;
   swim?: SwimVerdictResult | undefined;
   waterQuality?: WaterQualityAlert | undefined;
   waterQualityStatus?: WaterQualityStatus | undefined;
@@ -31,13 +32,11 @@ interface DarkHeroProps {
 
 function firstLightPreview(
   mode: 'surf' | 'snamh',
-  surf: VerdictResult | undefined,
+  surfHour: HourlyConditions | undefined,
   swim: SwimVerdictResult | undefined
 ): string | undefined {
   if (mode === 'surf') {
-    return surf === undefined
-      ? undefined
-      : `${VERDICT_LABEL[surf.verdict].english}. ${surf.reason}`;
+    return surfHour === undefined ? undefined : surfFactsLine(surfHourFacts(surfHour));
   }
   return swim === undefined
     ? undefined
@@ -54,7 +53,7 @@ export function DarkHero({
   mode,
   sunrise,
   firstLightTime,
-  surf,
+  surfHour,
   swim,
   waterQuality,
   waterQualityStatus = 'unchecked',
@@ -63,7 +62,7 @@ export function DarkHero({
   const { tokens } = theme;
   const preview = firstLightPreview(
     mode,
-    surf,
+    surfHour,
     swim === undefined ? undefined : applySwimWaterQuality(swim, waterQuality, waterQualityStatus)
   );
   // The first light hour can start a few minutes before sunrise; never show a time before it.
@@ -118,10 +117,12 @@ export function DarkHero({
           }}
         >
           <span className="tonnta-visually-hidden">{spot.name}: </span>
-          Out of the water
+          {mode === 'surf' ? 'Dark now' : 'Out of the water'}
         </h1>
         <p style={{ margin: 0, maxWidth: 440, fontSize: 16, lineHeight: 1.5, color: '#9FB0B3' }}>
-          It is dark at {spot.name}, so there is no verdict until it is light.
+          {mode === 'surf'
+            ? `It is dark at ${spot.name}.`
+            : `It is dark at ${spot.name}, so there is no verdict until it is light.`}
           {sunrise !== undefined ? ` Sunrise is at ${formatHour(sunrise, spot.timezone)}.` : ''}
         </p>
         {preview !== undefined && firstLightAt !== undefined ? (

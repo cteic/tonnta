@@ -3,6 +3,7 @@ export type {
   Board,
   BuoyObservation,
   DailySummary,
+  DayFacts,
   HourlyConditions,
   Spot,
   SpotId,
@@ -19,3 +20,9 @@ export type {
   WaterQualityStatus,
   WindState,
 } from './conditions';
+export type {
+  BathingWater,
+  BathingWaterSea,
+  BathingWaterStatus,
+  BathingWaterWeather,
+} from './bathing-water';
