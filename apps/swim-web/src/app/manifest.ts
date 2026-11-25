@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: SITE_NAME,
     short_name: SITE_NAME,
     description:
-      'Sea swimming conditions, daylight windows, temperature, tides and water-quality notices.',
+      'Official facts for Irish bathing waters: EPA alerts, water quality rating, lifeguard cover and the bathing season.',
     start_url: '/',
     scope: '/',
     display: 'standalone',

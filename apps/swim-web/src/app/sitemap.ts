@@ -1,12 +1,15 @@
 import type { MetadataRoute } from 'next';
 
-import { SPOTS } from '@tonnta/data';
+import { BATHING_WATERS } from '@tonnta/data';
 
-import { PRODUCTION_ORIGIN, spotPath } from '@/lib/site';
+import { PRODUCTION_ORIGIN, beachPath } from '@/lib/site';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return SPOTS.map((spot) => ({
-    url: `${PRODUCTION_ORIGIN}${spotPath(spot.id)}`,
-    changeFrequency: 'hourly',
-  }));
+  return [
+    { url: `${PRODUCTION_ORIGIN}/`, changeFrequency: 'daily' },
+    ...BATHING_WATERS.map((water): MetadataRoute.Sitemap[number] => ({
+      url: `${PRODUCTION_ORIGIN}${beachPath(water.slug)}`,
+      changeFrequency: 'hourly',
+    })),
+  ];
 }
