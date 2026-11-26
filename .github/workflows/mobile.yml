@@ -30,7 +30,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Expo doctor
         working-directory: apps/app
-        run: pnpm dlx expo-doctor@latest
+        # Pin the validated release: 1.21.7 fails to load @expo/env on clean CI.
+        run: pnpm dlx expo-doctor@1.21.6
       # Bundling for iOS and Android catches Metro resolution errors that the
       # web export and tsc both miss, without spending an EAS build.
       - name: Export iOS and Android bundles

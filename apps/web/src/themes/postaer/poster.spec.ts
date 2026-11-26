@@ -1,67 +1,34 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
-import type { Verdict } from '@tonnta/types';
-
-import type { BandSpec, PosterInks, PosterLayout } from './poster-scene';
-import {
-  POSTER_HEADLINE,
-  bandLayout,
-  bandLift,
-  driftDuration,
-  posterInks,
-  posterLayout,
-} from './poster-scene';
+import type { BandSpec, PosterInks, PosterInput, PosterLayout } from './poster-scene';
+import { bandLayout, bandLift, driftDuration, posterInks, posterLayout } from './poster-scene';
 
 const feature = await loadFeature('./poster.feature');
 
+const HALF_METRE: PosterInput = {
+  headline: '0.5m',
+  boardLabel: 'Board: Longboard',
+  factsLine: '5s · wind 12km/h WSW, cross-off · gusts 18km/h · sea 14.0°C',
+  waveHeightM: 0.5,
+  windState: 'cross-off',
+  dateLabel: '08.07.2026',
+  spotLine: 'DOMHNACH BAT',
+};
+
 describeFeature(feature, ({ Scenario }) => {
-  Scenario('A GO day prints the sunny inks', ({ Given, When, Then }) => {
-    let verdict: Verdict = 'go';
+  Scenario('The poster prints the same inks every day', ({ Given, When, Then }) => {
     let inks: PosterInks | undefined;
 
-    Given('a go verdict', () => {
-      verdict = 'go';
+    Given('the poster', () => {
+      // posterInks takes no forecast input
     });
     When('I pick the poster inks', () => {
-      inks = posterInks(verdict);
+      inks = posterInks();
     });
     Then('the sun ink is the warm orange', () => {
       expect(inks?.sun).toBe('#E2593B');
       expect(inks?.stock).toBe('#F4E9D3');
-    });
-  });
-
-  Scenario('A blown-out day shifts to wet-day inks', ({ Given, When, Then }) => {
-    let verdict: Verdict = 'go';
-    let inks: PosterInks | undefined;
-
-    Given('a blown verdict', () => {
-      verdict = 'blown';
-    });
-    When('I pick the poster inks', () => {
-      inks = posterInks(verdict);
-    });
-    Then('the sun ink is grey-green', () => {
-      expect(inks?.sun).toBe('#8E9B8C');
-      expect(inks?.sun).not.toBe(posterInks('go').sun);
-    });
-  });
-
-  Scenario('Every verdict has an Irish headline', ({ Given, When, Then }) => {
-    const verdicts: Verdict[] = ['go', 'maybe', 'flat', 'blown'];
-    let headlines: string[] = [];
-
-    Given('the four verdicts', () => {
-      expect(verdicts).toHaveLength(4);
-    });
-    When('I read the headlines', () => {
-      headlines = verdicts.map((verdict) => POSTER_HEADLINE[verdict]);
-    });
-    Then('go reads TÉIGH! and blown reads SÉIDTE', () => {
-      expect(POSTER_HEADLINE.go).toBe('TÉIGH!');
-      expect(POSTER_HEADLINE.blown).toBe('SÉIDTE');
-      expect(new Set(headlines).size).toBe(4);
     });
   });
 
@@ -123,19 +90,11 @@ describeFeature(feature, ({ Scenario }) => {
   Scenario('The exported layout stays inside the canvas', ({ Given, When, Then }) => {
     let layout: PosterLayout | undefined;
 
-    Given('a go afternoon at half a metre', () => {
+    Given('an afternoon at half a metre', () => {
       // input built below
     });
     When('I compute the export layout', () => {
-      layout = posterLayout({
-        verdict: 'go',
-        boardLabel: 'Longboard day',
-        reason: '0.5m at 5s and the wind is clean — worth going down.',
-        waveHeightM: 0.5,
-        windState: 'cross-off',
-        dateLabel: '08.07.2026',
-        spotLine: 'DOMHNACH BAT',
-      });
+      layout = posterLayout(HALF_METRE);
     });
     Then('every band and text baseline sits within 1080 by 1920', () => {
       if (layout === undefined) throw new Error('no layout');
@@ -150,25 +109,20 @@ describeFeature(feature, ({ Scenario }) => {
     });
   });
 
-  Scenario('Long Irish headlines set smaller', ({ Given, When, Then }) => {
+  Scenario('The headline is the wave height, not a verdict', ({ Given, When, Then, And }) => {
     let layout: PosterLayout | undefined;
 
-    Given('a maybe verdict', () => {
-      // B'FHÉIDIR is longer than TÉIGH!
+    Given('an afternoon at half a metre', () => {
+      // input built below
     });
     When('I compute the export layout', () => {
-      layout = posterLayout({
-        verdict: 'maybe',
-        reason: '0.5m showing but the wind is up.',
-        waveHeightM: 0.5,
-        windState: 'cross-on',
-        dateLabel: '08.07.2026',
-        spotLine: 'DOMHNACH BAT',
-      });
+      layout = posterLayout(HALF_METRE);
     });
-    Then('the headline size is reduced', () => {
-      expect(layout?.headline.sizePx).toBe(168);
-      expect(layout?.headline.text).toBe(POSTER_HEADLINE.maybe);
+    Then('the headline reads the wave height', () => {
+      expect(layout?.headline.text).toBe('0.5M');
+    });
+    And('the board line reads as a plain tag', () => {
+      expect(layout?.subline.text).toBe('BOARD: LONGBOARD');
     });
   });
 });

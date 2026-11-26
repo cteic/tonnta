@@ -1,16 +1,17 @@
 import {
-  applyWaterQuality,
-  assessSwimHour,
-  findSwimWindows,
+  MAX_FORECAST_AGE_MS,
+  MAX_WATER_QUALITY_AGE_MS,
+  currentHourOf,
   headlineFor,
   isForecastFresh,
   nextGoodWindow,
+  waterQualityMessage,
 } from '@tonnta/data';
 import type { DailySummary, HourlyConditions, Verdict, VerdictResult } from '@tonnta/types';
 import { Text, XStack, YStack } from '@tonnta/ui';
 
 import type { SpotOutlook } from '@/lib/conditions';
-import { chartHoursAt } from '@/lib/conditions';
+import { chartHoursAt, swimOutlookAt } from '@/lib/conditions';
 import {
   BOARD_LABEL,
   VERDICT_LABEL,
@@ -129,24 +130,31 @@ interface OutlookViewProps {
 
 export function OutlookView({ outlook, mode }: OutlookViewProps) {
   const { spot, days } = outlook;
-  const clock = useDaylightClock(spot);
+  const clock = useDaylightClock(
+    spot,
+    outlook.loadedAt + MAX_FORECAST_AGE_MS,
+    outlook.waterQualityCheck?.status === 'checked'
+      ? outlook.waterQualityCheck.checkedAt + MAX_WATER_QUALITY_AGE_MS
+      : undefined
+  );
   const hours = chartHoursAt(outlook.forecastHours, spot, clock);
   const headline = headlineFor(outlook.forecastHours, spot, clock);
-  const swimFirstLight =
-    headline.kind === 'dark' && headline.firstLight !== undefined
-      ? applyWaterQuality(
-          assessSwimHour(headline.firstLight.hour, outlook.tides),
-          outlook.waterQuality
-        )
-      : undefined;
+  const { swimFirstLight, swimNow, swimWindows, waterQualityStatus } = swimOutlookAt(
+    outlook,
+    clock
+  );
   const nextWindow = nextGoodWindow(outlook.forecastHours, spot, clock);
-  const currentHour = headline.kind === 'verdict' ? headline.hour : undefined;
-  const swimNow =
-    currentHour === undefined
-      ? outlook.swimNow
-      : applyWaterQuality(assessSwimHour(currentHour, outlook.tides), outlook.waterQuality);
+  const currentHour = currentHourOf(outlook.forecastHours, clock);
+  const refreshNotice =
+    outlook.refreshWarning !== undefined ? <Body>{outlook.refreshWarning}</Body> : null;
   if (!isForecastFresh(outlook.loadedAt, clock) || headline.kind === 'none')
-    return <Body>The current forecast is unavailable. Refresh before heading out.</Body>;
+    return (
+      <>
+        {refreshNotice}
+        <Body>The current forecast is unavailable. Refresh before heading out.</Body>
+        {mode === 'swim' ? <Body>{waterQualityMessage(waterQualityStatus)}</Body> : null}
+      </>
+    );
   const dark =
     headline.kind === 'dark' ? (
       <DarkHero
@@ -162,17 +170,15 @@ export function OutlookView({ outlook, mode }: OutlookViewProps) {
   if (mode === 'swim') {
     return (
       <>
+        {refreshNotice}
         {dark}
         <SwimView
           spot={spot}
           swim={swimNow}
           hour={currentHour}
           waterQuality={outlook.waterQuality}
-          windows={
-            outlook.waterQuality?.restrictionInPlace
-              ? []
-              : findSwimWindows(outlook.forecastHours, outlook.tides, spot, clock).slice(0, 3)
-          }
+          waterQualityStatus={waterQualityStatus}
+          windows={swimWindows}
           showHero={dark === null}
         />
       </>
@@ -181,6 +187,7 @@ export function OutlookView({ outlook, mode }: OutlookViewProps) {
 
   return (
     <>
+      {refreshNotice}
       {dark ??
         (headline.kind === 'verdict' ? (
           <VerdictHero verdict={headline.result} hour={headline.hour} />

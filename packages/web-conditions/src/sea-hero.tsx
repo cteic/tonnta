@@ -1,9 +1,9 @@
 'use client';
 
-import type { HourlyConditions, VerdictResult } from '@tonnta/types';
+import type { Board, HourlyConditions } from '@tonnta/types';
 import { useAppTheme } from '@tonnta/web-shell';
 
-import { BOARD_LABEL, VERDICT_LABEL, WIND_STATE_LABEL, compassPoint } from './format';
+import { boardTag, surfFactsLine, surfHourFacts } from './surf-facts';
 
 /**
  * The living sea — Tonnta's signature. Three drifting sine bands whose
@@ -13,8 +13,10 @@ import { BOARD_LABEL, VERDICT_LABEL, WIND_STATE_LABEL, compassPoint } from './fo
  */
 
 interface SeaHeroProps {
-  verdict: VerdictResult;
   hour?: HourlyConditions | undefined;
+  /** The board the engine picked for this hour, shown as a plain tag. */
+  board?: Board | undefined;
+  spotName: string;
 }
 
 const VERDICT_SEA: Record<string, string> = {
@@ -87,11 +89,12 @@ export function SeaBands({
   colour,
 }: {
   hour: HourlyConditions | undefined;
-  verdict: string;
+  verdict?: string | undefined;
   /** Explicit band colour (themes override the default verdict mapping). */
   colour?: string | undefined;
 }) {
-  const resolved = colour ?? VERDICT_SEA[verdict] ?? '#557D86';
+  const resolved =
+    colour ?? (verdict === undefined ? undefined : VERDICT_SEA[verdict]) ?? '#557D86';
   const bands = bandSpecs(hour);
   const width = 1440;
 
@@ -131,11 +134,11 @@ export function SeaBands({
   );
 }
 
-export function SeaHero({ verdict, hour }: SeaHeroProps) {
+export function SeaHero({ hour, board, spotName }: SeaHeroProps) {
   const { theme } = useAppTheme();
   const { tokens } = theme;
-  const label = VERDICT_LABEL[verdict.verdict];
-  const isGo = verdict.verdict === 'go';
+  const facts = surfHourFacts(hour);
+  const tag = boardTag(board);
 
   return (
     <header
@@ -164,10 +167,10 @@ export function SeaHero({ verdict, hour }: SeaHeroProps) {
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.14em',
-              color: isGo ? tokens.accent : tokens.textSoft,
+              color: tokens.textSoft,
             }}
           >
-            {label.irish}
+            Tonnta · Waves now
           </p>
           <h1
             style={{
@@ -177,70 +180,51 @@ export function SeaHero({ verdict, hour }: SeaHeroProps) {
               fontSize: 'clamp(56px, 14vw, 96px)',
               lineHeight: 0.98,
               letterSpacing: '-0.02em',
-              color: isGo ? tokens.accent : tokens.text,
+              color: tokens.text,
             }}
           >
-            <span className="tonnta-visually-hidden">Donabate surf today — </span>
-            {label.english}
+            <span className="tonnta-visually-hidden">{spotName} surf conditions: waves </span>
+            {facts.waveHeight}
           </h1>
           <p
             style={{
               margin: 0,
               maxWidth: 440,
-              fontSize: 16,
-              lineHeight: 1.5,
+              fontFamily: "'Spline Sans Mono', monospace",
+              fontSize: 14,
+              lineHeight: 1.6,
               color: tokens.textMuted,
             }}
           >
-            {verdict.reason}
+            {surfFactsLine(facts)}
           </p>
 
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: 12,
-              marginTop: 22,
-            }}
-          >
-            {verdict.board !== undefined ? (
+          {tag !== undefined ? (
+            <p style={{ margin: '22px 0 0', fontSize: 13, color: tokens.textSoft }}>
+              Board{' '}
               <span
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 8,
-                  padding: '8px 16px',
+                  marginLeft: 6,
+                  padding: '6px 14px',
                   borderRadius: 999,
-                  background: isGo ? tokens.accent : tokens.accentSoftBg,
-                  color: isGo ? tokens.accentContrast : tokens.accent,
+                  border: `1px solid ${tokens.border}`,
+                  background: tokens.surface,
+                  color: tokens.text,
                   fontFamily: "'Clash Display', sans-serif",
                   fontWeight: 600,
                   fontSize: 15,
                 }}
               >
-                {BOARD_LABEL[verdict.board]} day
+                {tag}
               </span>
-            ) : null}
-            {hour !== undefined ? (
-              <span
-                style={{
-                  fontFamily: "'Spline Sans Mono', monospace",
-                  fontSize: 13,
-                  color: tokens.textSoft,
-                }}
-              >
-                {hour.waveHeightM.toFixed(1)}m @ {Math.round(hour.wavePeriodS)}s ·{' '}
-                {WIND_STATE_LABEL[hour.windState]} {Math.round(hour.windSpeedKmh)}km/h{' '}
-                {compassPoint(hour.windDirectionDeg)}
-                {hour.seaTempC !== undefined ? ` · sea ${hour.seaTempC.toFixed(1)}°C` : ''}
-              </span>
-            ) : null}
-          </div>
+            </p>
+          ) : null}
         </div>
       </div>
 
-      <SeaBands hour={hour} verdict={verdict.verdict} colour={tokens.sea[verdict.verdict]} />
+      <SeaBands hour={hour} colour={tokens.sea.maybe} />
     </header>
   );
 }
