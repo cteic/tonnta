@@ -5,8 +5,8 @@ import {
   BuoyCard,
   DarkHero,
   DayStrip,
-  NextWindowCard,
   SeaHero,
+  SunCard,
   TideCard,
   Warnings,
   useLiveConditions,
@@ -21,18 +21,30 @@ import { CairtHero } from '@/themes/cairt/cairt-hero';
 import { EiriHero } from '@/themes/eiri/eiri-hero';
 import { PostaerHero } from '@/themes/postaer/postaer-hero';
 
-export function HomeView({ conditions: initialConditions }: { conditions: SpotConditions }) {
+interface HomeViewProps {
+  conditions: SpotConditions;
+}
+
+/**
+ * The surf site shows facts and lets the surfer decide. The verdict engine
+ * still runs underneath to pick a board, but no verdict word, reason or
+ * verdict colour reaches the page. The board shows as a plain tag.
+ */
+export function HomeView({ conditions: initialConditions }: HomeViewProps) {
   const conditions = useLiveConditions(initialConditions);
   const forecastCaptureFailed = useForecastCapture(initialConditions);
   const identity = APP_IDENTITY;
   const { theme } = useAppTheme();
   const { tokens } = theme;
   const { spot } = conditions;
-  let surfHero = <SeaHero verdict={conditions.now} hour={conditions.currentHour} />;
+  // No current hour means no board: never carry a tag over from stale data.
+  const board = conditions.currentHour === undefined ? undefined : conditions.now.board;
+  let surfHero = <SeaHero board={board} hour={conditions.currentHour} spotName={spot.name} />;
   if (theme.hero === 'eiri') {
     surfHero = (
       <EiriHero
-        verdict={conditions.now}
+        board={board}
+        spotName={spot.name}
         hour={conditions.currentHour}
         buoy={conditions.buoy}
         nextTide={conditions.tides[0]}
@@ -44,20 +56,14 @@ export function HomeView({ conditions: initialConditions }: { conditions: SpotCo
   }
   if (theme.hero === 'cairt') {
     surfHero = (
-      <CairtHero
-        verdict={conditions.now}
-        hour={conditions.currentHour}
-        buoy={conditions.buoy}
-        spot={spot}
-      />
+      <CairtHero board={board} hour={conditions.currentHour} buoy={conditions.buoy} spot={spot} />
     );
   }
   if (theme.hero === 'postaer') {
-    surfHero = <PostaerHero spot={spot} verdict={conditions.now} hour={conditions.currentHour} />;
+    surfHero = <PostaerHero spot={spot} board={board} hour={conditions.currentHour} />;
   }
 
   const { headline } = conditions;
-  const isDark = headline.kind === 'dark';
   let hero =
     headline.kind === 'dark' ? (
       <DarkHero
@@ -65,7 +71,7 @@ export function HomeView({ conditions: initialConditions }: { conditions: SpotCo
         mode="surf"
         sunrise={headline.sunrise}
         firstLightTime={headline.firstLight?.hour.time}
-        surf={headline.firstLight?.result}
+        surfHour={headline.firstLight?.hour}
       />
     ) : (
       surfHero
@@ -76,8 +82,8 @@ export function HomeView({ conditions: initialConditions }: { conditions: SpotCo
       <header style={{ maxWidth: 720, margin: '0 auto', padding: '24px' }}>
         <h1>Current conditions unavailable</h1>
         <p>
-          We do not have a forecast for this hour. Reload to check for updates and check local
-          advice before entering the water.
+          Waves, wind and board for this hour: Unknown. The forecast for this hour did not load.
+          Reload to check for updates.
         </p>
       </header>
     );
@@ -142,8 +148,11 @@ export function HomeView({ conditions: initialConditions }: { conditions: SpotCo
           <Warnings warnings={conditions.warnings} />
           <section style={{ padding: 16, border: `1px solid ${tokens.border}`, borderRadius: 12 }}>
             <p style={{ margin: '0 0 8px', fontSize: 14, color: tokens.textSoft }}>
-              These are regional sea estimates, not measured breaking waves at {spot.name}. A GO is
-              a forecast possibility, not a safety clearance or a promise of good surf.
+              These are regional sea estimates, not measured breaking waves at {spot.name}. This is
+              information, not advice: you decide whether to surf.{' '}
+              <a href="/about" style={{ color: tokens.accent }}>
+                About this information
+              </a>
             </p>
             <a href={`/log?spot=${encodeURIComponent(spot.id)}`} style={{ color: tokens.accent }}>
               Been to the beach? Add a quick check
@@ -159,12 +168,12 @@ export function HomeView({ conditions: initialConditions }: { conditions: SpotCo
               </p>
             ) : null}
           </section>
-          {conditions.nextWindow !== undefined && (isDark || conditions.now.verdict !== 'go') ? (
-            <NextWindowCard window={conditions.nextWindow} spot={spot} />
+          <DayStrip days={conditions.dayFacts} spot={spot} />
+          {conditions.buoy !== undefined || spot.buoyStationId !== undefined ? (
+            <BuoyCard buoy={conditions.buoy} spot={spot} />
           ) : null}
-          <DayStrip days={conditions.days} spot={spot} />
-          {conditions.buoy !== undefined ? <BuoyCard buoy={conditions.buoy} spot={spot} /> : null}
           <TideCard tides={conditions.tides} spot={spot} />
+          <SunCard at={conditions.loadedAt} spot={spot} />
           <AlertCard spotId={spot.id} />
         </div>
       </main>

@@ -1,6 +1,5 @@
-import type { Verdict } from '@tonnta/types';
-
 import type { ChartHour } from '../lib/conditions';
+import type { SurfChartHour } from '../lib/surf-forecast';
 
 /**
  * Pure geometry for the 24-hour conditions chart: scales, SVG paths and the
@@ -17,11 +16,9 @@ export interface ChartBox {
   left: number;
 }
 
-export interface VerdictBand {
+interface ChartBand {
   x: number;
   width: number;
-  verdict: Verdict;
-  daylight: boolean;
 }
 
 export interface AxisTick {
@@ -29,8 +26,8 @@ export interface AxisTick {
   time: string;
 }
 
-export interface ChartGeometry {
-  bands: VerdictBand[];
+export interface ChartGeometry<Hour extends SurfChartHour = ChartHour> {
+  bands: (Hour & ChartBand)[];
   waveLine: string;
   waveArea: string;
   windLine: string;
@@ -56,18 +53,32 @@ function point(x: number, y: number): string {
   return `${x.toFixed(1)},${y.toFixed(1)}`;
 }
 
-export function buildChartGeometry(hours: ChartHour[], box: ChartBox): ChartGeometry {
+function plotLine(points: (string | undefined)[]): string {
+  return points
+    .map((point, index) => {
+      if (point === undefined) return '';
+      if (points[index - 1] !== undefined) return `L${point}`;
+      return points[index + 1] === undefined ? `M${point} l0.1,0` : `M${point}`;
+    })
+    .filter(Boolean)
+    .join(' ');
+}
+
+export function buildChartGeometry<Hour extends SurfChartHour>(
+  hours: Hour[],
+  box: ChartBox
+): ChartGeometry<Hour> {
   const plotWidth = Math.max(box.width - box.left - box.right, 0);
   const plotHeight = Math.max(box.height - box.top - box.bottom, 0);
   const slot = hours.length === 0 ? 0 : plotWidth / hours.length;
   const baseline = box.top + plotHeight;
 
   const waveMaxM = roundUp(
-    Math.max(MIN_WAVE_AXIS_M, ...hours.map((hour) => hour.waveHeightM)),
+    Math.max(MIN_WAVE_AXIS_M, ...hours.map((hour) => hour.waveHeightM ?? MIN_WAVE_AXIS_M)),
     0.5
   );
   const windMaxKmh = roundUp(
-    Math.max(MIN_WIND_AXIS_KMH, ...hours.map((hour) => hour.windSpeedKmh)),
+    Math.max(MIN_WIND_AXIS_KMH, ...hours.map((hour) => hour.windSpeedKmh ?? MIN_WIND_AXIS_KMH)),
     10
   );
 
@@ -76,16 +87,18 @@ export function buildChartGeometry(hours: ChartHour[], box: ChartBox): ChartGeom
   const windY = (kmh: number) => baseline - (kmh / windMaxKmh) * plotHeight;
 
   const wavePoints = hours.map((hour, index) =>
-    point(centres[index] ?? 0, waveY(hour.waveHeightM))
+    hour.waveHeightM === undefined ? undefined : point(centres[index] ?? 0, waveY(hour.waveHeightM))
   );
   const windPoints = hours.map((hour, index) =>
-    point(centres[index] ?? 0, windY(hour.windSpeedKmh))
+    hour.windSpeedKmh === undefined
+      ? undefined
+      : point(centres[index] ?? 0, windY(hour.windSpeedKmh))
   );
 
   const first = centres[0];
   const last = centres.at(-1);
   const waveArea =
-    first === undefined || last === undefined
+    first === undefined || last === undefined || wavePoints.includes(undefined)
       ? ''
       : `M${point(first, baseline)} L${wavePoints.join(' L')} L${point(last, baseline)} Z`;
 
@@ -93,12 +106,11 @@ export function buildChartGeometry(hours: ChartHour[], box: ChartBox): ChartGeom
     bands: hours.map((hour, index) => ({
       x: box.left + slot * index,
       width: slot,
-      verdict: hour.verdict,
-      daylight: hour.daylight,
+      ...hour,
     })),
-    waveLine: wavePoints.length === 0 ? '' : `M${wavePoints.join(' L')}`,
+    waveLine: plotLine(wavePoints),
     waveArea,
-    windLine: windPoints.length === 0 ? '' : `M${windPoints.join(' L')}`,
+    windLine: plotLine(windPoints),
     waveMaxM,
     windMaxKmh,
     ticks: hours.flatMap((hour, index) =>

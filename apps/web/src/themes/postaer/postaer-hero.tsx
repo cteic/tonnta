@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 
-import type { HourlyConditions, Spot, VerdictResult } from '@tonnta/types';
-import { BOARD_LABEL } from '@tonnta/web-conditions';
+import type { Board, HourlyConditions, Spot } from '@tonnta/types';
+import { boardTag, surfHourFacts } from '@tonnta/web-conditions';
 
 import { sharePoster } from './poster-export';
 import type { PosterInput } from './poster-scene';
-import { POSTER_HEADLINE, bandLayout, posterInks } from './poster-scene';
+import { bandLayout, posterInks } from './poster-scene';
 
 /**
  * An Postaer — the day as a mid-century Irish seaside travel poster.
@@ -18,7 +18,8 @@ import { POSTER_HEADLINE, bandLayout, posterInks } from './poster-scene';
 
 interface PostaerHeroProps {
   spot: Spot;
-  verdict: VerdictResult;
+  /** The board the engine picked for this hour, shown as a plain tag. */
+  board?: Board | undefined;
   hour?: HourlyConditions | undefined;
 }
 
@@ -39,12 +40,15 @@ const CAPS: React.CSSProperties = {
   fontFamily: "'Futura', 'Avenir Next', 'General Sans', sans-serif",
 };
 
-export function PostaerHero({ spot, verdict, hour }: PostaerHeroProps) {
+export function PostaerHero({ spot, board, hour }: PostaerHeroProps) {
   const [shareState, setShareState] = useState<'idle' | 'busy' | 'done' | 'failed'>('idle');
-  const inks = posterInks(verdict.verdict);
+  const inks = posterInks();
   const bands = bandLayout(hour?.waveHeightM ?? 0.2, hour?.windState ?? 'glassy');
-  const headline = POSTER_HEADLINE[verdict.verdict];
-  const boardLabel = verdict.board !== undefined ? `${BOARD_LABEL[verdict.board]} day` : undefined;
+  const facts = surfHourFacts(hour);
+  const headline = facts.waveHeight;
+  const tag = boardTag(board);
+  const boardLabel = tag === undefined ? undefined : `Board: ${tag}`;
+  const factsLine = `period ${facts.wavePeriod} · wind ${facts.windSpeed} ${facts.windDirection}, ${facts.windState} · gusts ${facts.windGust} · sea ${facts.seaTemp}`;
   const spotLine = (spot.irishName ?? spot.name).toUpperCase();
   const bandInk = (key: (typeof bands)[number]['ink']): string => {
     if (key === 'shallow') return inks.shallow;
@@ -57,9 +61,9 @@ export function PostaerHero({ spot, verdict, hour }: PostaerHeroProps) {
     if (hour === undefined) return;
     setShareState('busy');
     const input: PosterInput = {
-      verdict: verdict.verdict,
+      headline,
       boardLabel,
-      reason: verdict.reason,
+      factsLine,
       waveHeightM: hour.waveHeightM,
       windState: hour.windState,
       dateLabel: dateLabel(spot.timezone),
@@ -118,19 +122,6 @@ export function PostaerHero({ spot, verdict, hour }: PostaerHeroProps) {
         ))}
       </div>
 
-      {/* Rain hatching on blown days */}
-      {verdict.verdict === 'blown' ? (
-        <div
-          aria-hidden
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'repeating-linear-gradient(65deg, rgba(61,80,73,0.18) 0 3px, transparent 3px 26px)',
-          }}
-        />
-      ) : null}
-
       {/* Content */}
       <div
         style={{
@@ -154,6 +145,7 @@ export function PostaerHero({ spot, verdict, hour }: PostaerHeroProps) {
             color: inks.headline,
           }}
         >
+          <span className="tonnta-visually-hidden">{spot.name} surf conditions: waves </span>
           {headline}
         </h1>
         {boardLabel !== undefined ? (
@@ -178,7 +170,7 @@ export function PostaerHero({ spot, verdict, hour }: PostaerHeroProps) {
             color: inks.headline,
           }}
         >
-          {verdict.reason}
+          {factsLine}
         </p>
         <button
           type="button"

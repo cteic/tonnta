@@ -1,12 +1,18 @@
 import { ShellFooter } from '@tonnta/web-shell';
 
-import { SITE_LABEL, SITE_NAME, surfSpotUrl } from '@/lib/site';
+import { SITE_NAME, SURF_ORIGIN } from '@/lib/site';
 
-export function SwimFooter({ spotId }: { spotId: string }) {
+export const FOOTER_NOTICE = `${SITE_NAME} lists facts, not advice. Bathing water data: EPA (CC BY 4.0). Weather and sea values: Open-Meteo (CC BY 4.0), model estimates, not measurements. Water Safety Ireland advises swimming at lifeguarded waters, between the red and yellow flags. In an emergency call 112 or 999 and ask for the Coast Guard.`;
+
+export function SwimFooter() {
   return (
     <ShellFooter
-      links={[{ label: 'Surf conditions on Tonnta', href: surfSpotUrl(spotId) }]}
-      notice={`${SITE_NAME} · ${SITE_LABEL}. Data: Marine Institute (CC BY 4.0), Met Éireann, Open-Meteo (CC BY 4.0), EPA bathing water notices. Forecasts are open-water estimates. Conditions are advice, not a lifeguard. Check local notices and know your limits.`}
+      links={[
+        { label: 'EPA bathing water notices on beaches.ie', href: 'https://www.beaches.ie/' },
+        { label: 'Water Safety Ireland', href: 'https://watersafety.ie/' },
+        { label: 'Surf conditions on Tonnta', href: SURF_ORIGIN },
+      ]}
+      notice={FOOTER_NOTICE}
     />
   );
 }

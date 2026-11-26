@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 
 import { SITE_NAME } from '@/lib/site';
 
-export const alt = `${SITE_NAME}: sea swimming conditions`;
+export const alt = `${SITE_NAME}: Irish bathing water facts`;
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -22,9 +22,9 @@ export default function Image() {
       }}
     >
       <div style={{ fontSize: 76 }}>{SITE_NAME}</div>
-      <div style={{ fontSize: 38, color: '#8FC1B5', marginTop: 32 }}>Sea swimming conditions</div>
+      <div style={{ fontSize: 38, color: '#8FC1B5', marginTop: 32 }}>Irish bathing water facts</div>
       <div style={{ fontSize: 28, marginTop: 24 }}>
-        Daylight · temperature · tides · water quality
+        EPA alerts · water quality rating · lifeguard cover
       </div>
     </div>,
     size

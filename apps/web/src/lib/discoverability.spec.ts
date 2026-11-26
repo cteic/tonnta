@@ -179,12 +179,13 @@ describeFeature(feature, ({ Scenario }) => {
       entries = buildSitemapEntries(origin, lastModified);
     });
     Then(
-      'it lists the home page, the session log, the Pro page and the privacy policy as absolute URLs',
+      'it lists the home page, the session log, the Pro page, the about page and the privacy policy as absolute URLs',
       () => {
-        expect(entries.slice(0, 4).map((entry) => entry.url)).toEqual([
+        expect(entries.slice(0, 5).map((entry) => entry.url)).toEqual([
           `${origin}/`,
           `${origin}/log`,
           `${origin}/pro`,
+          `${origin}/about`,
           `${origin}/privacy`,
         ]);
         expect(entries.every((entry) => entry.lastModified === lastModified)).toBe(true);

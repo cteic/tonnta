@@ -1,6 +1,12 @@
+import { Platform } from 'react-native';
+
+import { Redirect } from 'expo-router';
+
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 
 export default function ProScreen() {
+  // Not part of native v1; a deep link lands on the surf facts instead.
+  if (Platform.OS !== 'web') return <Redirect href="/" />;
   return (
     <PlaceholderScreen
       eyebrow="Tonnta Pro"

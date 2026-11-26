@@ -1,19 +1,24 @@
 import { useEffect, useState } from 'react';
 
-import { Pressable } from 'react-native';
+import { Platform, Pressable } from 'react-native';
 
 import { Link } from 'expo-router';
 
 import { DEFAULT_SPOT_ID } from '@tonnta/data';
 import { Text, XStack, YStack } from '@tonnta/ui';
 
+import { BuoyCard } from '@/components/buoy-card';
 import { LiveTideCard } from '@/components/live-tide-card';
+import { NativeSurfForecast } from '@/components/native-surf-forecast';
 import { OutlookView } from '@/components/outlook-view';
 import { Body, Eyebrow, Screen } from '@/components/screen';
 import { useAnalytics } from '@/lib/analytics';
 import { outlookViewed } from '@/lib/analytics-events';
 import type { OutlookState } from '@/lib/use-spot-outlook';
 import { useSpotOutlook } from '@/lib/use-spot-outlook';
+
+/** Native v1 is Donabate surf facts only: no swim mode, diary, Pro or spot pages. */
+const IS_NATIVE = Platform.OS !== 'web';
 
 const NAV_LINKS: { href: '/log' | '/pro' | '/s/donabate'; label: string }[] = [
   { href: '/log', label: 'Loga' },
@@ -80,6 +85,13 @@ interface OutlookBodyProps {
 }
 
 function OutlookBody({ state, mode }: OutlookBodyProps) {
+  if (Platform.OS !== 'web' && mode === 'surf') {
+    const outlook = state.status === 'ready' ? state.outlook : state.previous;
+    if (outlook !== undefined) {
+      return <NativeSurfForecast outlook={outlook} refreshFailed={state.status === 'error'} />;
+    }
+    if (state.status === 'error') return <Body>The surf forecast is unavailable right now.</Body>;
+  }
   if (state.status === 'loading') {
     return <Body muted>Reading the sea…</Body>;
   }
@@ -102,7 +114,10 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (outlook === undefined) return;
-    track('outlook_viewed', outlookViewed(outlook));
+    track(
+      'outlook_viewed',
+      Platform.OS === 'web' ? outlookViewed(outlook) : { spot: outlook.spot.id }
+    );
   }, [outlook, track]);
 
   return (
@@ -120,20 +135,23 @@ export default function HomeScreen() {
           </Text>
           <Eyebrow>Domhnach Bat · Donabate</Eyebrow>
         </YStack>
-        <XStack gap="$7">
-          {NAV_LINKS.map((link) => (
-            <Link key={link.href} href={link.href}>
-              <Text fontFamily="$body" fontSize="$4" fontWeight="600" color="$accent">
-                {link.label}
-              </Text>
-            </Link>
-          ))}
-        </XStack>
+        {IS_NATIVE ? null : (
+          <XStack gap="$7">
+            {NAV_LINKS.map((link) => (
+              <Link key={link.href} href={link.href}>
+                <Text fontFamily="$body" fontSize="$4" fontWeight="600" color="$accent">
+                  {link.label}
+                </Text>
+              </Link>
+            ))}
+          </XStack>
+        )}
       </XStack>
 
-      <ModeToggle mode={mode} onChange={setMode} />
-      <OutlookBody state={state} mode={mode} />
+      {IS_NATIVE ? null : <ModeToggle mode={mode} onChange={setMode} />}
+      <OutlookBody state={state} mode={IS_NATIVE ? 'surf' : mode} />
       <LiveTideCard spotId={DEFAULT_SPOT_ID} />
+      {IS_NATIVE ? <BuoyCard spotId={DEFAULT_SPOT_ID} /> : null}
     </Screen>
   );
 }

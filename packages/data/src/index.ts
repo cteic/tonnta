@@ -15,7 +15,7 @@ export { formatDayName, formatHour, formatHourRange } from './time-format';
 export { THUNDERSTORM_REASON, isThunderstorm, seaTempBand } from './weather';
 export type { SeaTemp, SeaTempBand } from './weather';
 export type { SunTimes } from './daylight';
-export { findGoodWindows, nextGoodWindow, summarizeDays } from './summary';
+export { findGoodWindows, nextGoodWindow, summarizeDayFacts, summarizeDays } from './summary';
 export type { GoodWindow } from './summary';
 export {
   DEFAULT_SWIM_THRESHOLDS,
@@ -26,10 +26,40 @@ export {
   isNearHighTide,
 } from './swim';
 export type { SwimThresholds, SwimWindow } from './swim';
-export { fetchWaterQualityAlert, findBeachAlert } from './sources/epa-bathing';
+export {
+  fetchBathingWaterStatus,
+  fetchWaterQualityAlert,
+  findBeachAlert,
+  parseBathingWaterStatus,
+} from './sources/epa-bathing';
+export {
+  fetchBeachSea,
+  fetchBeachWeather,
+  parseBeachSea,
+  parseBeachWeather,
+  rainLast48h,
+} from './sources/open-meteo-beach';
+export {
+  BATHING_SEASON,
+  BATHING_WATERS,
+  bathingSeasonOn,
+  bathingWaterSlugForSpot,
+  bathingWatersByCounty,
+  getBathingWater,
+} from './bathing-waters';
+export type { BathingSeasonState } from './bathing-waters';
+export { irishGridToWgs84 } from './irish-grid';
 export { fetchHourlyConditions } from './sources/open-meteo';
 export { fetchBuoyObservation, fetchTideEvents, fetchTideGaugeReadings } from './sources/erddap';
 export { SLACK_THRESHOLD_M, readingsAfter, tideTrend } from './tide-gauge';
 export { isRecord, isNumberArray, isStringArray, asFiniteNumber } from './guards';
 
 export { isForecastFresh, MAX_FORECAST_AGE_MS } from './freshness';
+
+export {
+  MAX_WATER_QUALITY_AGE_MS,
+  applySwimWaterQuality,
+  getWaterQualityStatus,
+  isWaterQualityUnknown,
+  waterQualityMessage,
+} from './water-quality';
