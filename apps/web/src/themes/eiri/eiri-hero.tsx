@@ -118,7 +118,7 @@ export function EiriHero({
         position: 'relative',
         overflow: 'hidden',
         background: skyGradient(scene),
-        paddingBottom: 190,
+        paddingBottom: 'clamp(96px, 24vw, 190px)',
       }}
     >
       {/* horizon line + glow */}
@@ -143,7 +143,7 @@ export function EiriHero({
         style={{
           position: 'absolute',
           left: scene.phase === 'day' ? '76%' : '50%',
-          top: `calc(69% - ${6 + Math.min(150, scene.discAltitude01 * 260)}px)`,
+          top: `calc(69% - ${Math.round(6 + Math.min(150, scene.discAltitude01 * 260))}px)`,
           width: scene.disc === 'sun' ? 46 : 30,
           height: scene.disc === 'sun' ? 46 : 30,
           transform: 'translateX(-50%)',
@@ -234,7 +234,7 @@ export function EiriHero({
           ) : null}
         </div>
 
-        <div style={{ marginTop: 118 }}>
+        <div style={{ marginTop: 'clamp(28px, 8vw, 118px)' }}>
           {hour !== undefined ? (
             <p
               style={{
