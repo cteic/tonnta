@@ -16,6 +16,8 @@ export type {
   VerdictResult,
   VerdictThresholds,
   WaterQualityAlert,
+  WaterQualityCheck,
+  WaterQualityStatus,
   WindState,
 } from './conditions';
 export type {

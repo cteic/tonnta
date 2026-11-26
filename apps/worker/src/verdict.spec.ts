@@ -1,7 +1,14 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
-import { expect } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { DEFAULT_SPOT_ID, assessHour, getSpot } from '@tonnta/data';
+import {
+  DEFAULT_SPOT_ID,
+  SURF_VERDICT_ENGINE_VERSION,
+  assessHour,
+  getSpot,
+  isDaylightHour,
+  sunTimes,
+} from '@tonnta/data';
 import type { HourlyConditions, Spot } from '@tonnta/types';
 
 import type { VerdictCache, VerdictTimeline } from './verdict';
@@ -35,7 +42,7 @@ function forecastHours(): HourlyConditions[] {
 }
 
 /** Open-Meteo payloads for the same hours, routed by URL as the real client calls them. */
-function fakeOpenMeteo(calls: string[]): typeof fetch {
+function fakeOpenMeteo(calls: string[], wavePeriodS?: number): typeof fetch {
   const times = Array.from({ length: FORECAST_HOURS }, (_, index) =>
     new Date(MIDNIGHT + index * HOUR_MS).toISOString().slice(0, 16)
   );
@@ -47,7 +54,7 @@ function fakeOpenMeteo(calls: string[]): typeof fetch {
       ? {
           time: times,
           wave_height: pick((i) => 0.2 + (i % 10) * 0.1),
-          wave_period: pick((i) => 4 + (i % 5)),
+          wave_period: pick((i) => wavePeriodS ?? 4 + (i % 5)),
           wave_direction: pick(() => 70),
           sea_surface_temperature: pick(() => 13),
         }
@@ -81,7 +88,7 @@ function memoryCache(): VerdictCache & { store: Map<string, string> } {
   };
 }
 
-const CURRENT_HOUR_KEY = 'verdict:v1:donabate:2026-10-20T09';
+const CURRENT_HOUR_KEY = `verdict:v2:${SURF_VERDICT_ENGINE_VERSION}:donabate:2026-10-20T09`;
 
 async function readTimeline(response: Response): Promise<VerdictTimeline> {
   const body: unknown = await response.json();
@@ -127,7 +134,13 @@ describeFeature(feature, ({ Scenario }) => {
       for (const entry of timeline?.hours ?? []) {
         const source = byTime.get(entry.time);
         if (source === undefined) throw new Error(`no source hour for ${entry.time}`);
-        const expected = assessHour(source, spot);
+        const expected = isDaylightHour(source.time, spot)
+          ? assessHour(source, spot)
+          : {
+              verdict: 'dark',
+              board: undefined,
+              reason: 'Outside a full daylight hour. Stay out of the water.',
+            };
         expect(entry.verdict).toBe(expected.verdict);
         expect(entry.board).toBe(expected.board);
         expect(entry.reason).toBe(expected.reason);
@@ -241,5 +254,221 @@ describeFeature(feature, ({ Scenario }) => {
       expect(response?.status).toBe(502);
       expect(cache.store.size).toBe(0);
     });
+  });
+});
+
+describe('daylight API v2', () => {
+  it.each([
+    'verdict:v2:donabate:2026-10-20T09',
+    'verdict:v2:previous-engine:donabate:2026-10-20T09',
+  ])('does not reuse an earlier engine GO cached at %s', async (oldKey) => {
+    const cache = memoryCache();
+    const legacy = buildTimeline(forecastHours(), launchSpot(), NOW);
+    // The old rules could mark 3s sea GO. Keep a fresh, valid v2 payload so this
+    // regression specifically exercises the engine-version cache boundary.
+    legacy.hours = legacy.hours.map((entry) => ({ ...entry, wavePeriodS: 3 }));
+    expect(legacy.hours[0]?.verdict).toBe('go');
+    expect(isVerdictTimeline(legacy)).toBe(true);
+    const oldValue = JSON.stringify(legacy);
+    cache.store.set(oldKey, oldValue);
+    const calls: string[] = [];
+
+    const response = await handleVerdict(
+      new URL('https://worker.test/verdict'),
+      cache,
+      NOW,
+      fakeOpenMeteo(calls, 3)
+    );
+    expect(response.status).toBe(200);
+    const timeline = await readTimeline(response);
+    expect(timeline.schemaVersion).toBe(2);
+    expect(timeline.hours[0]).toMatchObject({ verdict: 'maybe', wavePeriodS: 3 });
+    expect(timeline.hours[0]?.board).toBeUndefined();
+    expect(calls).toHaveLength(2);
+    expect(cache.store.get(CURRENT_HOUR_KEY)).toBe(JSON.stringify(timeline));
+    expect(cache.store.get(oldKey)).toBe(oldValue);
+    expect(cache.store.size).toBe(2);
+  });
+
+  it('marks every partly lit or dark hour dark, without a hidden board', () => {
+    const timeline = buildTimeline(forecastHours(), launchSpot(), NOW);
+    expect(timeline.schemaVersion).toBe(2);
+    for (const entry of timeline.hours) {
+      expect(entry.daylight).toBe(isDaylightHour(entry.time, launchSpot()));
+      expect(Date.parse(entry.validUntil)).toBe(Date.parse(entry.time) + HOUR_MS);
+      if (!entry.daylight) {
+        expect(entry.verdict).toBe('dark');
+        expect(entry.board).toBeUndefined();
+      }
+    }
+    const { sunrise, sunset } = sunTimes(NOW, launchSpot().latitude, launchSpot().longitude);
+    for (const boundary of [sunrise, sunset]) {
+      if (boundary === undefined) throw new Error('missing sun boundary');
+      const hour = new Date(Math.floor(boundary / HOUR_MS) * HOUR_MS).toISOString();
+      const entries = buildTimeline(forecastHours(), launchSpot(), Date.parse(hour)).hours;
+      expect(entries[0]).toMatchObject({ daylight: false, verdict: 'dark' });
+    }
+  });
+
+  it('does not substitute future or expired data for current coverage', async () => {
+    expect(buildTimeline(forecastHours(), launchSpot(), MIDNIGHT - 1).hours).toEqual([]);
+    expect(
+      buildTimeline(forecastHours(), launchSpot(), MIDNIGHT + FORECAST_HOURS * HOUR_MS).hours
+    ).toEqual([]);
+    const response = await handleVerdict(
+      new URL('https://worker.test/verdict'),
+      memoryCache(),
+      MIDNIGHT + FORECAST_HOURS * HOUR_MS,
+      fakeOpenMeteo([])
+    );
+    expect(response.status).toBe(502);
+  });
+
+  it('rejects stale, legacy and inconsistent cached responses', async () => {
+    for (const change of [
+      { generatedAt: new Date(NOW - HOUR_MS).toISOString() },
+      { schemaVersion: 1 },
+      { spot: { id: 'wrong', name: 'Wrong' } },
+      {
+        hours: [
+          {
+            ...buildTimeline(forecastHours(), launchSpot(), NOW).hours[0],
+            daylight: false,
+            verdict: 'go',
+          },
+        ],
+      },
+    ]) {
+      const cache = memoryCache();
+      cache.store.set(
+        CURRENT_HOUR_KEY,
+        JSON.stringify({ ...buildTimeline(forecastHours(), launchSpot(), NOW), ...change })
+      );
+      const calls: string[] = [];
+      const response = await handleVerdict(
+        new URL('https://worker.test/verdict'),
+        cache,
+        NOW,
+        fakeOpenMeteo(calls)
+      );
+      expect(response.status).toBe(200);
+      expect(calls).toHaveLength(2);
+    }
+  });
+
+  it('serves the same conservative dark entry from cache across sunset', async () => {
+    const spot = launchSpot();
+    const { sunset } = sunTimes(NOW, spot.latitude, spot.longitude);
+    if (sunset === undefined) throw new Error('missing sunset');
+    const cache = memoryCache();
+    const calls: string[] = [];
+    const first = await readTimeline(
+      await handleVerdict(
+        new URL('https://worker.test/verdict'),
+        cache,
+        sunset - 1000,
+        fakeOpenMeteo(calls)
+      )
+    );
+    const second = await readTimeline(
+      await handleVerdict(
+        new URL('https://worker.test/verdict'),
+        cache,
+        sunset + 1000,
+        fakeOpenMeteo(calls)
+      )
+    );
+    expect(first.hours[0]).toMatchObject({ verdict: 'dark', daylight: false });
+    expect(second).toEqual(first);
+    expect(second.hours[0]?.board).toBeUndefined();
+    expect(calls).toHaveLength(2);
+  });
+
+  it('caps HTTP caching at the next forecast hour', async () => {
+    const response = await handleVerdict(
+      new URL('https://worker.test/verdict'),
+      memoryCache(),
+      Date.parse('2026-10-20T09:59:59Z'),
+      fakeOpenMeteo([])
+    );
+    expect(response.headers.get('Cache-Control')).toBe('public, max-age=1');
+  });
+
+  it('rejects a board hidden in a dark cached entry', () => {
+    const timeline = buildTimeline(forecastHours(), launchSpot(), MIDNIGHT);
+    expect(isVerdictTimeline(timeline)).toBe(true);
+    expect(
+      isVerdictTimeline({ ...timeline, hours: [{ ...timeline.hours[0], board: 'sup' }] })
+    ).toBe(false);
+  });
+  it('drops expired hours and uses the completion clock after a slow live fetch', async () => {
+    const spot = launchSpot();
+    const { sunset } = sunTimes(NOW, spot.latitude, spot.longitude);
+    if (sunset === undefined) throw new Error('missing sunset');
+    const boundary = Math.floor(sunset / HOUR_MS) * HOUR_MS;
+    let clock = boundary - 1000;
+    const spy = vi.spyOn(Date, 'now').mockImplementation(() => clock);
+    const upstream = fakeOpenMeteo([]);
+    try {
+      const response = await handleVerdict(
+        new URL('https://worker.test/verdict'),
+        memoryCache(),
+        undefined,
+        async (input, init) => {
+          clock = boundary + 1000;
+          return upstream(input, init);
+        }
+      );
+      const timeline = await readTimeline(response);
+      expect(Date.parse(timeline.hours[0]?.time ?? '')).toBe(boundary);
+      expect(timeline.hours[0]?.verdict).toBe('dark');
+      expect(timeline.hours[0]?.board).toBeUndefined();
+      expect(response.headers.get('Cache-Control')).toBe('public, max-age=300');
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('fails closed if a slow cache read outlives freshness or current coverage', async () => {
+    for (const delay of [HOUR_MS, 41 * 60_000]) {
+      let clock = NOW;
+      const cached = buildTimeline(forecastHours(), launchSpot(), NOW);
+      if (delay < HOUR_MS) cached.hours = cached.hours.slice(0, 1);
+      const spy = vi.spyOn(Date, 'now').mockImplementation(() => clock);
+      try {
+        const response = await handleVerdict(new URL('https://worker.test/verdict'), {
+          get: async () => {
+            clock += delay;
+            return JSON.stringify(cached);
+          },
+          put: async () => {},
+        });
+        expect(response.status).toBe(502);
+        expect(response.headers.get('Cache-Control')).toBe('no-store');
+      } finally {
+        spy.mockRestore();
+      }
+    }
+  });
+
+  it('keeps an explicitly injected clock fixed across async work', async () => {
+    const response = await handleVerdict(
+      new URL('https://worker.test/verdict'),
+      memoryCache(),
+      NOW,
+      fakeOpenMeteo([])
+    );
+    expect((await readTimeline(response)).hours[0]?.time).toBe('2026-10-20T09:00:00Z');
+  });
+
+  it('rejects nonfinite and negative cached measurements', () => {
+    const timeline = buildTimeline(forecastHours(), launchSpot(), NOW);
+    for (const field of ['waveHeightM', 'wavePeriodS', 'windSpeedKmh']) {
+      for (const value of [-1, NaN, Infinity, -Infinity]) {
+        expect(
+          isVerdictTimeline({ ...timeline, hours: [{ ...timeline.hours[0], [field]: value }] })
+        ).toBe(false);
+      }
+    }
   });
 });

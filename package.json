@@ -20,14 +20,15 @@
     "dev:worker": "turbo run dev --filter=@tonnta/worker",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,yaml,yml}\" --ignore-path .gitignore --ignore-path .prettierignore",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mjs,cjs,json,md,css,yaml,yml}\" --ignore-path .gitignore --ignore-path .prettierignore",
-    "lint": "turbo run lint",
+    "lint": "turbo run lint && eslint scripts/verdict-contract.spec.ts vitest.contract.config.ts",
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
-    "test": "turbo run test:unit",
-    "test:unit": "turbo run test:unit",
+    "test": "pnpm run test:unit",
+    "test:unit": "turbo run test:unit && pnpm run test:contract",
     "clean": "git clean -dfX",
     "prepare": "husky",
-    "check:all": "turbo run check:all"
+    "check:all": "turbo run check:all",
+    "test:contract": "tsc --noEmit --project tsconfig.contract.json && vitest run --config vitest.contract.config.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",
@@ -57,7 +58,7 @@
       "@types/react": "^19.0.0",
       "@types/react-dom": "^19.0.0",
       "react-native-web": "^0.21.4",
-      "react-native": "0.88.0",
+      "react-native": "0.88.1",
       "react": "19.3.0",
       "react-dom": "19.3.0"
     },

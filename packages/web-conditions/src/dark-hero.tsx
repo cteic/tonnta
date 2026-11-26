@@ -1,14 +1,20 @@
 'use client';
 
-import { formatHour } from '@tonnta/data';
-import type { HourlyConditions, Spot, SwimVerdictResult } from '@tonnta/types';
+import { applySwimWaterQuality, formatHour } from '@tonnta/data';
+import type {
+  HourlyConditions,
+  Spot,
+  SwimVerdictResult,
+  WaterQualityAlert,
+  WaterQualityStatus,
+} from '@tonnta/types';
 import { useAppTheme } from '@tonnta/web-shell';
 
 import { surfFactsLine, surfHourFacts } from './surf-facts';
 
 const SWIM_LABEL: Record<string, string> = {
-  great: 'PERFECT',
-  ok: 'GRAND',
+  great: 'CALM CONDITIONS',
+  ok: 'SOME CHOP',
   no: 'NOT TODAY',
 };
 
@@ -20,6 +26,8 @@ interface DarkHeroProps {
   /** Surf mode: the first light hour, shown as plain facts. */
   surfHour?: HourlyConditions | undefined;
   swim?: SwimVerdictResult | undefined;
+  waterQuality?: WaterQualityAlert | undefined;
+  waterQualityStatus?: WaterQualityStatus | undefined;
 }
 
 function firstLightPreview(
@@ -32,7 +40,7 @@ function firstLightPreview(
   }
   return swim === undefined
     ? undefined
-    : `${SWIM_LABEL[swim.verdict] ?? 'NOT TODAY'}. ${swim.reason}`;
+    : `${swim.withheld === 'water-quality-unknown' ? 'CHECK LOCAL ADVICE' : (SWIM_LABEL[swim.verdict] ?? 'NOT TODAY')}. ${swim.reason}`;
 }
 
 /**
@@ -40,10 +48,23 @@ function firstLightPreview(
  * gives the next sunrise and what first light looks like instead. One hero
  * for every theme, so the safety message reads the same in all of them.
  */
-export function DarkHero({ spot, mode, sunrise, firstLightTime, surfHour, swim }: DarkHeroProps) {
+export function DarkHero({
+  spot,
+  mode,
+  sunrise,
+  firstLightTime,
+  surfHour,
+  swim,
+  waterQuality,
+  waterQualityStatus = 'unchecked',
+}: DarkHeroProps) {
   const { theme } = useAppTheme();
   const { tokens } = theme;
-  const preview = firstLightPreview(mode, surfHour, swim);
+  const preview = firstLightPreview(
+    mode,
+    surfHour,
+    swim === undefined ? undefined : applySwimWaterQuality(swim, waterQuality, waterQualityStatus)
+  );
   // The first light hour can start a few minutes before sunrise; never show a time before it.
   const firstLightAt =
     firstLightTime !== undefined && sunrise !== undefined && sunrise > firstLightTime
@@ -122,6 +143,9 @@ export function DarkHero({ spot, mode, sunrise, firstLightTime, surfHour, swim }
               First light, {formatHour(firstLightAt, spot.timezone)}:
             </strong>{' '}
             {preview}
+            {mode === 'snamh'
+              ? ' This is a weather forecast, not a prediction of water quality. Check local notices before that visit.'
+              : ''}
           </p>
         ) : null}
       </div>

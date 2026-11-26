@@ -19,3 +19,5 @@ export { SwimWindowsCard } from './snamh-sections';
 export { UNKNOWN, boardTag, dayFactsText, surfFactsLine, surfHourFacts } from './surf-facts';
 export type { DayFactsText, SurfHourFacts } from './surf-facts';
 export { useLiveConditions } from './use-live-conditions';
+
+export { WaterQualityNotice } from './water-quality-notice';

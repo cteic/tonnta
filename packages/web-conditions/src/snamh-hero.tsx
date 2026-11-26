@@ -1,6 +1,12 @@
 'use client';
 
-import type { HourlyConditions, SwimVerdictResult, WaterQualityAlert } from '@tonnta/types';
+import { applySwimWaterQuality } from '@tonnta/data';
+import type {
+  HourlyConditions,
+  SwimVerdictResult,
+  WaterQualityAlert,
+  WaterQualityStatus,
+} from '@tonnta/types';
 import { useAppTheme } from '@tonnta/web-shell';
 
 import { WIND_STATE_LABEL, compassPoint } from './format';
@@ -14,8 +20,8 @@ import { SeaTempCard } from './sea-temp';
  */
 
 const SWIM_LABEL: Record<string, { english: string; irish: string }> = {
-  great: { english: 'PERFECT', irish: 'Foirfe' },
-  ok: { english: 'GRAND', irish: 'Ceart go leor' },
+  great: { english: 'CALM CONDITIONS', irish: 'Sea forecast' },
+  ok: { english: 'SOME CHOP', irish: 'Sea forecast' },
   no: { english: 'NOT TODAY', irish: 'Ná téigh' },
 };
 
@@ -36,12 +42,22 @@ interface SnamhHeroProps {
   swim: SwimVerdictResult;
   hour?: HourlyConditions | undefined;
   waterQuality?: WaterQualityAlert | undefined;
+  waterQualityStatus?: WaterQualityStatus | undefined;
 }
 
-export function SnamhHero({ swim, hour, waterQuality }: SnamhHeroProps) {
+export function SnamhHero({
+  swim: input,
+  hour,
+  waterQuality,
+  waterQualityStatus = 'unchecked',
+}: SnamhHeroProps) {
+  const swim = applySwimWaterQuality(input, waterQuality, waterQualityStatus);
+  const withheld = swim.withheld === 'water-quality-unknown';
   const { theme } = useAppTheme();
   const { tokens } = theme;
-  const label = SWIM_LABEL[swim.verdict] ?? SWIM_LABEL.no;
+  const label = withheld
+    ? { english: 'CHECK LOCAL ADVICE', irish: 'Bathing advice unknown' }
+    : (SWIM_LABEL[swim.verdict] ?? SWIM_LABEL.no);
   const isGreat = swim.verdict === 'great';
   const restricted = waterQuality?.restrictionInPlace === true;
 
@@ -88,7 +104,7 @@ export function SnamhHero({ swim, hour, waterQuality }: SnamhHeroProps) {
               color: isGreat ? tokens.accent : tokens.text,
             }}
           >
-            <span className="tonnta-visually-hidden">Donabate swimming today — </span>
+            <span className="tonnta-visually-hidden">Sea swimming forecast — </span>
             {label?.english}
           </h1>
           <p
@@ -153,8 +169,8 @@ export function SnamhHero({ swim, hour, waterQuality }: SnamhHeroProps) {
 
       <SeaBands
         hour={hour}
-        verdict={SWIM_SEA_VERDICT[swim.verdict] ?? 'blown'}
-        colour={tokens.sea[resolveSwimSea(swim.verdict)]}
+        verdict={withheld ? 'maybe' : (SWIM_SEA_VERDICT[swim.verdict] ?? 'blown')}
+        colour={tokens.sea[withheld ? 'maybe' : resolveSwimSea(swim.verdict)]}
       />
     </header>
   );

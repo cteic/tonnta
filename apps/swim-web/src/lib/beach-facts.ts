@@ -45,7 +45,8 @@ export async function loadBeachFacts(
 ): Promise<BeachFacts> {
   const [status, alert, weather, sea] = await Promise.allSettled([
     fetchBathingWaterStatus(water.id, cachedFetch(EPA_RECORD_REVALIDATE_S)),
-    fetchWaterQualityAlert(water.id, cachedFetch(LIVE_REVALIDATE_S)),
+    // The alerts adapter makes a fresh, bounded check across all pages.
+    fetchWaterQualityAlert(water.id),
     fetchBeachWeather(water, cachedFetch(LIVE_REVALIDATE_S)),
     fetchBeachSea(water, cachedFetch(LIVE_REVALIDATE_S)),
   ]);
