@@ -1,5 +1,6 @@
 import Svg, { Circle } from 'react-native-svg';
 
+import { firstLightLabel } from '@tonnta/data';
 import type { Spot, SwimVerdictResult, VerdictResult } from '@tonnta/types';
 import { Text, XStack, YStack } from '@tonnta/ui';
 
@@ -43,11 +44,6 @@ function firstLightPreview(
  */
 export function DarkHero({ spot, mode, sunrise, firstLightTime, surf, swim }: DarkHeroProps) {
   const preview = firstLightPreview(mode, surf, swim);
-  // The first light hour can start a few minutes before sunrise; never show a time before it.
-  const firstLightAt =
-    firstLightTime !== undefined && sunrise !== undefined && sunrise > firstLightTime
-      ? sunrise
-      : firstLightTime;
   return (
     <YStack gap="$4" padding="$10" borderRadius="$6" backgroundColor="#070F14" testID="dark-hero">
       <XStack justifyContent="space-between" alignItems="flex-start">
@@ -74,10 +70,10 @@ export function DarkHero({ spot, mode, sunrise, firstLightTime, surf, swim }: Da
           sunrise !== undefined ? ` Sunrise is at ${formatHour(sunrise, spot.timezone)}.` : ''
         }`}
       </Body>
-      {preview !== undefined && firstLightAt !== undefined ? (
+      {preview !== undefined && firstLightTime !== undefined ? (
         <YStack padding="$6" borderRadius="$4" backgroundColor="$surfaceRaised" gap="$2">
           <Text fontFamily="$body" fontSize="$3" fontWeight="700" color="$color">
-            {`First light, ${formatHour(firstLightAt, spot.timezone)}`}
+            {`First light, ${firstLightLabel(firstLightTime, sunrise, spot.timezone)}`}
           </Text>
           <Body muted>{preview}</Body>
           {mode === 'swim' ? (

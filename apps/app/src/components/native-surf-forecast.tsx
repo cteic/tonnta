@@ -1,4 +1,4 @@
-import { MAX_FORECAST_AGE_MS } from '@tonnta/data';
+import { MAX_FORECAST_AGE_MS, firstLightLabel } from '@tonnta/data';
 import type { Verdict } from '@tonnta/types';
 import { Text, XStack, YStack } from '@tonnta/ui';
 
@@ -6,7 +6,6 @@ import type { SpotOutlook } from '@/lib/conditions';
 import { formatDayName, formatHour } from '@/lib/format';
 import {
   SURF_RATING_GUIDANCE,
-  firstLightLabelTime,
   surfConditionsLine,
   surfForecastAt,
   surfHeadlineFacts,
@@ -111,7 +110,7 @@ export function NativeSurfForecast({ outlook, refreshFailed }: NativeSurfForecas
             <Eyebrow>
               {firstLight === undefined
                 ? 'First light'
-                : `First light · ${formatHour(firstLightLabelTime(firstLight.time, sunrise), spot.timezone)}`}
+                : `First light · ${firstLightLabel(firstLight.time, sunrise, spot.timezone)}`}
             </Eyebrow>
             <Body muted>
               {firstLightRating === undefined

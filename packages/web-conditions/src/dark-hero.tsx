@@ -1,6 +1,6 @@
 'use client';
 
-import { applySwimWaterQuality, formatHour } from '@tonnta/data';
+import { applySwimWaterQuality, firstLightLabel, formatHour } from '@tonnta/data';
 import type {
   HourlyConditions,
   Spot,
@@ -65,11 +65,6 @@ export function DarkHero({
     surfHour,
     swim === undefined ? undefined : applySwimWaterQuality(swim, waterQuality, waterQualityStatus)
   );
-  // The first light hour can start a few minutes before sunrise; never show a time before it.
-  const firstLightAt =
-    firstLightTime !== undefined && sunrise !== undefined && sunrise > firstLightTime
-      ? sunrise
-      : firstLightTime;
 
   return (
     <header
@@ -125,7 +120,7 @@ export function DarkHero({
             : `It is dark at ${spot.name}, so there is no verdict until it is light.`}
           {sunrise !== undefined ? ` Sunrise is at ${formatHour(sunrise, spot.timezone)}.` : ''}
         </p>
-        {preview !== undefined && firstLightAt !== undefined ? (
+        {preview !== undefined && firstLightTime !== undefined ? (
           <p
             style={{
               margin: '18px 0 0',
@@ -140,7 +135,7 @@ export function DarkHero({
             }}
           >
             <strong style={{ color: '#E8ECEB' }}>
-              First light, {formatHour(firstLightAt, spot.timezone)}:
+              First light, {firstLightLabel(firstLightTime, sunrise, spot.timezone)}:
             </strong>{' '}
             {preview}
             {mode === 'snamh'

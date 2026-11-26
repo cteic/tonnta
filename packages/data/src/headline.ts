@@ -2,6 +2,7 @@ import type { HourlyConditions, Spot, VerdictResult } from '@tonnta/types';
 
 import { currentHourOf } from './current-hour';
 import { isDaylight, isDaylightHour, sunTimes } from './daylight';
+import { formatHour } from './time-format';
 import { assessHour } from './verdict';
 
 const HOUR_MS = 60 * 60 * 1000;
@@ -51,4 +52,19 @@ export function headlineFor(hours: HourlyConditions[], spot: Spot, now: number):
       : hours.find((candidate) => Date.parse(candidate.time) === sunriseHour);
   if (light !== undefined) dark.firstLight = { hour: light, result: assessHour(light, spot) };
   return dark;
+}
+
+/**
+ * The time a first-light preview is labelled with. The first-light hour usually
+ * starts before sunrise and is partly dark, so the label gives sunrise and says
+ * the preview holds only from then: "from 08:10".
+ */
+export function firstLightLabel(
+  hourTime: string,
+  sunrise: string | undefined,
+  timezone: string
+): string {
+  return sunrise !== undefined && Date.parse(sunrise) > Date.parse(hourTime)
+    ? `from ${formatHour(sunrise, timezone)}`
+    : formatHour(hourTime, timezone);
 }

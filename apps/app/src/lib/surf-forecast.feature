@@ -16,8 +16,7 @@ Feature: Native surf forecast
 
   Scenario: The first-light label gives sunrise, not the start of the hour
     Given an after-dark forecast with data for the hour the sun rises in
-    Then the first-light label shows the sunrise time
-    And a sunrise on the hour shows the hour itself
+    Then the first-light label says the preview holds from sunrise
 
   Scenario: A missing first-light hour stays unavailable
     Given an after-dark forecast with a later hour but no first-light hour

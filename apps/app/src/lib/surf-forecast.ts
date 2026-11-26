@@ -159,16 +159,6 @@ function dailyWaves(forecast: HourlyConditions[], spot: Spot, currentStart: numb
   });
 }
 
-/**
- * The time the first-light label shows. The first-light hour usually starts
- * before sunrise, so the label gives sunrise rather than a time still dark.
- */
-export function firstLightLabelTime(firstLightTime: string, sunrise: string | undefined): string {
-  return sunrise !== undefined && Date.parse(sunrise) > Date.parse(firstLightTime)
-    ? sunrise
-    : firstLightTime;
-}
-
 export function surfForecastAt(
   forecast: HourlyConditions[],
   spot: Spot,

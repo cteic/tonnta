@@ -11,3 +11,8 @@ Feature: What the home screen leads with
     Then the headline says it is dark
     And it gives the next sunrise, about 08:05 Irish time
     And it previews the verdict for the hour the sun rises in, 08:00
+    And the preview is labelled from sunrise, because that hour starts in the dark
+
+  Scenario: A first-light hour that starts at sunrise is labelled with the hour
+    Given a first-light hour of 08:00 Irish time and sunrise on the hour
+    Then the preview is labelled 8:00

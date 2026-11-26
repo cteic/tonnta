@@ -9,7 +9,7 @@ export {
 export type { VerdictThresholds } from './verdict';
 export { currentHourOf } from './current-hour';
 export { isDaylight, isDaylightHour, sunTimes } from './daylight';
-export { headlineFor } from './headline';
+export { firstLightLabel, headlineFor } from './headline';
 export type { Headline } from './headline';
 export { formatDayName, formatHour, formatHourRange } from './time-format';
 export { THUNDERSTORM_REASON, isThunderstorm, seaTempBand } from './weather';
