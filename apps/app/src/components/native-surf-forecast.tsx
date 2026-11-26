@@ -1,13 +1,27 @@
 import { MAX_FORECAST_AGE_MS } from '@tonnta/data';
+import type { Verdict } from '@tonnta/types';
 import { Text, XStack, YStack } from '@tonnta/ui';
 
 import type { SpotOutlook } from '@/lib/conditions';
 import { formatDayName, formatHour } from '@/lib/format';
-import { surfConditionsLine, surfForecastAt, surfHeadlineFacts } from '@/lib/surf-forecast';
+import {
+  SURF_RATING_GUIDANCE,
+  surfConditionsLine,
+  surfForecastAt,
+  surfHeadlineFacts,
+  surfRating,
+} from '@/lib/surf-forecast';
 import { useDaylightClock } from '@/lib/use-daylight-clock';
 
 import { ConditionsChart } from './conditions-chart';
 import { Body, Eyebrow } from './screen';
+
+const RATING_SEA_TOKEN: Record<Verdict, string> = {
+  go: '$seaClean',
+  maybe: '$seaMarginal',
+  flat: '$seaFlat',
+  blown: '$seaBlown',
+};
 
 interface NativeSurfForecastProps {
   outlook: SpotOutlook;
@@ -23,9 +37,16 @@ export function NativeSurfForecast({ outlook, refreshFailed }: NativeSurfForecas
   }
 
   const { current, dark, sunrise, firstLight, hours, days } = forecast;
+  const rating = current === undefined || dark ? undefined : surfRating(current, spot);
+  const firstLightRating = firstLight === undefined ? undefined : surfRating(firstLight, spot);
   return (
     <>
-      <YStack gap="$4" padding="$10" borderRadius="$6" backgroundColor="$surfaceRaised">
+      <YStack
+        gap="$4"
+        padding="$10"
+        borderRadius="$6"
+        backgroundColor={rating === undefined ? '$surfaceRaised' : RATING_SEA_TOKEN[rating.verdict]}
+      >
         <Text
           accessibilityRole="header"
           testID="surf-forecast-heading"
@@ -38,6 +59,21 @@ export function NativeSurfForecast({ outlook, refreshFailed }: NativeSurfForecas
         >
           Surf forecast · now
         </Text>
+        {rating === undefined ? null : (
+          <YStack gap="$2" accessible accessibilityLabel={`${rating.headline}. ${rating.reason}`}>
+            <Text
+              testID="surf-rating"
+              fontFamily="$display"
+              fontSize="$7"
+              fontWeight="700"
+              letterSpacing={-1}
+              color="$color"
+            >
+              {rating.quality}
+            </Text>
+            <Body>{rating.reason}</Body>
+          </YStack>
+        )}
         {dark ? (
           <Body>
             {sunrise === undefined
@@ -72,12 +108,17 @@ export function NativeSurfForecast({ outlook, refreshFailed }: NativeSurfForecas
                 : `First light · ${formatHour(firstLight.time, spot.timezone)}`}
             </Eyebrow>
             <Body muted>
-              {firstLight === undefined
+              {firstLightRating === undefined
                 ? 'First-light forecast unavailable.'
-                : surfConditionsLine(firstLight)}
+                : `${firstLightRating.headline}. ${firstLightRating.reason}`}
             </Body>
           </YStack>
         ) : null}
+        {rating === undefined && firstLightRating === undefined ? null : (
+          <YStack testID="surf-rating-guidance">
+            <Body>{SURF_RATING_GUIDANCE}</Body>
+          </YStack>
+        )}
         <Body muted>
           {`Regional wave and wind estimates from Open-Meteo. Checked at ${formatHour(new Date(outlook.loadedAt).toISOString(), spot.timezone)}.`}
         </Body>

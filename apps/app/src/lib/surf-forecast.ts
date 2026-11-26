@@ -1,5 +1,12 @@
-import { isDaylight, isDaylightHour, isForecastFresh, sunTimes } from '@tonnta/data';
-import type { HourlyConditions, Spot } from '@tonnta/types';
+import {
+  THUNDERSTORM_REASON,
+  assessHour,
+  isDaylight,
+  isDaylightHour,
+  isForecastFresh,
+  sunTimes,
+} from '@tonnta/data';
+import type { HourlyConditions, Spot, Verdict } from '@tonnta/types';
 
 import { CHART_HOURS } from './conditions';
 import { WIND_STATE_LABEL, formatHour } from './format';
@@ -46,6 +53,57 @@ export function surfHeadlineFacts(hour: HourlyConditions): { label: string; valu
       value: `${Math.round(hour.windSpeedKmh)} km/h ${WIND_STATE_LABEL[hour.windState]}`,
     },
   ];
+}
+
+/** Shown beside every surf rating: the rating describes surf quality, not safety. */
+export const SURF_RATING_GUIDANCE =
+  'A guide to surf quality, not a safety check. Check conditions and lifeguard flags yourself.';
+
+/** Quality words only: the rating describes the surf, never whether it is safe to go in. */
+const SURF_QUALITY: Record<Verdict, string> = {
+  go: 'Good surf',
+  maybe: 'Marginal surf',
+  flat: 'Flat',
+  blown: 'Blown out',
+};
+
+/** Engine phrases that advise going or staying; the native rating keeps only the description. */
+const ADVICE_TAILS = [
+  ' — worth going down.',
+  ' — save it for another day.',
+  "; take the foamie if you're passing anyway.",
+  ' — nothing to ride today.',
+  ', but a lovely SUP.',
+];
+
+function describeOnly(reason: string): string {
+  for (const tail of ADVICE_TAILS) {
+    if (reason.endsWith(tail)) return `${reason.slice(0, -tail.length)}.`;
+  }
+  return reason;
+}
+
+export interface SurfRating {
+  verdict: Verdict;
+  /** "Good surf", "Marginal surf", "Flat", "Blown out" or "Thunderstorms". */
+  quality: string;
+  /** "Good surf: 0.6 m at 5 s, 12 km/h offshore" */
+  headline: string;
+  reason: string;
+}
+
+/** The surf-quality rating for one forecast hour, with the facts and reason behind it. */
+export function surfRating(hour: HourlyConditions, spot: Spot): SurfRating {
+  const result = assessHour(hour, spot);
+  const quality =
+    result.reason === THUNDERSTORM_REASON ? 'Thunderstorms' : SURF_QUALITY[result.verdict];
+  const facts = `${hour.waveHeightM.toFixed(1)} m at ${Math.round(hour.wavePeriodS)} s, ${Math.round(hour.windSpeedKmh)} km/h ${WIND_STATE_LABEL[hour.windState]}`;
+  return {
+    verdict: result.verdict,
+    quality,
+    headline: `${quality}: ${facts}`,
+    reason: describeOnly(result.reason),
+  };
 }
 
 export function surfChartHourLabel(hour: SurfChartHour, timezone: string): string {

@@ -10,6 +10,7 @@ import {
   surfConditionsLine,
   surfForecastAt,
   surfHeadlineFacts,
+  surfRating,
 } from './surf-forecast';
 
 const feature = await loadFeature('./surf-forecast.feature');
@@ -28,6 +29,12 @@ function forecastHour(time: string): HourlyConditions {
     windGustKmh: 20,
     windState: 'offshore',
   };
+}
+
+function donabate() {
+  const spot = getSpot('donabate');
+  if (spot === undefined) throw new Error('Missing Donabate fixture');
+  return spot;
 }
 
 function forecastAt(hours: HourlyConditions[], now: number, loadedAt = now) {
@@ -139,6 +146,57 @@ describeFeature(feature, ({ Scenario }) => {
         { label: 'Period', value: '5 s' },
         { label: 'Wind', value: '12 km/h offshore' },
       ]);
+    });
+  });
+  Scenario('The surf rating gives its reason', ({ Given, Then }) => {
+    let rating: ReturnType<typeof surfRating>;
+    Given('a current hour of 0.6 m at 5 s with 12 km/h offshore wind', () => {
+      rating = surfRating(forecastHour('2026-12-21T12:00:00Z'), donabate());
+    });
+    Then('the surf is rated good with its facts and no advice to go', () => {
+      expect(rating).toEqual({
+        verdict: 'go',
+        quality: 'Good surf',
+        headline: 'Good surf: 0.6 m at 5 s, 12 km/h offshore',
+        reason: '0.6m at 5s and the wind is clean.',
+      });
+    });
+  });
+
+  Scenario('A short-period sea is not rated good', ({ Given, Then }) => {
+    let rating: ReturnType<typeof surfRating>;
+    Given('a current hour of 0.6 m at 3 s with 12 km/h offshore wind', () => {
+      rating = surfRating({ ...forecastHour('2026-12-21T12:00:00Z'), wavePeriodS: 3 }, donabate());
+    });
+    Then('the surf is rated marginal because breaking surf is unconfirmed', () => {
+      expect(rating.headline).toBe('Marginal surf: 0.6 m at 3 s, 12 km/h offshore');
+      expect(rating.reason).toContain('breaking surf is unconfirmed');
+    });
+  });
+
+  Scenario('A strong onshore wind is rated blown out', ({ Given, Then }) => {
+    let rating: ReturnType<typeof surfRating>;
+    Given('a current hour of 0.8 m at 6 s with 40 km/h onshore wind', () => {
+      const spot = donabate();
+      rating = surfRating(
+        {
+          ...forecastHour('2026-12-21T12:00:00Z'),
+          waveHeightM: 0.8,
+          wavePeriodS: 6,
+          windSpeedKmh: 40,
+          windDirectionDeg: spot.facing,
+          windState: 'onshore',
+        },
+        spot
+      );
+    });
+    Then('the surf is rated blown out without advice', () => {
+      expect(rating).toEqual({
+        verdict: 'blown',
+        quality: 'Blown out',
+        headline: 'Blown out: 0.8 m at 6 s, 40 km/h onshore',
+        reason: 'Onshore 40km/h has it blown out.',
+      });
     });
   });
 });

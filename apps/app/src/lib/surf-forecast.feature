@@ -21,3 +21,15 @@ Feature: Native surf forecast
   Scenario: The headline lists the current hour's facts separately
     Given a current hour of 0.6 m at 5 s with 12 km/h offshore wind
     Then the headline facts are waves, period and wind against the beach
+
+  Scenario: The surf rating gives its reason
+    Given a current hour of 0.6 m at 5 s with 12 km/h offshore wind
+    Then the surf is rated good with its facts and no advice to go
+
+  Scenario: A short-period sea is not rated good
+    Given a current hour of 0.6 m at 3 s with 12 km/h offshore wind
+    Then the surf is rated marginal because breaking surf is unconfirmed
+
+  Scenario: A strong onshore wind is rated blown out
+    Given a current hour of 0.8 m at 6 s with 40 km/h onshore wind
+    Then the surf is rated blown out without advice
