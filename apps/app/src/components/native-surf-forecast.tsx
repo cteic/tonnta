@@ -6,6 +6,7 @@ import type { SpotOutlook } from '@/lib/conditions';
 import { formatDayName, formatHour } from '@/lib/format';
 import {
   SURF_RATING_GUIDANCE,
+  firstLightLabelTime,
   surfConditionsLine,
   surfForecastAt,
   surfHeadlineFacts,
@@ -110,7 +111,7 @@ export function NativeSurfForecast({ outlook, refreshFailed }: NativeSurfForecas
             <Eyebrow>
               {firstLight === undefined
                 ? 'First light'
-                : `First light · ${formatHour(firstLight.time, spot.timezone)}`}
+                : `First light · ${formatHour(firstLightLabelTime(firstLight.time, sunrise), spot.timezone)}`}
             </Eyebrow>
             <Body muted>
               {firstLightRating === undefined

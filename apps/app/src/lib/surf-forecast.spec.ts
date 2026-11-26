@@ -5,7 +5,9 @@ import { MAX_FORECAST_AGE_MS, getSpot } from '@tonnta/data';
 import type { HourlyConditions } from '@tonnta/types';
 
 import { buildChartGeometry } from '../chart/chart-geometry';
+import { formatHour } from './format';
 import {
+  firstLightLabelTime,
   surfChartHourLabel,
   surfConditionsLine,
   surfForecastAt,
@@ -16,7 +18,7 @@ import {
 const feature = await loadFeature('./surf-forecast.feature');
 const DAYLIGHT = Date.parse('2026-12-21T12:30:00Z');
 const DARK = Date.parse('2026-12-21T20:30:00Z');
-const FIRST_LIGHT = '2026-12-22T09:00:00.000Z';
+const FIRST_LIGHT = '2026-12-22T08:00:00.000Z';
 
 function forecastHour(time: string): HourlyConditions {
   return {
@@ -95,7 +97,7 @@ describeFeature(feature, ({ Scenario }) => {
     'After dark the first-light preview reports forecast conditions',
     ({ Given, Then, And }) => {
       let forecast: ReturnType<typeof forecastAt>;
-      Given('an after-dark forecast with data for the first full daylight hour', () => {
+      Given('an after-dark forecast with data for the hour the sun rises in', () => {
         forecast = forecastAt(
           [forecastHour('2026-12-21T20:00:00Z'), forecastHour(FIRST_LIGHT)],
           DARK
@@ -117,6 +119,33 @@ describeFeature(feature, ({ Scenario }) => {
         expect(surfChartHourLabel(forecast.hours[0], 'Europe/Dublin')).toBe(
           '20:00. Waves 0.6 metres, wind 12 kilometres per hour. Outside full daylight hours.'
         );
+      });
+    }
+  );
+
+  Scenario(
+    'The first-light label gives sunrise, not the start of the hour',
+    ({ Given, Then, And }) => {
+      let forecast: ReturnType<typeof forecastAt>;
+      Given('an after-dark forecast with data for the hour the sun rises in', () => {
+        forecast = forecastAt(
+          [forecastHour('2026-12-21T20:00:00Z'), forecastHour(FIRST_LIGHT)],
+          DARK
+        );
+      });
+      Then('the first-light label shows the sunrise time', () => {
+        if (forecast.status !== 'fresh' || forecast.firstLight === undefined)
+          throw new Error('Expected a first-light forecast');
+        const label = formatHour(
+          firstLightLabelTime(forecast.firstLight.time, forecast.sunrise),
+          'Europe/Dublin'
+        );
+        expect(label).not.toBe('08:00');
+        expect(label).toBe(formatHour(forecast.sunrise ?? '', 'Europe/Dublin'));
+      });
+      And('a sunrise on the hour shows the hour itself', () => {
+        expect(firstLightLabelTime(FIRST_LIGHT, FIRST_LIGHT)).toBe(FIRST_LIGHT);
+        expect(firstLightLabelTime(FIRST_LIGHT, undefined)).toBe(FIRST_LIGHT);
       });
     }
   );
