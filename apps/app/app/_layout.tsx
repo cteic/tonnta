@@ -6,14 +6,12 @@ import { StatusBar } from 'expo-status-bar';
 import { TamaguiProvider, colors, tamaguiConfig } from '@tonnta/ui';
 
 import { AnalyticsProvider } from '@/lib/analytics';
-import { useVerdictWidgetSync } from '@/widgets/sync';
 
 /**
  * Root layout: Tamagui provider over a headerless native stack. On web the
  * base CSS is emitted once by app/+html.tsx, so runtime injection is off.
  */
 export default function RootLayout() {
-  useVerdictWidgetSync();
   return (
     <AnalyticsProvider>
       <TamaguiProvider

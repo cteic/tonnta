@@ -1,4 +1,4 @@
-# Home screen smoke: the app launches and the verdict heading renders once
+# Home screen smoke: the app launches and the surf forecast heading renders once
 # the forecast has loaded. Run with `maestro test .maestro` from apps/app
 # against a booted iOS simulator that has the app installed.
 appId: ie.tonnta.app
@@ -6,7 +6,17 @@ appId: ie.tonnta.app
 - launchApp
 - extendedWaitUntil:
     visible:
-      id: 'verdict-heading'
+      id: 'surf-forecast-heading'
     timeout: 20000
 - assertVisible:
+    id: 'surf-forecast-heading'
+- assertNotVisible:
     id: 'verdict-heading'
+- assertNotVisible: 'Next good window'
+- assertNotVisible:
+    id: 'mode-swim'
+- assertNotVisible: 'Pro'
+- scrollUntilVisible:
+    element:
+      id: 'buoy-heading'
+    timeout: 20000

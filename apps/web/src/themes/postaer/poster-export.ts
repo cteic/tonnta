@@ -1,4 +1,4 @@
-import type { PosterInput } from './poster-scene';
+import type { PosterInks, PosterInput } from './poster-scene';
 import { posterInks, posterLayout } from './poster-scene';
 
 /**
@@ -6,10 +6,7 @@ import { posterInks, posterLayout } from './poster-scene';
  * sheet — or download it where navigator.share can't take files.
  */
 
-function inkFor(
-  key: 'shallow' | 'mid' | 'deep' | 'deepest',
-  inks: ReturnType<typeof posterInks>
-): string {
+function inkFor(key: 'shallow' | 'mid' | 'deep' | 'deepest', inks: PosterInks): string {
   if (key === 'shallow') return inks.shallow;
   if (key === 'mid') return inks.mid;
   if (key === 'deep') return inks.deep;
@@ -18,7 +15,7 @@ function inkFor(
 
 export function drawPoster(ctx: CanvasRenderingContext2D, input: PosterInput): void {
   const layout = posterLayout(input);
-  const inks = posterInks(input.verdict);
+  const inks = posterInks();
   const { width, height } = layout;
 
   ctx.fillStyle = inks.stock;
@@ -39,18 +36,6 @@ export function drawPoster(ctx: CanvasRenderingContext2D, input: PosterInput): v
     ctx.fill();
   }
 
-  // Rain hatching on blown-out days
-  if (input.verdict === 'blown') {
-    ctx.strokeStyle = 'rgba(61, 80, 73, 0.25)';
-    ctx.lineWidth = 6;
-    for (let x = -height; x < width + height; x += 54) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x + height * 0.45, height * 0.62);
-      ctx.stroke();
-    }
-  }
-
   // Headline
   ctx.fillStyle = inks.headline;
   ctx.textAlign = 'center';
@@ -66,7 +51,7 @@ export function drawPoster(ctx: CanvasRenderingContext2D, input: PosterInput): v
 
   ctx.fillStyle = inks.headline;
   ctx.font = "400 40px 'General Sans', sans-serif";
-  ctx.fillText(input.reason, width / 2, layout.reasonY);
+  ctx.fillText(input.factsLine, width / 2, layout.factsY);
 
   // Date stamp on the deepest band
   ctx.fillStyle = inks.stock;

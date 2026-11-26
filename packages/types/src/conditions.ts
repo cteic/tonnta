@@ -81,11 +81,29 @@ export type SwimVerdict = 'great' | 'ok' | 'no';
 
 export interface SwimVerdictResult {
   verdict: SwimVerdict;
-  /** One human sentence: "Calm as a pond and 15.2°C — get in." */
+  /** Unknown notices withhold a recommendation; this is not a known hazard. */
+  withheld?: 'water-quality-unknown';
+  /** Modeled physical conditions or the reason a recommendation is withheld. */
   reason: string;
   /** Within ±2h of high tide — the swimmable window at a shallow beach. */
   nearHighTide: boolean;
 }
+
+/** Retrieval knowledge, distinct from a notice's issuance or a water sample time. */
+export type WaterQualityCheck =
+  | { status: 'checked'; checkedAt: number }
+  | { status: 'unavailable'; attemptedAt: number }
+  | { status: 'unmapped' };
+
+export type WaterQualityStatus =
+  | 'restricted'
+  | 'not-reported'
+  /** Legacy notice-fetch success, not knowledge of current water quality. */
+  | 'checked'
+  | 'unavailable'
+  | 'unmapped'
+  | 'stale'
+  | 'unchecked';
 
 /** An active EPA bathing-water incident for a beach. */
 export interface WaterQualityAlert {
@@ -103,6 +121,23 @@ export interface DailySummary {
   dominantWindState: WindState;
   /** Best surfable window in spot-local time, when one exists. */
   bestWindow?: { start: string; end: string };
+}
+
+/**
+ * Plain per-day facts over the daylight hours of one spot-local day. No
+ * verdict: ranges and a prevailing wind direction the surfer reads for themselves.
+ */
+export interface DayFacts {
+  date: string; // YYYY-MM-DD in spot-local time
+  minWaveHeightM: number;
+  maxWaveHeightM: number;
+  minWavePeriodS: number;
+  maxWavePeriodS: number;
+  minWindSpeedKmh: number;
+  maxWindSpeedKmh: number;
+  maxWindGustKmh: number;
+  /** Circular mean of the hourly wind directions, degrees the wind comes FROM. */
+  windDirectionDeg: number;
 }
 
 /** One observed water level from a tide gauge. Heights are metres above OD Malin, roughly mean sea level. */
