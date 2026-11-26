@@ -208,7 +208,7 @@ importers:
     dependencies:
       '@opennextjs/cloudflare':
         specifier: ^1.20.12
-        version: 1.20.12(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(wrangler@4.151.3(@types/node@22.20.0))
+        version: 1.20.12(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(wrangler@4.151.3(@types/node@22.20.0))
       '@tonnta/data':
         specifier: workspace:*
         version: link:../../packages/data
@@ -225,8 +225,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/web-shell
       next:
-        specifier: 16.4.2
-        version: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 16.4.6
+        version: 16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react:
         specifier: 19.3.0
         version: 19.3.0
@@ -248,7 +248,7 @@ importers:
         version: 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/next-plugin':
         specifier: 2.0.0-rc.42
-        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23))
+        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
       '@tamagui/web':
         specifier: 2.0.0-rc.42
         version: 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -275,7 +275,7 @@ importers:
     dependencies:
       '@opennextjs/cloudflare':
         specifier: ^1.20.12
-        version: 1.20.12(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(wrangler@4.151.3(@types/node@22.20.0))
+        version: 1.20.12(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(wrangler@4.151.3(@types/node@22.20.0))
       '@tonnta/data':
         specifier: workspace:*
         version: link:../../packages/data
@@ -292,8 +292,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/web-shell
       next:
-        specifier: 16.4.2
-        version: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 16.4.6
+        version: 16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react:
         specifier: 19.3.0
         version: 19.3.0
@@ -318,7 +318,7 @@ importers:
         version: 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/next-plugin':
         specifier: 2.0.0-rc.42
-        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))
+        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))
       '@tamagui/web':
         specifier: 2.0.0-rc.42
         version: 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -491,8 +491,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.3(@types/react@19.2.17)
       next:
-        specifier: 16.4.2
-        version: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 16.4.6
+        version: 16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react:
         specifier: 19.3.0
         version: 19.3.0
@@ -531,8 +531,8 @@ importers:
         specifier: ^19.0.0
         version: 19.2.3(@types/react@19.2.17)
       next:
-        specifier: 16.4.2
-        version: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        specifier: 16.4.6
+        version: 16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react:
         specifier: 19.3.0
         version: 19.3.0
@@ -1936,12 +1936,6 @@ packages:
     resolution:
       {
         integrity: sha512-d1AhKqlprzjR7+/7YTYbf9lTjeIUxr2WN+gYL5jf9O25wymlVWzuwOujq9IWJOt33sGWcLjr1eswSOmqm4SRMg==,
-      }
-
-  '@emnapi/runtime@1.11.2':
-    resolution:
-      {
-        integrity: sha512-kyOl3X0DuTiT1h2ft8r2fYO8JYtU9a9Xis/zBSiGArNaagCOWx90N1k2wxp18czFDH+OgcWGb5ZP/XMt3dcyPA==,
       }
 
   '@emnapi/runtime@1.11.3':
@@ -3990,79 +3984,79 @@ packages:
       }
     engines: { node: '>= 10' }
 
-  '@next/env@16.4.2':
+  '@next/env@16.4.6':
     resolution:
       {
-        integrity: sha512-nTUTFH7G5/J/fmpkjVLegOkqyKOP0CEsJcMsyO4UCYeN1su+YMW/MfaSErnJskL7XM+UDK6aTvslxsRCyya/sA==,
+        integrity: sha512-SunBjJ6t+oBtecS3dTjdVuMhUogP5wD/vrGL5EVuQYM1iS4O5ilL51HkiJ3sPjMzRHiCChvr4dbaSJbR7F3lxA==,
       }
 
-  '@next/swc-darwin-arm64@16.4.2':
+  '@next/swc-darwin-arm64@16.4.6':
     resolution:
       {
-        integrity: sha512-ONkhFvZNFWlsEHOM/81AtxdyuJP2KRYKYR0JxPwvcu1AuPMMMgcL+wW2luldJvMtZwKtUxoSkCychW5wIeoYSw==,
+        integrity: sha512-kJ4VVZkley17xKaJx72QN2IBqjrj7zenCQZaUF0l9ShS/1Mt2kW4+Z5KGG6vgr3L/J562xTOizVyM1iA/u5nlg==,
       }
     engines: { node: '>= 10' }
     cpu: [arm64]
     os: [darwin]
 
-  '@next/swc-darwin-x64@16.4.2':
+  '@next/swc-darwin-x64@16.4.6':
     resolution:
       {
-        integrity: sha512-luPCMbOsCoaF+kXJEUjmjmOZg1lC3BflhmUu+ZmW4tBu2vW/4AXak8JBFvePizGkxVmNiAw/r9ra+6UviCWtWQ==,
+        integrity: sha512-eIPGZIqC+8JKaeZmvnCANJQF4xWkkHqSnAAajtFxgwDMAOnCgxNvP52SeWZ41PyVwoe+Le/NQuZSaQ8j7YshSA==,
       }
     engines: { node: '>= 10' }
     cpu: [x64]
     os: [darwin]
 
-  '@next/swc-linux-arm64-gnu@16.4.2':
+  '@next/swc-linux-arm64-gnu@16.4.6':
     resolution:
       {
-        integrity: sha512-xhwFTAncJyaCNy5KqKKuKaIIdCy1/1ZV1s5S1G0hhT7wGMkDTlfJ6aQbfRFnIG/s3/kDrxQ8aycVe+c5QnP8ow==,
+        integrity: sha512-9nI6O8vvczH2D9ZNdMGqb/3NuT15T9ksOZnAmx9/gjF2cOi74+xxyf1Hk96uIMfm14c9y6wHeBq6SH8g6udvcA==,
       }
     engines: { node: '>= 10' }
     cpu: [arm64]
     os: [linux]
 
-  '@next/swc-linux-arm64-musl@16.4.2':
+  '@next/swc-linux-arm64-musl@16.4.6':
     resolution:
       {
-        integrity: sha512-T1PNmfbPcxr5ndtWUL/3wQtLXsz808lq6sc2GrNT5k2oquF7UyqZddHSuAewHVsWsGXe6nsl9HoN1YNriVjuSg==,
+        integrity: sha512-7/qPhTxDp2ScluOJOhLuhWmlA17o1yZ0SIgpISBCpBxXgtnK4+KGywBpFkfLPiU1rnSM1faFGzYkH6i7JdTrqA==,
       }
     engines: { node: '>= 10' }
     cpu: [arm64]
     os: [linux]
 
-  '@next/swc-linux-x64-gnu@16.4.2':
+  '@next/swc-linux-x64-gnu@16.4.6':
     resolution:
       {
-        integrity: sha512-N9cDUOCGtkJG5PNKDFZUF3xXndrJJcpLp121uAGjIGvO/U2p9tfdNOM9htj7+5f72l0m8rMw/cvYacUJBQoudg==,
+        integrity: sha512-oOpbNa8XOW1qCGd9VvzC4fbkkRxEls7/WI6tz+YHC0xRA7KpV1U7DrAnCPjzVyOk/karzWEepCOcTIDmwK8FwQ==,
       }
     engines: { node: '>= 10' }
     cpu: [x64]
     os: [linux]
 
-  '@next/swc-linux-x64-musl@16.4.2':
+  '@next/swc-linux-x64-musl@16.4.6':
     resolution:
       {
-        integrity: sha512-yY2uh1YhX6ufuYy2FCbw1dqblbhI57GLYAJfCkqD9auTv6pLrH67Uccjc3QMKBeCYAG6lkgu08ExmX1bbjejjQ==,
+        integrity: sha512-aM8CZ+OR2EwXaAYw7KGkW2GDmNDsLBIRe1MMRZCJPTdw/xhTD0IMUVO4sf3KqrzuRouGzwwLZn34+gFeVXiUQA==,
       }
     engines: { node: '>= 10' }
     cpu: [x64]
     os: [linux]
 
-  '@next/swc-win32-arm64-msvc@16.4.2':
+  '@next/swc-win32-arm64-msvc@16.4.6':
     resolution:
       {
-        integrity: sha512-j/ArWRIHpMMB6wYLMhr2puTguBt70lNU/Cmjl9p6dTDE8DGknYJMP9PdwPk2dqpCNL/KIX9yfngDvIesxJPmsg==,
+        integrity: sha512-U0p7/tEtqvHX2crhd841CDwKtp5CFkKXVjOhmfccR3Pvp64sj8KBwRqsvltqLOwVBbj0NtkxwXSDpEHYGbxeXQ==,
       }
     engines: { node: '>= 10' }
     cpu: [arm64]
     os: [win32]
 
-  '@next/swc-win32-x64-msvc@16.4.2':
+  '@next/swc-win32-x64-msvc@16.4.6':
     resolution:
       {
-        integrity: sha512-AA4edyWHDko3NCSo0x6GomsdgFb0oR1J3MXU1b5xt6FRFg4AucrMPW3S0hCe/9onU0O1BbpGQBsqo1r0Gneu1g==,
+        integrity: sha512-3ZG15/5WIdlTQsIEvc9sPTTSL5XFrlLklIKmfF4fwsDnoAhu6NcBDXsk3mbGxNyo6aVLEGex+fHCv2MahY7a9g==,
       }
     engines: { node: '>= 10' }
     cpu: [x64]
@@ -10679,10 +10673,10 @@ packages:
         integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==,
       }
 
-  next@16.4.2:
+  next@16.4.6:
     resolution:
       {
-        integrity: sha512-r+oBJojfefUjOiWkBhXgLS+igxX/7BWyK59uHnyOyplMSLtBZ+QLP3okrdYTbrfrbrmNTVWLBPaHDX9KRaIt3w==,
+        integrity: sha512-QZJiYhaZLJMo2KpkQGQIwvmd79WVsAWeYIU554a8d7zArS3si/IRy3lBNV/rtYhE70oLwdLYhPAXLPx8HwcwtA==,
       }
     engines: { node: '>=20.9.0' }
     hasBin: true
@@ -14727,11 +14721,6 @@ snapshots:
 
   '@dotenvx/tooling@1.0.6': {}
 
-  '@emnapi/runtime@1.11.2':
-    dependencies:
-      tslib: 2.8.1
-    optional: true
-
   '@emnapi/runtime@1.11.3':
     dependencies:
       tslib: 2.8.1
@@ -15692,7 +15681,7 @@ snapshots:
 
   '@img/sharp-wasm32@0.34.5':
     dependencies:
-      '@emnapi/runtime': 1.11.2
+      '@emnapi/runtime': 1.11.3
     optional: true
 
   '@img/sharp-wasm32@0.35.5':
@@ -15848,30 +15837,30 @@ snapshots:
       '@napi-rs/nice-win32-x64-msvc': 1.1.1
     optional: true
 
-  '@next/env@16.4.2': {}
+  '@next/env@16.4.6': {}
 
-  '@next/swc-darwin-arm64@16.4.2':
+  '@next/swc-darwin-arm64@16.4.6':
     optional: true
 
-  '@next/swc-darwin-x64@16.4.2':
+  '@next/swc-darwin-x64@16.4.6':
     optional: true
 
-  '@next/swc-linux-arm64-gnu@16.4.2':
+  '@next/swc-linux-arm64-gnu@16.4.6':
     optional: true
 
-  '@next/swc-linux-arm64-musl@16.4.2':
+  '@next/swc-linux-arm64-musl@16.4.6':
     optional: true
 
-  '@next/swc-linux-x64-gnu@16.4.2':
+  '@next/swc-linux-x64-gnu@16.4.6':
     optional: true
 
-  '@next/swc-linux-x64-musl@16.4.2':
+  '@next/swc-linux-x64-musl@16.4.6':
     optional: true
 
-  '@next/swc-win32-arm64-msvc@16.4.2':
+  '@next/swc-win32-arm64-msvc@16.4.6':
     optional: true
 
-  '@next/swc-win32-x64-msvc@16.4.2':
+  '@next/swc-win32-x64-msvc@16.4.6':
     optional: true
 
   '@node-minify/core@9.0.2':
@@ -15925,7 +15914,7 @@ snapshots:
   '@noxcturnal/noxcturnal-win32-x64-msvc@0.1.13':
     optional: true
 
-  '@opennextjs/aws@4.1.11(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))':
+  '@opennextjs/aws@4.1.11(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))':
     dependencies:
       '@ast-grep/napi': 0.45.3
       '@aws-sdk/client-cloudfront': 3.984.0
@@ -15941,24 +15930,24 @@ snapshots:
       cookie: 1.1.1
       esbuild: 0.28.2
       express: 5.2.1
-      next: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      next: 16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       path-to-regexp: 6.3.0
       urlpattern-polyfill: 10.1.0
       yaml: 2.9.1
     transitivePeerDependencies:
       - supports-color
 
-  '@opennextjs/cloudflare@1.20.12(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(wrangler@4.151.3(@types/node@22.20.0))':
+  '@opennextjs/cloudflare@1.20.12(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(wrangler@4.151.3(@types/node@22.20.0))':
     dependencies:
       '@ast-grep/napi': 0.45.3
       '@dotenvx/dotenvx': 2.38.2
-      '@opennextjs/aws': 4.1.11(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
+      '@opennextjs/aws': 4.1.11(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))
       ci-info: 4.4.0
       cloudflare: 4.5.0
       comment-json: 4.6.2
       enquirer: 2.4.1
       glob: 13.0.6
-      next: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      next: 16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       ts-tqdm: 0.8.6
       wrangler: 4.151.3(@types/node@22.20.0)
       yargs: 18.2.0
@@ -16318,7 +16307,9 @@ snapshots:
       metro-runtime: 0.87.1
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@react-native/normalize-color@2.1.0': {}
 
@@ -17237,21 +17228,21 @@ snapshots:
     dependencies:
       react: 19.3.0
 
-  '@tamagui/next-plugin@2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23))':
+  '@tamagui/next-plugin@2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))':
     dependencies:
       '@babel/preset-react': 7.29.7(@babel/core@7.29.7)
       '@tamagui/proxy-worm': 2.0.0-rc.42
       '@tamagui/react-native-svg': 2.0.0-rc.42
       '@tamagui/static': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      babel-loader: 9.2.1(@babel/core@7.29.7)(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23))
+      babel-loader: 9.2.1(@babel/core@7.29.7)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
       browserslist: 4.29.0
-      css-loader: 6.11.0(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23))
-      esbuild-loader: 4.5.0(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23))
-      file-loader: 6.2.0(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23))
-      html-webpack-plugin: 5.6.7(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23))
-      next: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      tamagui-loader: 2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23))
-      url-loader: 4.1.1(file-loader@6.2.0(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)))(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23))
+      css-loader: 6.11.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      esbuild-loader: 4.5.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      file-loader: 6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      html-webpack-plugin: 5.6.7(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      next: 16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      tamagui-loader: 2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      url-loader: 4.1.1(file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)))(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
     transitivePeerDependencies:
       - '@babel/core'
       - '@rspack/core'
@@ -17261,7 +17252,7 @@ snapshots:
       - supports-color
       - webpack
 
-  '@tamagui/next-plugin@2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))':
+  '@tamagui/next-plugin@2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))':
     dependencies:
       '@babel/preset-react': 7.29.7(@babel/core@7.29.7)
       '@tamagui/proxy-worm': 2.0.0-rc.42
@@ -17273,7 +17264,7 @@ snapshots:
       esbuild-loader: 4.5.0(webpack@5.108.3(lightningcss@1.33.0))
       file-loader: 6.2.0(webpack@5.108.3(lightningcss@1.33.0))
       html-webpack-plugin: 5.6.7(webpack@5.108.3(lightningcss@1.33.0))
-      next: 16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      next: 16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       tamagui-loader: 2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))
       url-loader: 4.1.1(file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)))(webpack@5.108.3(lightningcss@1.33.0))
     transitivePeerDependencies:
@@ -18551,12 +18542,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel-loader@9.2.1(@babel/core@7.29.7)(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)):
+  babel-loader@9.2.1(@babel/core@7.29.7)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       '@babel/core': 7.29.7
       find-cache-dir: 4.0.0
       schema-utils: 4.3.3
-      webpack: 5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
 
   babel-loader@9.2.1(@babel/core@7.29.7)(webpack@5.108.3(lightningcss@1.33.0)):
     dependencies:
@@ -19065,7 +19056,7 @@ snapshots:
     dependencies:
       hyphenate-style-name: 1.1.0
 
-  css-loader@6.11.0(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)):
+  css-loader@6.11.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       icss-utils: 5.1.0(postcss@8.5.23)
       postcss: 8.5.23
@@ -19076,7 +19067,7 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.8.5
     optionalDependencies:
-      webpack: 5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
 
   css-loader@6.11.0(webpack@5.108.3(lightningcss@1.33.0)):
     dependencies:
@@ -19418,12 +19409,12 @@ snapshots:
       is-date-object: 1.1.0
       is-symbol: 1.1.1
 
-  esbuild-loader@4.5.0(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)):
+  esbuild-loader@4.5.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       esbuild: 0.28.2
       get-tsconfig: 4.14.0
       loader-utils: 2.0.4
-      webpack: 5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
       webpack-sources: 3.5.0
 
   esbuild-loader@4.5.0(webpack@5.108.3(lightningcss@1.33.0)):
@@ -20063,11 +20054,11 @@ snapshots:
     dependencies:
       flat-cache: 4.0.1
 
-  file-loader@6.2.0(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)):
+  file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 3.3.0
-      webpack: 5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
 
   file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)):
     dependencies:
@@ -20360,7 +20351,7 @@ snapshots:
       relateurl: 0.2.7
       terser: 5.48.0
 
-  html-webpack-plugin@5.6.7(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)):
+  html-webpack-plugin@5.6.7(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
@@ -20368,7 +20359,7 @@ snapshots:
       pretty-error: 4.0.0
       tapable: 2.3.3
     optionalDependencies:
-      webpack: 5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
 
   html-webpack-plugin@5.6.7(webpack@5.108.3(lightningcss@1.33.0)):
     dependencies:
@@ -21157,15 +21148,14 @@ snapshots:
 
   minimist@1.2.8: {}
 
-  minimizer-webpack-plugin@5.6.1(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)):
+  minimizer-webpack-plugin@5.6.1(lightningcss@1.33.0)(postcss@8.5.23)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       terser: 5.48.0
-      webpack: 5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
     optionalDependencies:
-      esbuild: 0.27.7
       lightningcss: 1.33.0
       postcss: 8.5.23
 
@@ -21205,9 +21195,9 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next@16.4.2(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
+  next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:
-      '@next/env': 16.4.2
+      '@next/env': 16.4.6
       '@swc/helpers': 0.5.23
       baseline-browser-mapping: 2.11.24
       caniuse-lite: 1.0.30001810
@@ -21216,14 +21206,14 @@ snapshots:
       react-dom: 19.3.0(react@19.3.0)
       styled-jsx: 5.1.6(@babel/core@7.29.7)(react@19.3.0)
     optionalDependencies:
-      '@next/swc-darwin-arm64': 16.4.2
-      '@next/swc-darwin-x64': 16.4.2
-      '@next/swc-linux-arm64-gnu': 16.4.2
-      '@next/swc-linux-arm64-musl': 16.4.2
-      '@next/swc-linux-x64-gnu': 16.4.2
-      '@next/swc-linux-x64-musl': 16.4.2
-      '@next/swc-win32-arm64-msvc': 16.4.2
-      '@next/swc-win32-x64-msvc': 16.4.2
+      '@next/swc-darwin-arm64': 16.4.6
+      '@next/swc-darwin-x64': 16.4.6
+      '@next/swc-linux-arm64-gnu': 16.4.6
+      '@next/swc-linux-arm64-musl': 16.4.6
+      '@next/swc-linux-x64-gnu': 16.4.6
+      '@next/swc-linux-x64-musl': 16.4.6
+      '@next/swc-win32-arm64-msvc': 16.4.6
+      '@next/swc-win32-x64-msvc': 16.4.6
       babel-plugin-react-compiler: 1.0.0
       sharp: 0.35.5(@types/node@22.20.0)
     transitivePeerDependencies:
@@ -22409,7 +22399,7 @@ snapshots:
       string-width: 4.2.3
       strip-ansi: 6.0.1
 
-  tamagui-loader@2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)):
+  tamagui-loader@2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       '@tamagui/cli-color': 2.0.0-rc.42
       '@tamagui/core': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -22417,7 +22407,7 @@ snapshots:
       '@tamagui/static-worker': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/types': 2.0.0-rc.42
       '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      esbuild-loader: 4.5.0(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23))
+      esbuild-loader: 4.5.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
       esm-resolve: 1.0.11
       fs-extra: 11.3.6
       loader-utils: 3.3.1
@@ -22774,14 +22764,14 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  url-loader@4.1.1(file-loader@6.2.0(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)))(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)):
+  url-loader@4.1.1(file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)))(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       loader-utils: 2.0.4
       mime-types: 2.1.35
       schema-utils: 3.3.0
-      webpack: 5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)
+      webpack: 5.108.3(lightningcss@1.33.0)(postcss@8.5.23)
     optionalDependencies:
-      file-loader: 6.2.0(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23))
+      file-loader: 6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
 
   url-loader@4.1.1(file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)))(webpack@5.108.3(lightningcss@1.33.0)):
     dependencies:
@@ -22991,44 +22981,6 @@ snapshots:
 
   webpack-sources@3.5.0: {}
 
-  webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23):
-    dependencies:
-      '@types/estree': 1.0.9
-      '@types/json-schema': 7.0.15
-      '@webassemblyjs/ast': 1.14.1
-      '@webassemblyjs/wasm-edit': 1.14.1
-      '@webassemblyjs/wasm-parser': 1.14.1
-      acorn: 8.17.0
-      acorn-import-phases: 1.0.4(acorn@8.17.0)
-      browserslist: 4.29.0
-      chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.24.1
-      es-module-lexer: 2.3.0
-      eslint-scope: 5.1.1
-      events: 3.3.0
-      graceful-fs: 4.2.11
-      loader-runner: 4.3.2
-      mime-db: 1.54.0
-      minimizer-webpack-plugin: 5.6.1(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23)(webpack@5.108.3(esbuild@0.27.7)(lightningcss@1.33.0)(postcss@8.5.23))
-      neo-async: 2.6.2
-      schema-utils: 4.3.3
-      tapable: 2.3.3
-      watchpack: 2.5.2
-      webpack-sources: 3.5.0
-    transitivePeerDependencies:
-      - '@minify-html/node'
-      - '@swc/core'
-      - '@swc/css'
-      - '@swc/html'
-      - clean-css
-      - cssnano
-      - csso
-      - esbuild
-      - html-minifier-terser
-      - lightningcss
-      - postcss
-      - uglify-js
-
   webpack@5.108.3(lightningcss@1.33.0):
     dependencies:
       '@types/estree': 1.0.9
@@ -23048,6 +23000,44 @@ snapshots:
       loader-runner: 4.3.2
       mime-db: 1.54.0
       minimizer-webpack-plugin: 5.6.1(lightningcss@1.33.0)(webpack@5.108.3(lightningcss@1.33.0))
+      neo-async: 2.6.2
+      schema-utils: 4.3.3
+      tapable: 2.3.3
+      watchpack: 2.5.2
+      webpack-sources: 3.5.0
+    transitivePeerDependencies:
+      - '@minify-html/node'
+      - '@swc/core'
+      - '@swc/css'
+      - '@swc/html'
+      - clean-css
+      - cssnano
+      - csso
+      - esbuild
+      - html-minifier-terser
+      - lightningcss
+      - postcss
+      - uglify-js
+
+  webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23):
+    dependencies:
+      '@types/estree': 1.0.9
+      '@types/json-schema': 7.0.15
+      '@webassemblyjs/ast': 1.14.1
+      '@webassemblyjs/wasm-edit': 1.14.1
+      '@webassemblyjs/wasm-parser': 1.14.1
+      acorn: 8.17.0
+      acorn-import-phases: 1.0.4(acorn@8.17.0)
+      browserslist: 4.29.0
+      chrome-trace-event: 1.0.4
+      enhanced-resolve: 5.24.1
+      es-module-lexer: 2.3.0
+      eslint-scope: 5.1.1
+      events: 3.3.0
+      graceful-fs: 4.2.11
+      loader-runner: 4.3.2
+      mime-db: 1.54.0
+      minimizer-webpack-plugin: 5.6.1(lightningcss@1.33.0)(postcss@8.5.23)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.3

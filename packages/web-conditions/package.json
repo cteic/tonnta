@@ -20,14 +20,14 @@
     "@tonnta/web-shell": "workspace:*"
   },
   "peerDependencies": {
-    "next": "16.4.2",
+    "next": "16.4.6",
     "react": "^19.0.0"
   },
   "devDependencies": {
     "@tonnta/tsconfig-config": "workspace:*",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "next": "16.4.2",
+    "next": "16.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "typescript": "^5.7.0",
