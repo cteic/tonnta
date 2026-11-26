@@ -96,6 +96,11 @@ export function NativeSurfForecast({ outlook, refreshFailed }: NativeSurfForecas
                 <Text fontFamily="$display" fontSize="$6" fontWeight="600" color="$color">
                   {fact.value}
                 </Text>
+                {fact.detail === undefined ? null : (
+                  <Text fontFamily="$body" fontSize="$4" fontWeight="600" color="$color">
+                    {fact.detail}
+                  </Text>
+                )}
               </YStack>
             ))}
           </XStack>

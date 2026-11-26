@@ -144,7 +144,7 @@ describeFeature(feature, ({ Scenario }) => {
       expect(facts).toEqual([
         { label: 'Waves', value: '0.6 m' },
         { label: 'Period', value: '5 s' },
-        { label: 'Wind', value: '12 km/h offshore' },
+        { label: 'Wind', value: '12 km/h', detail: 'offshore' },
       ]);
     });
   });
@@ -158,7 +158,7 @@ describeFeature(feature, ({ Scenario }) => {
         verdict: 'go',
         quality: 'Good surf',
         headline: 'Good surf: 0.6 m at 5 s, 12 km/h offshore',
-        reason: '0.6m at 5s and the wind is clean.',
+        reason: 'Rideable height, and the wind is clean.',
       });
     });
   });

@@ -6,7 +6,7 @@ import {
   isForecastFresh,
   sunTimes,
 } from '@tonnta/data';
-import type { HourlyConditions, Spot, Verdict } from '@tonnta/types';
+import type { HourlyConditions, Spot, Verdict, WindState } from '@tonnta/types';
 
 import { CHART_HOURS } from './conditions';
 import { WIND_STATE_LABEL, formatHour } from './format';
@@ -43,14 +43,22 @@ export function surfConditionsLine(hour: HourlyConditions): string {
   return `Waves ${hour.waveHeightM.toFixed(1)} m · Period ${Math.round(hour.wavePeriodS)} s · Wind ${Math.round(hour.windSpeedKmh)} km/h ${wind}`;
 }
 
+export interface SurfHeadlineFact {
+  label: string;
+  value: string;
+  /** A short word under the figure, such as the wind against the beach. */
+  detail?: string;
+}
+
 /** The current hour as separate facts, for the headline card. */
-export function surfHeadlineFacts(hour: HourlyConditions): { label: string; value: string }[] {
+export function surfHeadlineFacts(hour: HourlyConditions): SurfHeadlineFact[] {
   return [
     { label: 'Waves', value: `${hour.waveHeightM.toFixed(1)} m` },
     { label: 'Period', value: `${Math.round(hour.wavePeriodS)} s` },
     {
       label: 'Wind',
-      value: `${Math.round(hour.windSpeedKmh)} km/h ${WIND_STATE_LABEL[hour.windState]}`,
+      value: `${Math.round(hour.windSpeedKmh)} km/h`,
+      detail: WIND_STATE_LABEL[hour.windState],
     },
   ];
 }
@@ -69,12 +77,13 @@ const SURF_QUALITY: Record<Verdict, string> = {
 
 /** Engine phrases that advise going or staying; the native rating keeps only the description. */
 const ADVICE_TAILS = [
-  ' — worth going down.',
   ' — save it for another day.',
   "; take the foamie if you're passing anyway.",
   ' — nothing to ride today.',
   ', but a lovely SUP.',
 ];
+
+const CLEAN_WIND: ReadonlySet<WindState> = new Set(['offshore', 'cross-off', 'glassy']);
 
 function describeOnly(reason: string): string {
   for (const tail of ADVICE_TAILS) {
@@ -98,11 +107,16 @@ export function surfRating(hour: HourlyConditions, spot: Spot): SurfRating {
   const quality =
     result.reason === THUNDERSTORM_REASON ? 'Thunderstorms' : SURF_QUALITY[result.verdict];
   const facts = `${hour.waveHeightM.toFixed(1)} m at ${Math.round(hour.wavePeriodS)} s, ${Math.round(hour.windSpeedKmh)} km/h ${WIND_STATE_LABEL[hour.windState]}`;
+  // The headline already carries height and period; a good rating only needs the wind's part.
+  const reason =
+    result.verdict === 'go'
+      ? `Rideable height, and the wind is ${CLEAN_WIND.has(hour.windState) ? 'clean' : 'manageable'}.`
+      : describeOnly(result.reason);
   return {
     verdict: result.verdict,
     quality,
     headline: `${quality}: ${facts}`,
-    reason: describeOnly(result.reason),
+    reason,
   };
 }
 
