@@ -5,7 +5,12 @@ import { MAX_FORECAST_AGE_MS, getSpot } from '@tonnta/data';
 import type { HourlyConditions } from '@tonnta/types';
 
 import { buildChartGeometry } from '../chart/chart-geometry';
-import { surfChartHourLabel, surfConditionsLine, surfForecastAt } from './surf-forecast';
+import {
+  surfChartHourLabel,
+  surfConditionsLine,
+  surfForecastAt,
+  surfHeadlineFacts,
+} from './surf-forecast';
 
 const feature = await loadFeature('./surf-forecast.feature');
 const DAYLIGHT = Date.parse('2026-12-21T12:30:00Z');
@@ -121,6 +126,19 @@ describeFeature(feature, ({ Scenario }) => {
         sunrise: expect.any(String),
         firstLight: undefined,
       });
+    });
+  });
+  Scenario("The headline lists the current hour's facts separately", ({ Given, Then }) => {
+    let facts: ReturnType<typeof surfHeadlineFacts>;
+    Given('a current hour of 0.6 m at 5 s with 12 km/h offshore wind', () => {
+      facts = surfHeadlineFacts(forecastHour('2026-12-21T12:00:00Z'));
+    });
+    Then('the headline facts are waves, period and wind against the beach', () => {
+      expect(facts).toEqual([
+        { label: 'Waves', value: '0.6 m' },
+        { label: 'Period', value: '5 s' },
+        { label: 'Wind', value: '12 km/h offshore' },
+      ]);
     });
   });
 });

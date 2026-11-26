@@ -36,6 +36,18 @@ export function surfConditionsLine(hour: HourlyConditions): string {
   return `Waves ${hour.waveHeightM.toFixed(1)} m · Period ${Math.round(hour.wavePeriodS)} s · Wind ${Math.round(hour.windSpeedKmh)} km/h ${wind}`;
 }
 
+/** The current hour as separate facts, for the headline card. */
+export function surfHeadlineFacts(hour: HourlyConditions): { label: string; value: string }[] {
+  return [
+    { label: 'Waves', value: `${hour.waveHeightM.toFixed(1)} m` },
+    { label: 'Period', value: `${Math.round(hour.wavePeriodS)} s` },
+    {
+      label: 'Wind',
+      value: `${Math.round(hour.windSpeedKmh)} km/h ${WIND_STATE_LABEL[hour.windState]}`,
+    },
+  ];
+}
+
 export function surfChartHourLabel(hour: SurfChartHour, timezone: string): string {
   const forecast =
     hour.waveHeightM === undefined || hour.windSpeedKmh === undefined

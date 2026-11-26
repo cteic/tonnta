@@ -3,7 +3,7 @@ import { Text, XStack, YStack } from '@tonnta/ui';
 
 import type { SpotOutlook } from '@/lib/conditions';
 import { formatDayName, formatHour } from '@/lib/format';
-import { surfConditionsLine, surfForecastAt } from '@/lib/surf-forecast';
+import { surfConditionsLine, surfForecastAt, surfHeadlineFacts } from '@/lib/surf-forecast';
 import { useDaylightClock } from '@/lib/use-daylight-clock';
 
 import { ConditionsChart } from './conditions-chart';
@@ -29,13 +29,14 @@ export function NativeSurfForecast({ outlook, refreshFailed }: NativeSurfForecas
         <Text
           accessibilityRole="header"
           testID="surf-forecast-heading"
-          fontFamily="$display"
-          fontSize="$7"
-          lineHeight="$7"
+          fontFamily="$body"
+          fontSize="$3"
           fontWeight="600"
-          color="$color"
+          letterSpacing={1}
+          textTransform="uppercase"
+          color="$colorMuted"
         >
-          Surf forecast
+          Surf forecast · now
         </Text>
         {dark ? (
           <Body>
@@ -47,7 +48,21 @@ export function NativeSurfForecast({ outlook, refreshFailed }: NativeSurfForecas
         {current === undefined ? (
           <Body>Forecast unavailable for the current hour.</Body>
         ) : (
-          <Body>{surfConditionsLine(current)}</Body>
+          <XStack
+            gap="$5"
+            flexWrap="wrap"
+            accessible
+            accessibilityLabel={surfConditionsLine(current)}
+          >
+            {surfHeadlineFacts(current).map((fact) => (
+              <YStack key={fact.label} gap="$1" minWidth={90}>
+                <Eyebrow>{fact.label}</Eyebrow>
+                <Text fontFamily="$display" fontSize="$6" fontWeight="600" color="$color">
+                  {fact.value}
+                </Text>
+              </YStack>
+            ))}
+          </XStack>
         )}
         {dark ? (
           <YStack gap="$2">

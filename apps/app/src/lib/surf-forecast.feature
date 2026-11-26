@@ -17,3 +17,7 @@ Feature: Native surf forecast
   Scenario: A missing first-light hour stays unavailable
     Given an after-dark forecast with a later hour but no first-light hour
     Then sunrise is available and the first-light forecast is missing
+
+  Scenario: The headline lists the current hour's facts separately
+    Given a current hour of 0.6 m at 5 s with 12 km/h offshore wind
+    Then the headline facts are waves, period and wind against the beach
