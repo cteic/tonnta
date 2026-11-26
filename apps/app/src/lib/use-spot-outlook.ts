@@ -6,9 +6,9 @@ import type { SpotOutlook } from './conditions';
 import { loadSpotOutlook, retainKnownWaterQualityRestriction } from './conditions';
 
 export type OutlookState =
-  | { status: 'loading' }
+  | { status: 'loading'; previous?: SpotOutlook }
   | { status: 'ready'; outlook: SpotOutlook }
-  | { status: 'error'; message: string };
+  | { status: 'error'; message: string; previous?: SpotOutlook };
 
 /** Keep a known restriction visible while refreshing, including forecast failures. */
 export function outlookRefreshState(
@@ -27,6 +27,12 @@ export function outlookRefreshState(
             : 'Conditions could not be refreshed. Showing previously retrieved data; the bathing restriction has not been confirmed lifted. Check current local advice.',
       },
     };
+  }
+  // Keep the last good forecast on screen, marked stale, rather than blanking it.
+  if (previous !== undefined) {
+    return phase === 'loading'
+      ? { status: 'loading', previous }
+      : { status: 'error', message, previous };
   }
   return phase === 'loading' ? { status: 'loading' } : { status: 'error', message };
 }

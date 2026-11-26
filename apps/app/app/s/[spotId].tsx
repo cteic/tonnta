@@ -1,10 +1,14 @@
-import { useLocalSearchParams } from 'expo-router';
+import { Platform } from 'react-native';
+
+import { Redirect, useLocalSearchParams } from 'expo-router';
 
 import { PlaceholderScreen } from '@/components/placeholder-screen';
 import { resolveSpotRoute } from '@/lib/spot-param';
 
 export default function SpotScreen() {
   const params = useLocalSearchParams();
+  // Not part of native v1; a deep link lands on the surf facts instead.
+  if (Platform.OS !== 'web') return <Redirect href="/" />;
   const { spotId, spot } = resolveSpotRoute(params.spotId);
 
   if (spot === undefined) {

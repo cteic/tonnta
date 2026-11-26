@@ -21,6 +21,8 @@ import {
   formatHour,
   formatHourRange,
 } from '@/lib/format';
+import type { SurfChartHour } from '@/lib/surf-forecast';
+import { surfChartHourLabel } from '@/lib/surf-forecast';
 
 import { Eyebrow } from './screen';
 
@@ -36,15 +38,32 @@ const BAND_COLOUR: Record<Verdict, string> = {
 
 interface ConditionsChartProps {
   spotId: string;
-  hours: ChartHour[];
   timezone: string;
+}
+
+type ChartProps = ConditionsChartProps &
+  ({ mode: 'surf'; hours: SurfChartHour[] } | { mode?: undefined; hours: ChartHour[] });
+
+function webHourLabel(hour: ChartHour): string {
+  if (!hour.daylight) return 'Outside full daylight hours';
+  const verdict = VERDICT_LABEL[hour.verdict].english;
+  return hour.board === undefined ? verdict : `${verdict} · ${BOARD_LABEL[hour.board]}`;
+}
+
+function webChartSummary(hours: ChartHour[], timezone: string): string {
+  const goRun = longestGoRun(hours);
+  return goRun === undefined
+    ? 'No daylight GO hours in the next 24 hours.'
+    : `Daylight GO window ${formatHourRange(goRun.start, goRun.end, timezone)}.`;
 }
 
 /**
  * The next 24 hours: wave height over verdict-coloured bands, wind as a
  * second line. Drag across it to read any hour.
  */
-export function ConditionsChart({ spotId, hours, timezone }: ConditionsChartProps) {
+export function ConditionsChart(props: ChartProps) {
+  const { spotId, hours, timezone } = props;
+  const nativeSurf = props.mode === 'surf';
   const { track } = useAnalytics();
   const [width, setWidth] = useState(0);
   const [selected, setSelected] = useState(0);
@@ -61,21 +80,16 @@ export function ConditionsChart({ spotId, hours, timezone }: ConditionsChartProp
 
   if (hours.length === 0) return null;
 
-  const hour = hours[Math.min(selected, hours.length - 1)] ?? hours[0];
+  const selectedIndex = Math.min(selected, hours.length - 1);
+  const hour = hours[selectedIndex];
   if (hour === undefined) return null;
-  let verdictLabel = 'Outside full daylight hours';
-  if (hour.daylight) {
-    verdictLabel =
-      hour.board === undefined
-        ? VERDICT_LABEL[hour.verdict].english
-        : `${VERDICT_LABEL[hour.verdict].english} · ${BOARD_LABEL[hour.board]}`;
-  }
-  const marker = geometry.centres[Math.min(selected, hours.length - 1)] ?? 0;
-  const goRun = longestGoRun(hours);
-  const summary =
-    goRun === undefined
-      ? 'No daylight GO hours in the next 24 hours.'
-      : `Daylight GO window ${formatHourRange(goRun.start, goRun.end, timezone)}.`;
+  const selectedWebHour = props.mode === undefined ? props.hours[selectedIndex] : undefined;
+  const summary = props.mode === 'surf' ? undefined : webChartSummary(props.hours, timezone);
+  const missingHours = nativeSurf
+    ? hours.filter((slot) => slot.waveHeightM === undefined).length
+    : 0;
+  const marker = geometry.centres[selectedIndex] ?? 0;
+  const selectedLabel = surfChartHourLabel(hour, timezone);
 
   const select = (x: number) => setSelected(hourIndexAt(x, hours.length, box));
   const startScrub = (event: GestureResponderEvent) => {
@@ -86,34 +100,73 @@ export function ConditionsChart({ spotId, hours, timezone }: ConditionsChartProp
     select(event.nativeEvent.pageX - originX.current);
   };
   const endScrub = () => {
-    const event = chartScrubbed(spotId, hours, selected);
+    if (props.mode === 'surf') {
+      track('chart_scrubbed', { spot: spotId, hours_ahead: selectedIndex });
+      return;
+    }
+    const event = chartScrubbed(spotId, props.hours, selected);
     if (event !== undefined) track('chart_scrubbed', event);
   };
 
   return (
     <YStack gap="$4">
       <Eyebrow>Next 24 hours</Eyebrow>
-      <XStack gap="$4" alignItems="baseline" flexWrap="wrap" accessibilityLiveRegion="polite">
-        <Text fontFamily="$display" fontSize="$4" fontWeight="600" color="$color">
-          {`${formatDayName(hour.time, timezone)} ${formatHour(hour.time, timezone)}`}
+      {nativeSurf ? (
+        <Text color="$color" fontFamily="$body" accessibilityLiveRegion="polite">
+          {selectedLabel}
         </Text>
-        <Text fontFamily="$mono" fontSize="$4" color="$color">
-          {`${hour.waveHeightM.toFixed(1)}m · ${Math.round(hour.windSpeedKmh)}km/h`}
+      ) : (
+        <XStack gap="$4" alignItems="baseline" flexWrap="wrap" accessibilityLiveRegion="polite">
+          <Text fontFamily="$display" fontSize="$4" fontWeight="600" color="$color">
+            {`${formatDayName(hour.time, timezone)} ${formatHour(hour.time, timezone)}`}
+          </Text>
+          <Text fontFamily="$mono" fontSize="$4" color="$color">
+            {`${hour.waveHeightM?.toFixed(1)}m · ${Math.round(hour.windSpeedKmh ?? 0)}km/h`}
+          </Text>
+          {selectedWebHour !== undefined ? (
+            <Text
+              fontFamily="$body"
+              fontSize="$4"
+              fontWeight="600"
+              color={
+                selectedWebHour.daylight && selectedWebHour.verdict === 'go'
+                  ? '$accent'
+                  : '$colorMuted'
+              }
+            >
+              {webHourLabel(selectedWebHour)}
+            </Text>
+          ) : null}
+        </XStack>
+      )}
+      {missingHours > 0 ? (
+        <Text color="$colorMuted" fontFamily="$body">
+          {missingHours === 24
+            ? 'Hourly forecast unavailable.'
+            : `Forecast unavailable for ${missingHours} of the next 24 hours.`}
         </Text>
-        <Text
-          fontFamily="$body"
-          fontSize="$4"
-          fontWeight="600"
-          color={hour.daylight && hour.verdict === 'go' ? '$accent' : '$colorMuted'}
-        >
-          {verdictLabel}
-        </Text>
-      </XStack>
+      ) : null}
       <View
         testID="conditions-chart"
         accessible
-        accessibilityRole="image"
-        accessibilityLabel={`Wave height and wind for the next 24 hours. Waves up to ${geometry.waveMaxM} metres. ${summary}`}
+        accessibilityRole={nativeSurf ? 'adjustable' : 'image'}
+        accessibilityLabel={
+          nativeSurf
+            ? 'Wave height and wind forecast for the next 24 hours'
+            : `Wave height and wind for the next 24 hours. Waves up to ${geometry.waveMaxM} metres. ${summary}`
+        }
+        accessibilityValue={nativeSurf ? { text: selectedLabel } : undefined}
+        accessibilityActions={
+          nativeSurf ? [{ name: 'increment' }, { name: 'decrement' }] : undefined
+        }
+        onAccessibilityAction={
+          nativeSurf
+            ? ({ nativeEvent }) => {
+                const step = nativeEvent.actionName === 'increment' ? 1 : -1;
+                setSelected((index) => Math.min(Math.max(index + step, 0), hours.length - 1));
+              }
+            : undefined
+        }
         onLayout={(event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width)}
         onStartShouldSetResponder={() => true}
         onMoveShouldSetResponder={() => true}
@@ -124,17 +177,25 @@ export function ConditionsChart({ spotId, hours, timezone }: ConditionsChartProp
       >
         {width > 0 ? (
           <Svg width={width} height={HEIGHT} pointerEvents="none">
-            {geometry.bands.map((band) => (
-              <Rect
-                key={band.x}
-                x={band.x}
-                y={BOX_MARGINS.top}
-                width={Math.max(band.width - 1, 0)}
-                height={HEIGHT - BOX_MARGINS.top - BOX_MARGINS.bottom}
-                fill={band.daylight ? BAND_COLOUR[band.verdict] : colors.inkOnLight}
-                opacity={0.35}
-              />
-            ))}
+            {geometry.bands.map((band, index) => {
+              const legacyHour = props.mode === undefined ? props.hours[index] : undefined;
+              if (band.daylight && legacyHour === undefined) return null;
+              const fill =
+                band.daylight && legacyHour !== undefined
+                  ? BAND_COLOUR[legacyHour.verdict]
+                  : colors.inkOnLight;
+              return (
+                <Rect
+                  key={band.x}
+                  x={band.x}
+                  y={BOX_MARGINS.top}
+                  width={Math.max(band.width - 1, 0)}
+                  height={HEIGHT - BOX_MARGINS.top - BOX_MARGINS.bottom}
+                  fill={fill}
+                  opacity={0.35}
+                />
+              );
+            })}
             <Path d={geometry.waveArea} fill={colors.fog} opacity={0.18} />
             <Path d={geometry.waveLine} stroke={colors.fog} strokeWidth={2} fill="none" />
             <Path
@@ -167,14 +228,16 @@ export function ConditionsChart({ spotId, hours, timezone }: ConditionsChartProp
           </Svg>
         ) : null}
       </View>
-      <XStack gap="$6" flexWrap="wrap">
-        <Text fontFamily="$body" fontSize="$2" color="$colorMuted">
-          {`── waves (to ${geometry.waveMaxM}m)`}
-        </Text>
-        <Text fontFamily="$body" fontSize="$2" color="$colorMuted">
-          {`- - wind (to ${geometry.windMaxKmh}km/h)`}
-        </Text>
-      </XStack>
+      {missingHours < 24 ? (
+        <XStack gap="$6" flexWrap="wrap">
+          <Text fontFamily="$body" fontSize="$2" color="$colorMuted">
+            {`── waves (to ${geometry.waveMaxM}m)`}
+          </Text>
+          <Text fontFamily="$body" fontSize="$2" color="$colorMuted">
+            {`- - wind (to ${geometry.windMaxKmh}km/h)`}
+          </Text>
+        </XStack>
+      ) : null}
     </YStack>
   );
 }

@@ -5,8 +5,8 @@ import type { ChartHour, SpotOutlook } from './conditions';
  * build them. Kept free of the SDK so the shapes are tested on their own.
  */
 export interface AnalyticsEvents {
-  outlook_viewed: { spot: string; verdict: string; board: string | null };
-  chart_scrubbed: { spot: string; hours_ahead: number; verdict: string };
+  outlook_viewed: { spot: string; verdict?: string; board?: string | null };
+  chart_scrubbed: { spot: string; hours_ahead: number; verdict?: string };
 }
 
 export function outlookViewed(outlook: SpotOutlook): AnalyticsEvents['outlook_viewed'] {
