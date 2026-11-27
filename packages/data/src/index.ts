@@ -15,6 +15,8 @@ export { formatDayName, formatHour, formatHourRange } from './time-format';
 export { THUNDERSTORM_REASON, isThunderstorm, seaTempBand } from './weather';
 export type { SeaTemp, SeaTempBand } from './weather';
 export type { SunTimes } from './daylight';
+export { seaStateFor } from './sea-state';
+export type { SeaState, SeaStateWord } from './sea-state';
 export { findGoodWindows, nextGoodWindow, summarizeDayFacts, summarizeDays } from './summary';
 export type { GoodWindow } from './summary';
 export {
