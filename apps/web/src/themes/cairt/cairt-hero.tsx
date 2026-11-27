@@ -2,6 +2,7 @@
 
 import type { Board, BuoyObservation, HourlyConditions, Spot } from '@tonnta/types';
 import {
+  SeaStateLabel,
   boardTag,
   formatDayName,
   formatHour,
@@ -180,6 +181,27 @@ export function CairtHero({ board, hour, buoy, spot }: CairtHeroProps) {
               {facts.waveHeight}
             </span>
           </h1>
+          <SeaStateLabel
+            hour={hour}
+            wordStyle={{
+              margin: '14px 0 0',
+              fontFamily: "'Clash Display', sans-serif",
+              fontWeight: 700,
+              fontSize: 26,
+              lineHeight: 1.1,
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              color: ink.ink,
+            }}
+            ruleStyle={{
+              marginTop: 2,
+              fontFamily: MONO,
+              fontWeight: 400,
+              fontSize: 10.5,
+              letterSpacing: '0.12em',
+              color: ink.marginalia,
+            }}
+          />
           <p
             style={{
               margin: '16px 0 0',

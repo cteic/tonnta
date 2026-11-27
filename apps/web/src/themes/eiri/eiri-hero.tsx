@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
-import { seaStateFor } from '@tonnta/data';
 import type { Board, BuoyObservation, HourlyConditions, TideEvent } from '@tonnta/types';
-import { SeaBands } from '@tonnta/web-conditions';
+import { SeaBands, SeaStateLabel } from '@tonnta/web-conditions';
 import { WIND_STATE_LABEL, boardTag, formatHour, surfHourFacts } from '@tonnta/web-conditions';
 import { useAppTheme } from '@tonnta/web-shell';
 
@@ -110,7 +109,6 @@ export function EiriHero({
   const scene = useScene(latitude, longitude);
   const facts = surfHourFacts(hour);
   const tag = boardTag(board);
-  const seaState = seaStateFor(hour);
   // One sea colour whatever the forecast: the bands show the sea, not a judgement.
   const seaColour = theme.tokens.sea.maybe;
 
@@ -199,33 +197,25 @@ export function EiriHero({
             <span className="tonnta-visually-hidden">{spotName} surf conditions: waves </span>
             {facts.waveHeight}
           </h1>
-          {seaState !== undefined ? (
-            <p
-              style={{
-                margin: '6px 0 0',
-                fontFamily: "'Clash Display', sans-serif",
-                fontWeight: 600,
-                fontSize: 'clamp(24px, 7vw, 32px)',
-                lineHeight: 1.1,
-                color: scene.text,
-              }}
-            >
-              {seaState.word}
-              <span
-                style={{
-                  display: 'block',
-                  marginTop: 2,
-                  fontFamily: "'Spline Sans Mono', monospace",
-                  fontWeight: 400,
-                  fontSize: 11,
-                  letterSpacing: '0.06em',
-                  color: scene.textMuted,
-                }}
-              >
-                {seaState.rule}
-              </span>
-            </p>
-          ) : null}
+          <SeaStateLabel
+            hour={hour}
+            wordStyle={{
+              margin: '6px 0 0',
+              fontFamily: "'Clash Display', sans-serif",
+              fontWeight: 600,
+              fontSize: 'clamp(24px, 7vw, 32px)',
+              lineHeight: 1.1,
+              color: scene.text,
+            }}
+            ruleStyle={{
+              marginTop: 2,
+              fontFamily: "'Spline Sans Mono', monospace",
+              fontWeight: 400,
+              fontSize: 11,
+              letterSpacing: '0.06em',
+              color: scene.textMuted,
+            }}
+          />
           <p
             style={{
               margin: '10px auto 0',

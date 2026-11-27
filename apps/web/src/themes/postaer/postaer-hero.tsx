@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import type { Board, HourlyConditions, Spot } from '@tonnta/types';
-import { boardTag, surfHourFacts } from '@tonnta/web-conditions';
+import { SeaStateLabel, boardTag, surfHourFacts } from '@tonnta/web-conditions';
 
 import { sharePoster } from './poster-export';
 import type { PosterInput } from './poster-scene';
@@ -148,6 +148,25 @@ export function PostaerHero({ spot, board, hour }: PostaerHeroProps) {
           <span className="tonnta-visually-hidden">{spot.name} surf conditions: waves </span>
           {headline}
         </h1>
+        <SeaStateLabel
+          hour={hour}
+          wordStyle={{
+            ...CAPS,
+            margin: '10px 0 0',
+            fontSize: 'clamp(22px, 6vw, 30px)',
+            letterSpacing: '0.12em',
+            lineHeight: 1.1,
+            color: inks.headline,
+          }}
+          ruleStyle={{
+            marginTop: 4,
+            fontWeight: 400,
+            textTransform: 'none',
+            fontSize: 12,
+            letterSpacing: '0.04em',
+            color: inks.subline,
+          }}
+        />
         {boardLabel !== undefined ? (
           <p
             style={{
