@@ -19,6 +19,7 @@ const nextConfig = {
     '@tonnta/ui',
     '@tonnta/data',
     '@tonnta/types',
+    '@tonnta/swell-map',
     '@tonnta/web-conditions',
     '@tonnta/web-shell',
     'react-native',

@@ -35,6 +35,11 @@ const SOURCES: readonly SourceRow[] = [
     what: 'Hourly wave, wind and sea temperature forecasts. These are model estimates for open water near the beach, not measurements. Breaking waves at the beach are often smaller.',
     licence: 'CC BY 4.0',
   },
+  {
+    name: 'NOAA GFS-Wave',
+    what: 'The swell map: a global wave model from the US National Weather Service, with each swell split out by height, period and direction. Its grid is about 17 by 28 km, so it shows open-ocean swell, not beach surf.',
+    licence: 'US government open data',
+  },
 ];
 
 export default function AboutPage() {

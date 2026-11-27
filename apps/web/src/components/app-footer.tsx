@@ -7,10 +7,11 @@ export function AppFooter({ spotId = 'donabate' }: { spotId?: string }) {
     <ShellFooter
       links={[
         { label: 'Loga · Beach checks', href: `/log?spot=${encodeURIComponent(spotId)}` },
+        { label: 'Swell map', href: '/swell' },
         { label: 'About this information', href: '/about' },
         { label: 'Swimming conditions on Snámh', href: swimSpotUrl(spotId) },
       ]}
-      notice={`${APP_IDENTITY.name} · ${APP_IDENTITY.label}. Data: Marine Institute (CC BY 4.0), Met Éireann, Open-Meteo (CC BY 4.0). Forecasts are open-water estimates; breaking waves at the beach are often smaller. This is information, not advice. In an emergency call 112 or 999 and ask for the Coast Guard.`}
+      notice={`${APP_IDENTITY.name} · ${APP_IDENTITY.label}. Data: Marine Institute (CC BY 4.0), Met Éireann, Open-Meteo (CC BY 4.0), NOAA GFS-Wave (swell map). Forecasts are open-water estimates; breaking waves at the beach are often smaller. This is information, not advice. In an emergency call 112 or 999 and ask for the Coast Guard.`}
     />
   );
 }
