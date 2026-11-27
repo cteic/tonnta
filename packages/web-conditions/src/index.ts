@@ -16,6 +16,7 @@ export { SeaBands, SeaHero } from './sea-hero';
 export { SeaTempCard } from './sea-temp';
 export { SnamhHero } from './snamh-hero';
 export { SwimWindowsCard } from './snamh-sections';
+export { SeaStateLabel } from './sea-state-label';
 export { UNKNOWN, boardTag, dayFactsText, surfFactsLine, surfHourFacts } from './surf-facts';
 export type { DayFactsText, SurfHourFacts } from './surf-facts';
 export { useLiveConditions } from './use-live-conditions';
