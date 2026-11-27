@@ -40,6 +40,7 @@
     "@tonnta/tsconfig-config": "workspace:*",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "babel-plugin-react-compiler": "^1.0.0",
     "typescript": "^5.7.0",
     "vitest": "^3.2.6",
     "wrangler": "^4.151.3"

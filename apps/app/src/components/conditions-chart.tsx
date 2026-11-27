@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import type { GestureResponderEvent, LayoutChangeEvent } from 'react-native';
 import { View } from 'react-native';
@@ -73,10 +73,7 @@ export function ConditionsChart(props: ChartProps) {
   const originX = useRef(0);
 
   const box: ChartBox = { width, height: HEIGHT, ...BOX_MARGINS };
-  const geometry = useMemo(
-    () => buildChartGeometry(hours, { width, height: HEIGHT, ...BOX_MARGINS }),
-    [hours, width]
-  );
+  const geometry = buildChartGeometry(hours, { width, height: HEIGHT, ...BOX_MARGINS });
 
   if (hours.length === 0) return null;
 

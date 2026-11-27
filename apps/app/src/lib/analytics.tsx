@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo } from 'react';
+import { type ReactNode, useEffect } from 'react';
 
 import { usePathname } from 'expo-router';
 
@@ -28,17 +28,11 @@ const DEBUG = process.env.EXPO_PUBLIC_POSTHOG_DEBUG === '1';
 /** Stable across renders, so `track` is safe in effect dependency lists. */
 export function useAnalytics() {
   const posthog = usePostHog();
-  return useMemo(
-    () => ({
-      track<Name extends keyof AnalyticsEvents>(
-        name: Name,
-        properties: AnalyticsEvents[Name]
-      ): void {
-        posthog.capture(name, properties);
-      },
-    }),
-    [posthog]
-  );
+  return {
+    track<Name extends keyof AnalyticsEvents>(name: Name, properties: AnalyticsEvents[Name]): void {
+      posthog.capture(name, properties);
+    },
+  };
 }
 
 function ScreenTracker() {
