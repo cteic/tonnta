@@ -21,6 +21,7 @@
   "dependencies": {
     "@opennextjs/cloudflare": "^1.20.12",
     "@tonnta/data": "workspace:*",
+    "@tonnta/swell-map": "workspace:*",
     "@tonnta/types": "workspace:*",
     "@tonnta/ui": "workspace:*",
     "@tonnta/web-conditions": "workspace:*",

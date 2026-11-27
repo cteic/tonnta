@@ -29,3 +29,9 @@ ALLOWED_ORIGINS = "https://www.tonnta.surf,https://tonnta-web-staging.pete-9c4.w
 
 # Secrets (set via `wrangler secret put <NAME>`):
 #   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT (mailto:)
+
+# Swell map data images, written by .github/workflows/swell-map.yml.
+# Create before the first deploy: `wrangler r2 bucket create tonnta-swell-map`
+[[r2_buckets]]
+binding = "SWELL_MAP"
+bucket_name = "tonnta-swell-map"

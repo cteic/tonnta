@@ -251,7 +251,7 @@ importers:
         version: 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/next-plugin':
         specifier: 2.0.0-rc.42
-        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))
       '@tamagui/web':
         specifier: 2.0.0-rc.42
         version: 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -282,6 +282,9 @@ importers:
       '@tonnta/data':
         specifier: workspace:*
         version: link:../../packages/data
+      '@tonnta/swell-map':
+        specifier: workspace:*
+        version: link:../../packages/swell-map
       '@tonnta/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -321,7 +324,7 @@ importers:
         version: 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/next-plugin':
         specifier: 2.0.0-rc.42
-        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))
+        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
       '@tamagui/web':
         specifier: 2.0.0-rc.42
         version: 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -349,6 +352,9 @@ importers:
       '@tonnta/data':
         specifier: workspace:*
         version: link:../../packages/data
+      '@tonnta/swell-map':
+        specifier: workspace:*
+        version: link:../../packages/swell-map
       '@tonnta/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -423,6 +429,18 @@ importers:
       prettier:
         specifier: ^3.5.1
         version: 3.9.4
+
+  packages/swell-map:
+    devDependencies:
+      '@tonnta/tsconfig-config':
+        specifier: workspace:*
+        version: link:../tsconfig-config
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.6
+        version: 3.2.6(@types/node@22.20.0)(jiti@2.6.1)(lightningcss@1.33.0)(terser@5.48.0)(yaml@2.9.1)
 
   packages/tsconfig-config: {}
 
