@@ -3,7 +3,7 @@
     "name": "Tonnta",
     "slug": "tonnta",
     "owner": "cteic",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "runtimeVersion": {
       "policy": "fingerprint"
     },
@@ -16,7 +16,6 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "ie.tonnta.app",
-      "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -26,8 +25,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0B161E"
       },
-      "package": "ie.tonnta.app",
-      "versionCode": 1
+      "package": "ie.tonnta.app"
     },
     "web": {
       "bundler": "metro",
