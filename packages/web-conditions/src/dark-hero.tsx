@@ -18,7 +18,7 @@ const SWIM_LABEL: Record<string, string> = {
   no: 'NOT TODAY',
 };
 
-interface DarkHeroProps {
+export interface DarkHeroProps {
   spot: Spot;
   mode: 'surf' | 'snamh';
   sunrise?: string | undefined;
@@ -44,11 +44,11 @@ function firstLightPreview(
 }
 
 /**
- * After dark there is no verdict: nobody should be in the water. The hero
- * gives the next sunrise and what first light looks like instead. One hero
- * for every theme, so the safety message reads the same in all of them.
+ * The words of the night screen: dark now, the next sunrise and the first
+ * light preview. Every theme shows these exact words after dark, so the
+ * safety message reads the same in all of them, whatever art sits behind.
  */
-export function DarkHero({
+export function DarkHeroCopy({
   spot,
   mode,
   sunrise,
@@ -66,6 +66,74 @@ export function DarkHero({
     swim === undefined ? undefined : applySwimWaterQuality(swim, waterQuality, waterQualityStatus)
   );
 
+  return (
+    <div data-testid="dark-hero-copy">
+      <p
+        style={{
+          margin: 0,
+          fontFamily: "'General Sans', sans-serif",
+          fontSize: 13,
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: '0.14em',
+          color: tokens.textSoft,
+        }}
+      >
+        Dorcha · Dark
+      </p>
+      <h1
+        style={{
+          margin: '2px 0 10px',
+          fontFamily: "'Clash Display', sans-serif",
+          fontWeight: 700,
+          fontSize: 'clamp(44px, 11vw, 80px)',
+          lineHeight: 0.98,
+          letterSpacing: '-0.02em',
+          color: '#E8ECEB',
+        }}
+      >
+        <span className="tonnta-visually-hidden">{spot.name}: </span>
+        {mode === 'surf' ? 'Dark now' : 'Out of the water'}
+      </h1>
+      <p style={{ margin: 0, maxWidth: 440, fontSize: 16, lineHeight: 1.5, color: '#9FB0B3' }}>
+        {mode === 'surf'
+          ? `It is dark at ${spot.name}.`
+          : `It is dark at ${spot.name}, so there is no verdict until it is light.`}
+        {sunrise !== undefined ? ` Sunrise is at ${formatHour(sunrise, spot.timezone)}.` : ''}
+      </p>
+      {preview !== undefined && firstLightTime !== undefined ? (
+        <p
+          style={{
+            margin: '18px 0 0',
+            maxWidth: 440,
+            padding: '12px 16px',
+            borderRadius: 12,
+            border: '1px solid #22404C',
+            background: 'rgba(18,38,48,0.6)',
+            fontSize: 14,
+            lineHeight: 1.5,
+            color: '#C9D4D2',
+          }}
+        >
+          <strong style={{ color: '#E8ECEB' }}>
+            First light, {firstLightLabel(firstLightTime, sunrise, spot.timezone)}:
+          </strong>{' '}
+          {preview}
+          {mode === 'snamh'
+            ? ' This is a weather forecast, not a prediction of water quality. Check local notices before that visit.'
+            : ''}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * After dark there is no verdict: nobody should be in the water. The hero
+ * gives the next sunrise and what first light looks like instead. One hero
+ * for every theme, so the safety message reads the same in all of them.
+ */
+export function DarkHero(props: DarkHeroProps) {
   return (
     <header
       data-testid="dark-hero"
@@ -87,62 +155,7 @@ export function DarkHero({
         <circle cx="78" cy="46" r="28" fill="#0B161E" />
       </svg>
       <div style={{ position: 'relative', maxWidth: 720, margin: '0 auto', padding: '0 24px' }}>
-        <p
-          style={{
-            margin: 0,
-            fontFamily: "'General Sans', sans-serif",
-            fontSize: 13,
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.14em',
-            color: tokens.textSoft,
-          }}
-        >
-          Dorcha · Dark
-        </p>
-        <h1
-          style={{
-            margin: '2px 0 10px',
-            fontFamily: "'Clash Display', sans-serif",
-            fontWeight: 700,
-            fontSize: 'clamp(44px, 11vw, 80px)',
-            lineHeight: 0.98,
-            letterSpacing: '-0.02em',
-            color: '#E8ECEB',
-          }}
-        >
-          <span className="tonnta-visually-hidden">{spot.name}: </span>
-          {mode === 'surf' ? 'Dark now' : 'Out of the water'}
-        </h1>
-        <p style={{ margin: 0, maxWidth: 440, fontSize: 16, lineHeight: 1.5, color: '#9FB0B3' }}>
-          {mode === 'surf'
-            ? `It is dark at ${spot.name}.`
-            : `It is dark at ${spot.name}, so there is no verdict until it is light.`}
-          {sunrise !== undefined ? ` Sunrise is at ${formatHour(sunrise, spot.timezone)}.` : ''}
-        </p>
-        {preview !== undefined && firstLightTime !== undefined ? (
-          <p
-            style={{
-              margin: '18px 0 0',
-              maxWidth: 440,
-              padding: '12px 16px',
-              borderRadius: 12,
-              border: '1px solid #22404C',
-              background: 'rgba(18,38,48,0.6)',
-              fontSize: 14,
-              lineHeight: 1.5,
-              color: '#C9D4D2',
-            }}
-          >
-            <strong style={{ color: '#E8ECEB' }}>
-              First light, {firstLightLabel(firstLightTime, sunrise, spot.timezone)}:
-            </strong>{' '}
-            {preview}
-            {mode === 'snamh'
-              ? ' This is a weather forecast, not a prediction of water quality. Check local notices before that visit.'
-              : ''}
-          </p>
-        ) : null}
+        <DarkHeroCopy {...props} />
       </div>
     </header>
   );

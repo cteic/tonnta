@@ -140,9 +140,21 @@ export function solarScene(date: Date, latitude: number, longitude: number): Sol
   return { phase, altitudeDeg, rising, discAltitude01, ...base };
 }
 
-export function skyGradient(scene: SolarScene): string {
+/**
+ * The sky alone, top to horizon: the scene's stops spread over a block that
+ * ends at the horizon. The water below is the scene's flat colour.
+ */
+export function skyAboveHorizon(scene: SolarScene): string {
   const stops = scene.skyStops;
-  const step = 68 / Math.max(1, stops.length - 1);
+  const step = 100 / Math.max(1, stops.length - 1);
   const css = stops.map((stop, index) => `${stop} ${Math.round(index * step)}%`);
-  return `linear-gradient(180deg, ${css.join(', ')}, ${scene.water} 69%, ${scene.water} 100%)`;
+  return `linear-gradient(180deg, ${css.join(', ')})`;
+}
+
+/**
+ * How far the disc's lower edge sits above the horizon, in pixels. A sun on
+ * the horizon sits 6px up; the highest sun sits 156px up.
+ */
+export function discLiftPx(scene: SolarScene): number {
+  return Math.round(6 + Math.min(150, scene.discAltitude01 * 260));
 }

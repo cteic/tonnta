@@ -1,5 +1,6 @@
 export type { SpotConditions } from './conditions';
-export { DarkHero } from './dark-hero';
+export { DarkHero, DarkHeroCopy } from './dark-hero';
+export type { DarkHeroProps } from './dark-hero';
 export { BuoyCard, DayStrip, SunCard, TideCard, Warnings } from './forecast-sections';
 export {
   BOARD_LABEL,

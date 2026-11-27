@@ -2,7 +2,7 @@ import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
 import type { SolarScene } from './solar';
-import { skyGradient, solarScene } from './solar';
+import { discLiftPx, skyAboveHorizon, solarScene } from './solar';
 
 const feature = await loadFeature('./solar.feature');
 
@@ -99,7 +99,7 @@ describeFeature(feature, ({ Scenario }) => {
     });
   }
 
-  Scenario('The sky gradient always ends in water', ({ Given, When, Then }) => {
+  Scenario('The sky ends at the horizon on its last stop', ({ Given, When, Then }) => {
     let scene: SolarScene | undefined;
 
     Given('the clock reads 2026-06-21T12:00:00Z at Donabate', () => {
@@ -108,9 +108,62 @@ describeFeature(feature, ({ Scenario }) => {
     When('I compute the solar scene', () => {
       scene = solarScene(new Date('2026-06-21T12:00:00Z'), DONABATE.latitude, DONABATE.longitude);
     });
-    Then('the gradient ends with the water colour', () => {
+    Then('the sky gradient ends with the last sky stop at 100%', () => {
       if (scene === undefined) throw new Error('scene not computed');
-      expect(skyGradient(scene).endsWith(`${scene.water} 100%)`)).toBe(true);
+      expect(skyAboveHorizon(scene).endsWith(`${scene.skyStops.at(-1) ?? ''} 100%)`)).toBe(true);
+      expect(skyAboveHorizon(scene)).not.toContain(scene.water);
+    });
+  });
+
+  Scenario('A rising sun sits just above the horizon', ({ Given, When, Then, And }) => {
+    let scene: SolarScene | undefined;
+
+    Given('the clock reads 2026-11-27T08:20:00Z at Donabate', () => {
+      // fixed instant
+    });
+    When('I compute the solar scene', () => {
+      scene = solarScene(new Date('2026-11-27T08:20:00Z'), DONABATE.latitude, DONABATE.longitude);
+    });
+    Then('the phase is sunrise', () => {
+      expect(scene?.phase).toBe('sunrise');
+    });
+    And('the disc sits between 6px and 30px above the horizon', () => {
+      if (scene === undefined) throw new Error('scene not computed');
+      expect(discLiftPx(scene)).toBeGreaterThanOrEqual(6);
+      expect(discLiftPx(scene)).toBeLessThanOrEqual(30);
+    });
+  });
+
+  Scenario('A moon at night sits on the horizon', ({ Given, When, Then, And }) => {
+    let scene: SolarScene | undefined;
+
+    Given('the clock reads 2026-11-27T02:00:00Z at Donabate', () => {
+      // fixed instant
+    });
+    When('I compute the solar scene', () => {
+      scene = solarScene(new Date('2026-11-27T02:00:00Z'), DONABATE.latitude, DONABATE.longitude);
+    });
+    Then('the disc is a moon', () => {
+      expect(scene?.disc).toBe('moon');
+    });
+    And('the disc sits 6px above the horizon', () => {
+      if (scene === undefined) throw new Error('scene not computed');
+      expect(discLiftPx(scene)).toBe(6);
+    });
+  });
+
+  Scenario('The highest sun lifts no more than 156px', ({ Given, When, Then }) => {
+    let scene: SolarScene | undefined;
+
+    Given('the clock reads 2026-06-21T12:00:00Z at Donabate', () => {
+      // fixed instant
+    });
+    When('I compute the solar scene', () => {
+      scene = solarScene(new Date('2026-06-21T12:00:00Z'), DONABATE.latitude, DONABATE.longitude);
+    });
+    Then('the disc sits 156px above the horizon', () => {
+      if (scene === undefined) throw new Error('scene not computed');
+      expect(discLiftPx(scene)).toBe(156);
     });
   });
 });
