@@ -1,0 +1,9 @@
+{
+  "extends": "@tonnta/tsconfig-config/tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": false,
+    "declarationMap": false
+  },
+  "include": ["src", "vitest.config.ts"]
+}

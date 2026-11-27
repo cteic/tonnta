@@ -1,0 +1,21 @@
+{
+  "name": "@tonnta/swell-map",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "description": "Swell map data images: the manifest contract, the decoder and the poster-ink colouring",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "test:unit": "vitest run"
+  },
+  "devDependencies": {
+    "@tonnta/tsconfig-config": "workspace:*",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.6"
+  }
+}
