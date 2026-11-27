@@ -118,7 +118,7 @@ export function EiriHero({
         position: 'relative',
         overflow: 'hidden',
         background: skyGradient(scene),
-        paddingBottom: 'clamp(96px, 24vw, 190px)',
+        paddingBottom: 'clamp(96px, 34vw, 190px)',
       }}
     >
       {/* horizon line + glow */}
@@ -177,7 +177,7 @@ export function EiriHero({
               fontWeight: 600,
               letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: scene.textMuted,
+              color: '#FFE0AA',
             }}
           >
             Tonnta · Waves now
@@ -191,6 +191,7 @@ export function EiriHero({
               lineHeight: 1,
               letterSpacing: '-0.015em',
               color: scene.text,
+              textShadow: `0 0 60px rgba(232, 163, 61, ${(0.2 + scene.glow * 0.25).toFixed(2)})`,
             }}
           >
             <span className="tonnta-visually-hidden">{spotName} surf conditions: waves </span>
@@ -215,16 +216,12 @@ export function EiriHero({
                 style={{
                   fontStyle: 'normal',
                   marginLeft: 6,
-                  background:
-                    scene.phase === 'day' ? 'rgba(240, 246, 244, 0.5)' : 'rgba(10, 28, 33, 0.42)',
-                  border: `1px solid ${
-                    scene.phase === 'day' ? 'rgba(15, 34, 41, 0.2)' : 'rgba(214, 228, 224, 0.16)'
-                  }`,
-                  color: scene.text,
+                  background: theme.tokens.accent,
+                  color: theme.tokens.accentContrast,
                   fontFamily: "'Clash Display', sans-serif",
                   fontWeight: 600,
                   fontSize: 14,
-                  padding: '6px 16px',
+                  padding: '8px 18px',
                   borderRadius: 999,
                 }}
               >
@@ -234,7 +231,7 @@ export function EiriHero({
           ) : null}
         </div>
 
-        <div style={{ marginTop: 'clamp(28px, 8vw, 118px)' }}>
+        <div style={{ marginTop: 'clamp(28px, 20vw, 118px)' }}>
           {hour !== undefined ? (
             <p
               style={{
