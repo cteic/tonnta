@@ -13,6 +13,7 @@ import {
 import { allowedOrigins, withCors } from './cors';
 import { handleLive } from './live';
 import { handleConfirm, handleFounderCount, handleRestore } from './pro';
+import { handleSwellMap, isSwellMapPath } from './swell-map';
 import { handleVerdict } from './verdict';
 
 export interface Env {
@@ -27,6 +28,8 @@ export interface Env {
   /** Optional until email restore goes live — dev falls back to console. */
   RESEND_API_KEY?: string;
   EMAIL_FROM?: string;
+  /** Swell map data images, written by the scheduled encoder job. */
+  SWELL_MAP?: R2Bucket;
 }
 
 interface SubscriptionRow {
@@ -212,6 +215,9 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
   }
   if (url.pathname === '/live' && request.method === 'GET') {
     return handleLive(url, env.CACHE, (promise) => ctx.waitUntil(promise));
+  }
+  if (isSwellMapPath(url.pathname) && request.method === 'GET') {
+    return handleSwellMap(url.pathname, env.SWELL_MAP);
   }
   const respond = (body: unknown, status: number): Response => json(body, status, env);
   if (url.pathname === '/pro/founder-count' && request.method === 'GET') {
