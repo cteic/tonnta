@@ -31,6 +31,7 @@ const nextConfig = {
     '@tamagui/themes',
   ],
   typedRoutes: true,
+  reactCompiler: true,
   // Swimming moved to its own site. Keep in step with SWIM_ORIGIN in src/lib/spot-links.ts.
   async redirects() {
     return [
