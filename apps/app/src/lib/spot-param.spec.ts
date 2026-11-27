@@ -41,14 +41,14 @@ describeFeature(feature, ({ Scenario }) => {
     let param: unknown;
     let route: SpotRoute | undefined;
 
-    Given('a route param of lahinch', () => {
-      param = 'lahinch';
+    Given('a route param of not-a-beach', () => {
+      param = 'not-a-beach';
     });
     When('I resolve the spot route', () => {
       route = resolveSpotRoute(param);
     });
-    Then('the spot id is lahinch', () => {
-      expect(route?.spotId).toBe('lahinch');
+    Then('the spot id is not-a-beach', () => {
+      expect(route?.spotId).toBe('not-a-beach');
     });
     And('no spot is found', () => {
       expect(route?.spot).toBeUndefined();
@@ -59,8 +59,8 @@ describeFeature(feature, ({ Scenario }) => {
     let param: unknown;
     let route: SpotRoute | undefined;
 
-    Given('a repeated route param of donabate and lahinch', () => {
-      param = ['donabate', 'lahinch'];
+    Given('a repeated route param of donabate and not-a-beach', () => {
+      param = ['donabate', 'not-a-beach'];
     });
     When('I resolve the spot route', () => {
       route = resolveSpotRoute(param);

@@ -11,13 +11,13 @@ Feature: Spot route param
     Then the spot is Donabate
 
   Scenario: An unknown spot id keeps the id but finds no spot
-    Given a route param of lahinch
+    Given a route param of not-a-beach
     When I resolve the spot route
-    Then the spot id is lahinch
+    Then the spot id is not-a-beach
     And no spot is found
 
   Scenario: A repeated param takes its first value
-    Given a repeated route param of donabate and lahinch
+    Given a repeated route param of donabate and not-a-beach
     When I resolve the spot route
     Then the spot is Donabate
 
