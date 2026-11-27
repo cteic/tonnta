@@ -3,6 +3,7 @@
 import type { Board, HourlyConditions } from '@tonnta/types';
 import { useAppTheme } from '@tonnta/web-shell';
 
+import { SeaStateLabel } from './sea-state-label';
 import { boardTag, surfFactsLine, surfHourFacts } from './surf-facts';
 
 /**
@@ -186,6 +187,25 @@ export function SeaHero({ hour, board, spotName }: SeaHeroProps) {
             <span className="tonnta-visually-hidden">{spotName} surf conditions: waves </span>
             {facts.waveHeight}
           </h1>
+          <SeaStateLabel
+            hour={hour}
+            wordStyle={{
+              margin: '0 0 10px',
+              fontFamily: "'Clash Display', sans-serif",
+              fontWeight: 600,
+              fontSize: 'clamp(24px, 6vw, 32px)',
+              lineHeight: 1.1,
+              color: tokens.text,
+            }}
+            ruleStyle={{
+              marginTop: 2,
+              fontFamily: "'Spline Sans Mono', monospace",
+              fontWeight: 400,
+              fontSize: 12,
+              letterSpacing: '0.04em',
+              color: tokens.textMuted,
+            }}
+          />
           <p
             style={{
               margin: 0,
