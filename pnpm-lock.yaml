@@ -30,15 +30,9 @@ overrides:
   vite@7: ^7.3.7
 
 patchedDependencies:
-  '@tamagui/next-plugin@2.0.0-rc.42':
-    hash: uesrtzhubcwypldktc5vw4raae
-    path: patches/@tamagui__next-plugin@2.0.0-rc.42.patch
-  '@tamagui/web@2.0.0-rc.42':
-    hash: n6rvaiqvw3btqycnvsftz6s3pm
-    path: patches/@tamagui__web@2.0.0-rc.42.patch
-  tamagui-loader@2.0.0-rc.42:
-    hash: v5d4vs33vzeue6skc7useybxpq
-    path: patches/tamagui-loader@2.0.0-rc.42.patch
+  '@tamagui/next-plugin@2.0.0-rc.42': 09ca9268e432e2022bbdb5370e44d0cd246be89170dbbacc45e10f0126f65ccc
+  '@tamagui/web@2.0.0-rc.42': 17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb
+  tamagui-loader@2.0.0-rc.42: ec4898e76cbde611d608c2023cf51c3dbd3b7558e94ae4c881edd121f4a0f7fc
 
 importers:
   .:
@@ -132,7 +126,7 @@ importers:
         version: 58.0.5(expo@58.1.0)(react@19.3.0)
       expo-router:
         specifier: ~58.0.33
-        version: 58.0.33(crqesk7vaiy4ya5uqfn4kr775a)
+        version: 58.0.33(e8f3bd60cee654a9e4fe0b80844af15c)
       expo-splash-screen:
         specifier: ~58.0.15
         version: 58.0.15(expo@58.1.0)(typescript@5.9.3)
@@ -251,10 +245,10 @@ importers:
         version: 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/next-plugin':
         specifier: 2.0.0-rc.42
-        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+        version: 2.0.0-rc.42(patch_hash=09ca9268e432e2022bbdb5370e44d0cd246be89170dbbacc45e10f0126f65ccc)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
       '@tamagui/web':
         specifier: 2.0.0-rc.42
-        version: 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tonnta/tsconfig-config':
         specifier: workspace:*
         version: link:../../packages/tsconfig-config
@@ -321,10 +315,10 @@ importers:
         version: 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/next-plugin':
         specifier: 2.0.0-rc.42
-        version: 2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))
+        version: 2.0.0-rc.42(patch_hash=09ca9268e432e2022bbdb5370e44d0cd246be89170dbbacc45e10f0126f65ccc)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))
       '@tamagui/web':
         specifier: 2.0.0-rc.42
-        version: 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tonnta/tsconfig-config':
         specifier: workspace:*
         version: link:../../packages/tsconfig-config
@@ -595,6 +589,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@ast-grep/napi-linux-arm64-musl@0.45.3':
     resolution:
@@ -604,6 +599,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@ast-grep/napi-linux-x64-gnu@0.45.3':
     resolution:
@@ -613,6 +609,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@ast-grep/napi-linux-x64-musl@0.45.3':
     resolution:
@@ -622,6 +619,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@ast-grep/napi-win32-arm64-msvc@0.45.3':
     resolution:
@@ -3107,6 +3105,7 @@ packages:
       }
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@expo/modules-macros-linux-x64@0.33.0':
     resolution:
@@ -3115,6 +3114,7 @@ packages:
       }
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@expo/modules-macros-win32-arm64@0.33.0':
     resolution:
@@ -3420,6 +3420,7 @@ packages:
       }
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-arm64@1.3.4':
     resolution:
@@ -3428,6 +3429,7 @@ packages:
       }
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-arm@1.2.4':
     resolution:
@@ -3436,6 +3438,7 @@ packages:
       }
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-arm@1.3.4':
     resolution:
@@ -3444,6 +3447,7 @@ packages:
       }
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-ppc64@1.2.4':
     resolution:
@@ -3452,6 +3456,7 @@ packages:
       }
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-ppc64@1.3.4':
     resolution:
@@ -3460,6 +3465,7 @@ packages:
       }
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-riscv64@1.2.4':
     resolution:
@@ -3468,6 +3474,7 @@ packages:
       }
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-riscv64@1.3.4':
     resolution:
@@ -3476,6 +3483,7 @@ packages:
       }
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-s390x@1.2.4':
     resolution:
@@ -3484,6 +3492,7 @@ packages:
       }
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-s390x@1.3.4':
     resolution:
@@ -3492,6 +3501,7 @@ packages:
       }
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-x64@1.2.4':
     resolution:
@@ -3500,6 +3510,7 @@ packages:
       }
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linux-x64@1.3.4':
     resolution:
@@ -3508,6 +3519,7 @@ packages:
       }
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-libvips-linuxmusl-arm64@1.2.4':
     resolution:
@@ -3516,6 +3528,7 @@ packages:
       }
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-libvips-linuxmusl-arm64@1.3.4':
     resolution:
@@ -3524,6 +3537,7 @@ packages:
       }
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-libvips-linuxmusl-x64@1.2.4':
     resolution:
@@ -3532,6 +3546,7 @@ packages:
       }
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-libvips-linuxmusl-x64@1.3.4':
     resolution:
@@ -3540,6 +3555,7 @@ packages:
       }
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-linux-arm64@0.34.5':
     resolution:
@@ -3549,6 +3565,7 @@ packages:
     engines: { node: ^18.17.0 || ^20.3.0 || >=21.0.0 }
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-arm64@0.35.5':
     resolution:
@@ -3558,6 +3575,7 @@ packages:
     engines: { node: '>=20.9.0' }
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-arm@0.34.5':
     resolution:
@@ -3567,6 +3585,7 @@ packages:
     engines: { node: ^18.17.0 || ^20.3.0 || >=21.0.0 }
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-arm@0.35.5':
     resolution:
@@ -3576,6 +3595,7 @@ packages:
     engines: { node: '>=20.9.0' }
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-ppc64@0.34.5':
     resolution:
@@ -3585,6 +3605,7 @@ packages:
     engines: { node: ^18.17.0 || ^20.3.0 || >=21.0.0 }
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-ppc64@0.35.5':
     resolution:
@@ -3594,6 +3615,7 @@ packages:
     engines: { node: '>=20.9.0' }
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-riscv64@0.34.5':
     resolution:
@@ -3603,6 +3625,7 @@ packages:
     engines: { node: ^18.17.0 || ^20.3.0 || >=21.0.0 }
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-riscv64@0.35.5':
     resolution:
@@ -3612,6 +3635,7 @@ packages:
     engines: { node: '>=20.9.0' }
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-s390x@0.34.5':
     resolution:
@@ -3621,6 +3645,7 @@ packages:
     engines: { node: ^18.17.0 || ^20.3.0 || >=21.0.0 }
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-s390x@0.35.5':
     resolution:
@@ -3630,6 +3655,7 @@ packages:
     engines: { node: '>=20.9.0' }
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-x64@0.34.5':
     resolution:
@@ -3639,6 +3665,7 @@ packages:
     engines: { node: ^18.17.0 || ^20.3.0 || >=21.0.0 }
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linux-x64@0.35.5':
     resolution:
@@ -3648,6 +3675,7 @@ packages:
     engines: { node: '>=20.9.0' }
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@img/sharp-linuxmusl-arm64@0.34.5':
     resolution:
@@ -3657,6 +3685,7 @@ packages:
     engines: { node: ^18.17.0 || ^20.3.0 || >=21.0.0 }
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-linuxmusl-arm64@0.35.5':
     resolution:
@@ -3666,6 +3695,7 @@ packages:
     engines: { node: '>=20.9.0' }
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-linuxmusl-x64@0.34.5':
     resolution:
@@ -3675,6 +3705,7 @@ packages:
     engines: { node: ^18.17.0 || ^20.3.0 || >=21.0.0 }
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-linuxmusl-x64@0.35.5':
     resolution:
@@ -3684,6 +3715,7 @@ packages:
     engines: { node: '>=20.9.0' }
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@img/sharp-wasm32@0.34.5':
     resolution:
@@ -3895,6 +3927,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@napi-rs/nice-linux-arm64-musl@1.1.1':
     resolution:
@@ -3904,6 +3937,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@napi-rs/nice-linux-ppc64-gnu@1.1.1':
     resolution:
@@ -3913,6 +3947,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@napi-rs/nice-linux-riscv64-gnu@1.1.1':
     resolution:
@@ -3922,6 +3957,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@napi-rs/nice-linux-s390x-gnu@1.1.1':
     resolution:
@@ -3931,6 +3967,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@napi-rs/nice-linux-x64-gnu@1.1.1':
     resolution:
@@ -3940,6 +3977,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@napi-rs/nice-linux-x64-musl@1.1.1':
     resolution:
@@ -3949,6 +3987,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@napi-rs/nice-openharmony-arm64@1.1.1':
     resolution:
@@ -4025,6 +4064,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@next/swc-linux-arm64-musl@16.4.6':
     resolution:
@@ -4034,6 +4074,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@next/swc-linux-x64-gnu@16.4.6':
     resolution:
@@ -4043,6 +4084,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@next/swc-linux-x64-musl@16.4.6':
     resolution:
@@ -4052,6 +4094,7 @@ packages:
     engines: { node: '>= 10' }
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@next/swc-win32-arm64-msvc@16.4.6':
     resolution:
@@ -4139,6 +4182,7 @@ packages:
     engines: { node: '>=18' }
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@noxcturnal/noxcturnal-linux-arm64-musl@0.1.14':
     resolution:
@@ -4148,6 +4192,7 @@ packages:
     engines: { node: '>=18' }
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@noxcturnal/noxcturnal-linux-x64-gnu@0.1.14':
     resolution:
@@ -4157,6 +4202,7 @@ packages:
     engines: { node: '>=18' }
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@noxcturnal/noxcturnal-linux-x64-musl@0.1.14':
     resolution:
@@ -4166,6 +4212,7 @@ packages:
     engines: { node: '>=18' }
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@noxcturnal/noxcturnal-win32-arm64-msvc@0.1.14':
     resolution:
@@ -4658,6 +4705,7 @@ packages:
       }
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm-musleabihf@4.62.2':
     resolution:
@@ -4666,6 +4714,7 @@ packages:
       }
     cpu: [arm]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-arm64-gnu@4.62.2':
     resolution:
@@ -4674,6 +4723,7 @@ packages:
       }
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm64-musl@4.62.2':
     resolution:
@@ -4682,6 +4732,7 @@ packages:
       }
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-loong64-gnu@4.62.2':
     resolution:
@@ -4690,6 +4741,7 @@ packages:
       }
     cpu: [loong64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-loong64-musl@4.62.2':
     resolution:
@@ -4698,6 +4750,7 @@ packages:
       }
     cpu: [loong64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-ppc64-gnu@4.62.2':
     resolution:
@@ -4706,6 +4759,7 @@ packages:
       }
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-ppc64-musl@4.62.2':
     resolution:
@@ -4714,6 +4768,7 @@ packages:
       }
     cpu: [ppc64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-riscv64-gnu@4.62.2':
     resolution:
@@ -4722,6 +4777,7 @@ packages:
       }
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-riscv64-musl@4.62.2':
     resolution:
@@ -4730,6 +4786,7 @@ packages:
       }
     cpu: [riscv64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-s390x-gnu@4.62.2':
     resolution:
@@ -4738,6 +4795,7 @@ packages:
       }
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-gnu@4.62.2':
     resolution:
@@ -4746,6 +4804,7 @@ packages:
       }
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-musl@4.62.2':
     resolution:
@@ -4754,6 +4813,7 @@ packages:
       }
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-openbsd-x64@4.62.2':
     resolution:
@@ -9911,6 +9971,7 @@ packages:
     engines: { node: '>= 12.0.0' }
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   lightningcss-linux-arm64-musl@1.33.0:
     resolution:
@@ -9920,6 +9981,7 @@ packages:
     engines: { node: '>= 12.0.0' }
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   lightningcss-linux-x64-gnu@1.33.0:
     resolution:
@@ -9929,6 +9991,7 @@ packages:
     engines: { node: '>= 12.0.0' }
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   lightningcss-linux-x64-musl@1.33.0:
     resolution:
@@ -9938,6 +10001,7 @@ packages:
     engines: { node: '>= 12.0.0' }
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   lightningcss-win32-arm64-msvc@1.33.0:
     resolution:
@@ -15026,7 +15090,7 @@ snapshots:
       wrap-ansi: 7.0.0
       ws: 8.21.0
     optionalDependencies:
-      expo-router: 58.0.33(crqesk7vaiy4ya5uqfn4kr775a)
+      expo-router: 58.0.33(e8f3bd60cee654a9e4fe0b80844af15c)
       react-native: 0.88.1(@babel/core@7.29.7)(@react-native/metro-config@0.88.1(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.3.0)
     transitivePeerDependencies:
       - '@expo/dom-webview'
@@ -15316,7 +15380,7 @@ snapshots:
       react: 19.3.0
     optionalDependencies:
       '@expo/metro-runtime': 58.0.17(@expo/log-box@58.0.15)(expo@58.1.0)(react-dom@19.3.0(react@19.3.0))(react-native@0.88.1(@babel/core@7.29.7)(@react-native/metro-config@0.88.1(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.3.0))(react@19.3.0)
-      expo-router: 58.0.33(crqesk7vaiy4ya5uqfn4kr775a)
+      expo-router: 58.0.33(e8f3bd60cee654a9e4fe0b80844af15c)
       react-dom: 19.3.0(react@19.3.0)
     transitivePeerDependencies:
       - supports-color
@@ -16476,7 +16540,7 @@ snapshots:
       '@tamagui/use-constant': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/use-force-update': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/use-presence': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16496,7 +16560,7 @@ snapshots:
       '@tamagui/constants': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/cubic-bezier-animator': 2.0.0-rc.42
       '@tamagui/use-presence': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
 
@@ -16505,7 +16569,7 @@ snapshots:
       '@tamagui/animation-helpers': 2.0.0-rc.42
       '@tamagui/constants': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/use-presence': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16548,7 +16612,7 @@ snapshots:
       '@tamagui/spacer': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/text': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16558,7 +16622,7 @@ snapshots:
       '@tamagui/create-context': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/helpers': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16573,7 +16637,7 @@ snapshots:
       '@tamagui/label': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/use-previous': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16610,7 +16674,7 @@ snapshots:
       '@tamagui/polyfill-dev': 2.0.0-rc.42
       '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16640,7 +16704,7 @@ snapshots:
       '@tamagui/animations-react-native': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/core': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/shorthands': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
     transitivePeerDependencies:
       - react
       - react-dom
@@ -16655,7 +16719,7 @@ snapshots:
       '@tamagui/popover': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react-native@0.88.1(@babel/core@7.29.7)(@react-native/metro-config@0.88.1(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.3.0))(react@19.3.0)
       '@tamagui/use-callback-ref': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16668,7 +16732,7 @@ snapshots:
       '@tamagui/react-native-use-pressable': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/use-element-layout': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/use-event': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16697,7 +16761,7 @@ snapshots:
       '@tamagui/text': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/use-callback-ref': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/use-direction': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16705,7 +16769,7 @@ snapshots:
 
   '@tamagui/create-theme@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
     transitivePeerDependencies:
       - react
       - react-dom
@@ -16789,7 +16853,7 @@ snapshots:
   '@tamagui/focusable@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@tamagui/compose-refs': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16825,7 +16889,7 @@ snapshots:
   '@tamagui/get-button-sized@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@tamagui/get-token': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16833,14 +16897,14 @@ snapshots:
   '@tamagui/get-font-sized@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@tamagui/constants': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
 
   '@tamagui/get-token@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16864,7 +16928,7 @@ snapshots:
   '@tamagui/helpers-tamagui@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@tamagui/helpers': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16879,7 +16943,7 @@ snapshots:
     dependencies:
       '@tamagui/constants': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/core': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16897,7 +16961,7 @@ snapshots:
       '@tamagui/helpers-tamagui': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/text': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16915,7 +16979,7 @@ snapshots:
       '@tamagui/get-button-sized': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/get-font-sized': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/text': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16938,7 +17002,7 @@ snapshots:
       '@tamagui/helpers-tamagui': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/text': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16951,7 +17015,7 @@ snapshots:
       '@tamagui/popover': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react-native@0.88.1(@babel/core@7.29.7)(@react-native/metro-config@0.88.1(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.3.0))(react@19.3.0)
       '@tamagui/popper': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react-native@0.88.1(@babel/core@7.29.7)(@react-native/metro-config@0.88.1(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.3.0))(react@19.3.0)
       '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -16970,7 +17034,7 @@ snapshots:
     dependencies:
       react: 19.3.0
 
-  '@tamagui/next-plugin@2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))':
+  '@tamagui/next-plugin@2.0.0-rc.42(patch_hash=09ca9268e432e2022bbdb5370e44d0cd246be89170dbbacc45e10f0126f65ccc)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))':
     dependencies:
       '@babel/preset-react': 7.29.7(@babel/core@7.29.7)
       '@tamagui/proxy-worm': 2.0.0-rc.42
@@ -16983,7 +17047,7 @@ snapshots:
       file-loader: 6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
       html-webpack-plugin: 5.6.7(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
       next: 16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      tamagui-loader: 2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
+      tamagui-loader: 2.0.0-rc.42(patch_hash=ec4898e76cbde611d608c2023cf51c3dbd3b7558e94ae4c881edd121f4a0f7fc)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
       url-loader: 4.1.1(file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)))(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
     transitivePeerDependencies:
       - '@babel/core'
@@ -16994,7 +17058,7 @@ snapshots:
       - supports-color
       - webpack
 
-  '@tamagui/next-plugin@2.0.0-rc.42(patch_hash=uesrtzhubcwypldktc5vw4raae)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))':
+  '@tamagui/next-plugin@2.0.0-rc.42(patch_hash=09ca9268e432e2022bbdb5370e44d0cd246be89170dbbacc45e10f0126f65ccc)(@babel/core@7.29.7)(next@16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))':
     dependencies:
       '@babel/preset-react': 7.29.7(@babel/core@7.29.7)
       '@tamagui/proxy-worm': 2.0.0-rc.42
@@ -17007,7 +17071,7 @@ snapshots:
       file-loader: 6.2.0(webpack@5.108.3(lightningcss@1.33.0))
       html-webpack-plugin: 5.6.7(webpack@5.108.3(lightningcss@1.33.0))
       next: 16.4.6(@babel/core@7.29.7)(@types/node@22.20.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      tamagui-loader: 2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))
+      tamagui-loader: 2.0.0-rc.42(patch_hash=ec4898e76cbde611d608c2023cf51c3dbd3b7558e94ae4c881edd121f4a0f7fc)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0))
       url-loader: 4.1.1(file-loader@6.2.0(webpack@5.108.3(lightningcss@1.33.0)))(webpack@5.108.3(lightningcss@1.33.0))
     transitivePeerDependencies:
       - '@babel/core'
@@ -17073,7 +17137,7 @@ snapshots:
       '@tamagui/native': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/start-transition': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/use-event': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/z-index-stack': 2.0.0-rc.42(react@19.3.0)
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
@@ -17121,14 +17185,14 @@ snapshots:
       '@tamagui/label': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/use-previous': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
 
   '@tamagui/react-native-media-driver@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
     transitivePeerDependencies:
       - react
       - react-dom
@@ -17150,7 +17214,7 @@ snapshots:
       '@tamagui/react-native-use-responder-events': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/simple-hash': 2.0.0-rc.42
       '@tamagui/use-element-layout': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
       react-dom: 19.3.0(react@19.3.0)
 
@@ -17160,7 +17224,7 @@ snapshots:
       '@tamagui/react-native-use-pressable': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/react-native-use-responder-events': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/react-native-web-internals': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       invariant: 2.2.4
       memoize-one: 6.0.0
       react: 19.3.0
@@ -17188,7 +17252,7 @@ snapshots:
   '@tamagui/scroll-view@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -17236,7 +17300,7 @@ snapshots:
   '@tamagui/shapes@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -17267,7 +17331,7 @@ snapshots:
 
   '@tamagui/shorthands@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
     transitivePeerDependencies:
       - react
       - react-dom
@@ -17299,7 +17363,7 @@ snapshots:
 
   '@tamagui/spacer@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -17316,7 +17380,7 @@ snapshots:
     dependencies:
       '@tamagui/core': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/get-button-sized': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -17371,7 +17435,7 @@ snapshots:
       '@tamagui/react-native-web-lite': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/shorthands': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/types': 2.0.0-rc.42
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       babel-literal-to-ast: 2.1.0(@babel/core@7.29.7)
       browserslist: 4.29.0
       check-dependency-version-consistency: 4.1.1
@@ -17434,7 +17498,7 @@ snapshots:
       '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/use-direction': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -17443,7 +17507,7 @@ snapshots:
     dependencies:
       '@tamagui/get-font-sized': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/helpers-tamagui': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -17451,7 +17515,7 @@ snapshots:
   '@tamagui/theme-builder@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@tamagui/create-theme': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       color2k: 2.0.3
     transitivePeerDependencies:
       - react
@@ -17461,7 +17525,7 @@ snapshots:
     dependencies:
       '@tamagui/constants': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/start-transition': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -17471,7 +17535,7 @@ snapshots:
       '@tamagui/colors': 2.0.0-rc.42
       '@tamagui/create-theme': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/theme-builder': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       color2k: 2.0.3
     transitivePeerDependencies:
       - react
@@ -17515,7 +17579,7 @@ snapshots:
       '@tamagui/stacks': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/use-controllable-state': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/use-direction': 2.0.0-rc.42(react@19.3.0)
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -17596,7 +17660,7 @@ snapshots:
 
   '@tamagui/use-presence@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
@@ -17612,12 +17676,12 @@ snapshots:
 
   '@tamagui/visually-hidden@2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
     transitivePeerDependencies:
       - react-dom
 
-  '@tamagui/web@2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@tamagui/web@2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@tamagui/compose-refs': 2.0.0-rc.42(react@19.3.0)
       '@tamagui/constants': 2.0.0-rc.42(react@19.3.0)
@@ -19459,7 +19523,7 @@ snapshots:
       '@expo/modules-macros-win32-arm64': 0.33.0
       '@expo/modules-macros-win32-x64': 0.33.0
 
-  expo-router@58.0.33(crqesk7vaiy4ya5uqfn4kr775a):
+  expo-router@58.0.33(e8f3bd60cee654a9e4fe0b80844af15c):
     dependencies:
       '@expo/log-box': 58.0.15(@expo/dom-webview@58.0.2)(expo@58.1.0)(react-native@0.88.1(@babel/core@7.29.7)(@react-native/metro-config@0.88.1(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.3.0))(react@19.3.0)
       '@expo/metro-runtime': 58.0.17(@expo/log-box@58.0.15)(expo@58.1.0)(react-dom@19.3.0(react@19.3.0))(react-native@0.88.1(@babel/core@7.29.7)(@react-native/metro-config@0.88.1(@babel/core@7.29.7))(@types/react@19.2.17)(react@19.3.0))(react@19.3.0)
@@ -22000,14 +22064,14 @@ snapshots:
       string-width: 4.2.3
       strip-ansi: 6.0.1
 
-  tamagui-loader@2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
+  tamagui-loader@2.0.0-rc.42(patch_hash=ec4898e76cbde611d608c2023cf51c3dbd3b7558e94ae4c881edd121f4a0f7fc)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23)):
     dependencies:
       '@tamagui/cli-color': 2.0.0-rc.42
       '@tamagui/core': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/static': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/static-worker': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/types': 2.0.0-rc.42
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       esbuild-loader: 4.5.0(webpack@5.108.3(lightningcss@1.33.0)(postcss@8.5.23))
       esm-resolve: 1.0.11
       fs-extra: 11.3.6
@@ -22019,14 +22083,14 @@ snapshots:
       - supports-color
       - webpack
 
-  tamagui-loader@2.0.0-rc.42(patch_hash=v5d4vs33vzeue6skc7useybxpq)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)):
+  tamagui-loader@2.0.0-rc.42(patch_hash=ec4898e76cbde611d608c2023cf51c3dbd3b7558e94ae4c881edd121f4a0f7fc)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(webpack@5.108.3(lightningcss@1.33.0)):
     dependencies:
       '@tamagui/cli-color': 2.0.0-rc.42
       '@tamagui/core': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/static': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/static-worker': 2.0.0-rc.42(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tamagui/types': 2.0.0-rc.42
-      '@tamagui/web': 2.0.0-rc.42(patch_hash=n6rvaiqvw3btqycnvsftz6s3pm)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@tamagui/web': 2.0.0-rc.42(patch_hash=17e8d381addf96dfb7f07e686be896d0d9975503d204d96df6791b698766c6eb)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       esbuild-loader: 4.5.0(webpack@5.108.3(lightningcss@1.33.0))
       esm-resolve: 1.0.11
       fs-extra: 11.3.6
