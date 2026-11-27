@@ -1,7 +1,13 @@
 import { describeFeature, loadFeature } from '@amiceli/vitest-cucumber';
 import { expect } from 'vitest';
 
-import { MAX_FORECAST_AGE_MS, firstLightLabel, getSpot } from '@tonnta/data';
+import {
+  MAX_FORECAST_AGE_MS,
+  firstLightLabel,
+  getSpot,
+  isDaylightHour,
+  sunTimes,
+} from '@tonnta/data';
 import type { HourlyConditions } from '@tonnta/types';
 
 import { buildChartGeometry } from '../chart/chart-geometry';
@@ -9,6 +15,7 @@ import { formatHour } from './format';
 import {
   surfChartHourLabel,
   surfConditionsLine,
+  surfDayDetail,
   surfForecastAt,
   surfHeadlineFacts,
   surfRating,
@@ -30,6 +37,13 @@ function forecastHour(time: string): HourlyConditions {
     windGustKmh: 20,
     windState: 'offshore',
   };
+}
+
+/** Every hour of a UTC day; Donabate is on UTC in December. */
+function dayOfHours(date: string): HourlyConditions[] {
+  return Array.from({ length: 24 }, (_, hour) =>
+    forecastHour(new Date(Date.parse(`${date}T00:00:00Z`) + hour * 3_600_000).toISOString())
+  );
 }
 
 function donabate() {
@@ -215,6 +229,60 @@ describeFeature(feature, ({ Scenario }) => {
         headline: 'Blown out: 0.8 m at 6 s, 40 km/h onshore',
         reason: 'Onshore 40km/h has it blown out.',
       });
+    });
+  });
+  Scenario(
+    "A day's detail lists its daylight hours with sunrise and sunset",
+    ({ Given, Then, And }) => {
+      let detail: ReturnType<typeof surfDayDetail>;
+      Given('a forecast for every hour of tomorrow', () => {
+        detail = surfDayDetail(dayOfHours('2026-12-22'), donabate(), '2026-12-22', DAYLIGHT);
+      });
+      Then('the day detail gives sunrise and sunset for tomorrow', () => {
+        const spot = donabate();
+        const sun = sunTimes(Date.parse('2026-12-22T12:00:00Z'), spot.latitude, spot.longitude);
+        expect(detail.sunrise).toBe(new Date(sun.sunrise ?? Number.NaN).toISOString());
+        expect(detail.sunset).toBe(new Date(sun.sunset ?? Number.NaN).toISOString());
+      });
+      And('it lists only full daylight hours, in order, with their facts', () => {
+        const spot = donabate();
+        const expected = dayOfHours('2026-12-22')
+          .map((hour) => hour.time)
+          .filter((time) => isDaylightHour(time, spot));
+        expect(expected.length).toBeGreaterThan(4);
+        expect(detail.hours.map((hour) => hour.time)).toEqual(expected);
+        expect(detail.hours[0]).toEqual({
+          time: expected[0],
+          facts: '0.6 m · 5 s · wind 12 km/h offshore · gusts 20 km/h',
+          seaState: 'Clean',
+        });
+      });
+    }
+  );
+
+  Scenario("A day's detail starts from the current hour", ({ Given, Then }) => {
+    let detail: ReturnType<typeof surfDayDetail>;
+    Given('a forecast for every hour of today, viewed at midday', () => {
+      detail = surfDayDetail(dayOfHours('2026-12-21'), donabate(), '2026-12-21', DAYLIGHT);
+    });
+    Then('the day detail lists no hour before the current one', () => {
+      expect(detail.hours[0]?.time).toBe('2026-12-21T12:00:00.000Z');
+    });
+  });
+
+  Scenario("Missing hours stay out of a day's detail", ({ Given, Then }) => {
+    let detail: ReturnType<typeof surfDayDetail>;
+    Given('a forecast for tomorrow with no data at 12:00', () => {
+      const hours = dayOfHours('2026-12-22').filter(
+        (hour) => hour.time !== '2026-12-22T12:00:00.000Z'
+      );
+      detail = surfDayDetail(hours, donabate(), '2026-12-22', DAYLIGHT);
+    });
+    Then('the day detail has no 12:00 row and does not fill the gap', () => {
+      const times = detail.hours.map((hour) => hour.time);
+      expect(times).not.toContain('2026-12-22T12:00:00.000Z');
+      expect(times).toContain('2026-12-22T11:00:00.000Z');
+      expect(times).toContain('2026-12-22T13:00:00.000Z');
     });
   });
 });

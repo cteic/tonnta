@@ -4,6 +4,7 @@ import {
   isDaylight,
   isDaylightHour,
   isForecastFresh,
+  seaStateFor,
   sunTimes,
 } from '@tonnta/data';
 import type { HourlyConditions, Spot, Verdict, WindState } from '@tonnta/types';
@@ -137,13 +138,73 @@ function nextSunrise(spot: Spot, now: number): number | undefined {
   return undefined;
 }
 
-function dailyWaves(forecast: HourlyConditions[], spot: Spot, currentStart: number): SurfDay[] {
-  const localDate = new Intl.DateTimeFormat('sv-SE', {
-    timeZone: spot.timezone,
+function localDateFormat(timezone: string): Intl.DateTimeFormat {
+  return new Intl.DateTimeFormat('sv-SE', {
+    timeZone: timezone,
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
   });
+}
+
+export interface SurfDayHour {
+  time: string;
+  /** "0.6 m · 5 s · wind 12 km/h offshore · gusts 20 km/h" */
+  facts: string;
+  /** Sea-state word such as "Clean", when a number rule fits. */
+  seaState?: string;
+}
+
+export interface SurfDayDetail {
+  date: string;
+  sunrise?: string;
+  sunset?: string;
+  /** Full daylight hours of the day with forecast data, from the current hour on. */
+  hours: SurfDayHour[];
+}
+
+/** One day's daylight hours, for the detail under the seven-day tiles. */
+export function surfDayDetail(
+  forecast: HourlyConditions[],
+  spot: Spot,
+  date: string,
+  now: number
+): SurfDayDetail {
+  const currentStart = Math.floor(now / HOUR_MS) * HOUR_MS;
+  const localDate = localDateFormat(spot.timezone);
+  const { sunrise, sunset } = sunTimes(
+    Date.parse(`${date}T12:00:00Z`),
+    spot.latitude,
+    spot.longitude
+  );
+  const hours = forecast
+    .filter((hour) => {
+      const at = Date.parse(hour.time);
+      return (
+        Number.isFinite(at) &&
+        at >= currentStart &&
+        localDate.format(at) === date &&
+        isDaylightHour(hour.time, spot)
+      );
+    })
+    .sort((a, b) => Date.parse(a.time) - Date.parse(b.time))
+    .map((hour): SurfDayHour => {
+      const facts = `${hour.waveHeightM.toFixed(1)} m · ${Math.round(hour.wavePeriodS)} s · wind ${Math.round(hour.windSpeedKmh)} km/h ${WIND_STATE_LABEL[hour.windState]} · gusts ${Math.round(hour.windGustKmh)} km/h`;
+      const seaState = seaStateFor(hour)?.word;
+      return seaState === undefined
+        ? { time: hour.time, facts }
+        : { time: hour.time, facts, seaState };
+    });
+  return {
+    date,
+    ...(sunrise === undefined ? {} : { sunrise: new Date(sunrise).toISOString() }),
+    ...(sunset === undefined ? {} : { sunset: new Date(sunset).toISOString() }),
+    hours,
+  };
+}
+
+function dailyWaves(forecast: HourlyConditions[], spot: Spot, currentStart: number): SurfDay[] {
+  const localDate = localDateFormat(spot.timezone);
   const firstDate = Date.parse(localDate.format(currentStart));
   const peaks = new Map<string, number>();
   for (const hour of forecast) {
