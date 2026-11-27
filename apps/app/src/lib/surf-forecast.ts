@@ -172,7 +172,7 @@ export function surfForecastAt(
   const dark = !isDaylight(now, spot.latitude, spot.longitude);
   const nextLight = dark ? nextSunrise(spot, now) : undefined;
   const firstLightStart =
-    nextLight === undefined ? undefined : Math.ceil(nextLight / HOUR_MS) * HOUR_MS;
+    nextLight === undefined ? undefined : Math.floor(nextLight / HOUR_MS) * HOUR_MS;
   const firstLight = firstLightStart === undefined ? undefined : byTime.get(firstLightStart);
   const hours = Array.from({ length: CHART_HOURS }, (_, index): SurfChartHour => {
     const at = currentStart + index * HOUR_MS;
@@ -188,8 +188,7 @@ export function surfForecastAt(
     current: byTime.get(currentStart),
     dark,
     sunrise: nextLight === undefined ? undefined : new Date(nextLight).toISOString(),
-    firstLight:
-      firstLight !== undefined && isDaylightHour(firstLight.time, spot) ? firstLight : undefined,
+    firstLight,
     hours,
     days: dailyWaves(forecast, spot, currentStart),
   };

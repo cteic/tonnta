@@ -4,7 +4,7 @@ import { expect } from 'vitest';
 import type { HourlyConditions } from '@tonnta/types';
 
 import type { Headline } from './headline';
-import { headlineFor } from './headline';
+import { firstLightLabel, headlineFor } from './headline';
 import { getSpot } from './spots';
 import { classifyWind } from './verdict';
 
@@ -83,10 +83,34 @@ describeFeature(feature, ({ Scenario }) => {
         const gap = Math.abs(Date.parse(headline.sunrise ?? '') - irish(23, '08:05'));
         expect(gap).toBeLessThan(5 * 60 * 1000);
       });
-      And('it previews the verdict for the first full daylight hour, 09:00', () => {
+      And('it previews the verdict for the hour the sun rises in, 08:00', () => {
         if (headline.kind !== 'dark') throw new Error('not dark');
-        expect(headline.firstLight?.hour.time).toBe('2026-10-23T08:00:00Z');
+        expect(headline.firstLight?.hour.time).toBe('2026-10-23T07:00:00Z');
         expect(headline.firstLight?.result.verdict).toBe('go');
+      });
+      And('the preview is labelled from sunrise, because that hour starts in the dark', () => {
+        if (headline.kind !== 'dark' || headline.firstLight === undefined)
+          throw new Error('no first-light preview');
+        const label = firstLightLabel(
+          headline.firstLight.hour.time,
+          headline.sunrise,
+          spot.timezone
+        );
+        expect(label).toMatch(/^from 8:0\d$/);
+      });
+    }
+  );
+
+  Scenario(
+    'A first-light hour that starts at sunrise is labelled with the hour',
+    ({ Given, Then }) => {
+      let hourTime = '';
+      Given('a first-light hour of 08:00 Irish time and sunrise on the hour', () => {
+        hourTime = '2026-10-23T07:00:00Z';
+      });
+      Then('the preview is labelled 8:00', () => {
+        expect(firstLightLabel(hourTime, hourTime, spot.timezone)).toBe('8:00');
+        expect(firstLightLabel(hourTime, undefined, spot.timezone)).toBe('8:00');
       });
     }
   );
