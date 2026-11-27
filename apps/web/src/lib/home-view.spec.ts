@@ -137,6 +137,35 @@ describe('Surf site screen', () => {
     expect(text).not.toMatch(VERDICT_WORDS);
   });
 
+  it('keeps the Éirí sky and moon behind the same night words after dark', () => {
+    const night = Date.parse('2026-07-04T01:30:00Z');
+    vi.useFakeTimers({ now: night, toFake: ['Date'] });
+    try {
+      const dark: SpotConditions = {
+        ...goConditions(),
+        headline: headlineFor(hours, spot, night),
+      };
+      const html = render(createElement(HomeView, { conditions: dark }), 'eiri');
+      expect(html).toContain('data-testid="dark-hero"');
+      expect(html).toContain('data-testid="eiri-disc"');
+      expect(html).toContain('data-disc="moon"');
+      const text = visibleText(html);
+      expect(text).toContain('Dark now');
+      expect(text).toContain('Sunrise is at');
+      expect(text).toContain('First light');
+      expect(text).not.toMatch(VERDICT_WORDS);
+      // The night screen drops the live stat chips: nobody should be in the water.
+      expect(text).not.toContain('Waves now');
+
+      const plain = render(createElement(HomeView, { conditions: dark }), 'dawn-v1');
+      const nightWords = text.slice(text.indexOf('Dorcha'), text.indexOf('First light'));
+      expect(nightWords).toContain('Sunrise is at');
+      expect(visibleText(plain)).toContain(nightWords);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('shows Unknown and no board tag when the current hour is missing', () => {
     const base = goConditions();
     const missing: SpotConditions = {

@@ -1,9 +1,10 @@
 'use client';
 
-import type { SpotConditions } from '@tonnta/web-conditions';
+import type { DarkHeroProps, SpotConditions } from '@tonnta/web-conditions';
 import {
   BuoyCard,
   DarkHero,
+  DarkHeroCopy,
   DayStrip,
   SeaHero,
   SunCard,
@@ -64,18 +65,29 @@ export function HomeView({ conditions: initialConditions }: HomeViewProps) {
   }
 
   const { headline } = conditions;
-  let hero =
-    headline.kind === 'dark' ? (
-      <DarkHero
-        spot={spot}
-        mode="surf"
-        sunrise={headline.sunrise}
-        firstLightTime={headline.firstLight?.hour.time}
-        surfHour={headline.firstLight?.hour}
-      />
-    ) : (
-      surfHero
-    );
+  let hero = surfHero;
+  if (headline.kind === 'dark') {
+    const darkProps: DarkHeroProps = {
+      spot,
+      mode: 'surf',
+      sunrise: headline.sunrise,
+      firstLightTime: headline.firstLight?.hour.time,
+      surfHour: headline.firstLight?.hour,
+    };
+    // Éirí keeps its sky and moon after dark; the words are the same in every theme.
+    hero =
+      theme.hero === 'eiri' ? (
+        <EiriHero
+          spotName={spot.name}
+          latitude={spot.latitude}
+          longitude={spot.longitude}
+          timezone={spot.timezone}
+          night={<DarkHeroCopy {...darkProps} />}
+        />
+      ) : (
+        <DarkHero {...darkProps} />
+      );
+  }
 
   if (headline.kind === 'none') {
     hero = (

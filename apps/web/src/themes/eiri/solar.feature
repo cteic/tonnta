@@ -34,7 +34,24 @@ Feature: Solar palette engine
     When I compute the solar scene
     Then the phase is day
 
-  Scenario: The sky gradient always ends in water
+  Scenario: The sky ends at the horizon on its last stop
     Given the clock reads 2026-06-21T12:00:00Z at Donabate
     When I compute the solar scene
-    Then the gradient ends with the water colour
+    Then the sky gradient ends with the last sky stop at 100%
+
+  Scenario: A rising sun sits just above the horizon
+    Given the clock reads 2026-11-27T08:20:00Z at Donabate
+    When I compute the solar scene
+    Then the phase is sunrise
+    And the disc sits between 6px and 30px above the horizon
+
+  Scenario: A moon at night sits on the horizon
+    Given the clock reads 2026-11-27T02:00:00Z at Donabate
+    When I compute the solar scene
+    Then the disc is a moon
+    And the disc sits 6px above the horizon
+
+  Scenario: The highest sun lifts no more than 156px
+    Given the clock reads 2026-06-21T12:00:00Z at Donabate
+    When I compute the solar scene
+    Then the disc sits 156px above the horizon
