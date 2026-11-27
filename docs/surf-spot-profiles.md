@@ -53,10 +53,10 @@ metadata are not yet emitted by the v2 worker or persisted in beach-check record
 
 ## Irish surf beaches (added 27 November 2026)
 
-Nine Republic of Ireland beaches join the registry as `ireland-surf-beta`.
+Thirteen Republic of Ireland spots join the registry as `ireland-surf-beta`.
 Every value is provisional. None has been calibrated against beach
-observations, and all use the default thresholds (flat below 0.3 m, GO from
-0.4 m, wind 25/30/35 km/h).
+observations. All but Mullaghmore Head use the default thresholds (flat below
+0.3 m, GO from 0.4 m, wind 25/30/35 km/h).
 
 How the values were found, on 27 November 2026:
 
@@ -140,12 +140,39 @@ EPA IESWBWC090_0000_0200; surf-forecast.com/breaks/Garrettstown.
 Level unverified. Needs an easterly swell. Sources: logainm.ie/en/128813; EPA
 IEEABWC140_0000_0300.
 
+### streedagh
+
+Beginner to intermediate on small days (inferred from surf-forecast.com).
+The 300 m coastline window gives 26°, the wider windows about 350°. Sources:
+surf-forecast.com/breaks/Streedagh-Strand (SE offshore, W swell); EPA
+IEWEBWC430_0000_0100. logainm lists two strands under the townland, so no
+Irish name is stored.
+
+### easkey-left
+
+Advanced reef: rocks, rips and seaweed. Both Easkey reefs face north; Left is
+used because surf-forecast.com rates it more consistent. Sources:
+logainm.ie/en/1416772; surf-forecast.com/breaks/Easky-Left (S wind, NW swell).
+
+### mullaghmore-head
+
+Expert-only big-wave reef, usually towed in. Thresholds: flat below 2.5 m,
+good from 3 m, from surfnerd.com's 3 m to 9.1 m working range. No source gives
+a minimum period, so none is set. The EPA "Mullaghmore Beach" is the village
+beach, not this reef, so it is not mapped. Sources:
+surfnerd.com/surf-forecast/mullaghmore-head; worldsurfleague.com/posts/442960.
+
+### magheramore
+
+Level unverified; surf-forecast.com rates it inconsistent and warns of crowds.
+Its page names Wexford, but its coordinates are this Wicklow beach. Sources:
+logainm.ie/en/55363; surf-forecast.com/breaks/Maghermore (W offshore, S swell).
+
 ### Held back
 
-- **Tullan Strand, Easkey, Enniscrone, Tramore:** the facing changes by up to
-  30° depending on the stretch of coast measured, or could not be measured.
-  Wind labels depend on facing, so these wait for a checked bearing.
-- **Mullaghmore Head:** a big-wave reef for experts, not a beach. Do not add.
+- **Tullan Strand, Enniscrone, Tramore:** the facing changes by up to 30°
+  depending on the stretch of coast measured, or could not be measured. Wind
+  labels depend on facing, so these wait for a checked bearing.
 
 ## Validation and remaining evidence
 
