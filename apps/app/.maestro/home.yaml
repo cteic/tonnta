@@ -18,5 +18,20 @@ appId: ie.tonnta.app
 - assertNotVisible: 'Pro'
 - scrollUntilVisible:
     element:
+      id: 'surf-day-.*'
+    timeout: 20000
+- assertNotVisible:
+    id: 'surf-day-detail'
+- tapOn:
+    id: 'surf-day-.*'
+    index: 1
+- scrollUntilVisible:
+    element:
+      id: 'surf-day-detail'
+    timeout: 10000
+- assertVisible:
+    id: 'surf-day-detail'
+- scrollUntilVisible:
+    element:
       id: 'buoy-heading'
     timeout: 20000

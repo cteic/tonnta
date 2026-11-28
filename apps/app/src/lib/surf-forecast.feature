@@ -37,3 +37,16 @@ Feature: Native surf forecast
   Scenario: A strong onshore wind is rated blown out
     Given a current hour of 0.8 m at 6 s with 40 km/h onshore wind
     Then the surf is rated blown out without advice
+
+  Scenario: A day's detail lists its daylight hours with sunrise and sunset
+    Given a forecast for every hour of tomorrow
+    Then the day detail gives sunrise and sunset for tomorrow
+    And it lists only full daylight hours, in order, with their facts
+
+  Scenario: A day's detail starts from the current hour
+    Given a forecast for every hour of today, viewed at midday
+    Then the day detail lists no hour before the current one
+
+  Scenario: Missing hours stay out of a day's detail
+    Given a forecast for tomorrow with no data at 12:00
+    Then the day detail has no 12:00 row and does not fill the gap

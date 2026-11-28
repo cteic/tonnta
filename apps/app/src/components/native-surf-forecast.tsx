@@ -1,3 +1,7 @@
+import { useState } from 'react';
+
+import { Pressable } from 'react-native';
+
 import { MAX_FORECAST_AGE_MS, firstLightLabel } from '@tonnta/data';
 import type { Verdict } from '@tonnta/types';
 import { Text, XStack, YStack } from '@tonnta/ui';
@@ -7,10 +11,12 @@ import { formatDayName, formatHour } from '@/lib/format';
 import {
   SURF_RATING_GUIDANCE,
   surfConditionsLine,
+  surfDayDetail,
   surfForecastAt,
   surfHeadlineFacts,
   surfRating,
 } from '@/lib/surf-forecast';
+import type { SurfDayDetail } from '@/lib/surf-forecast';
 import { useDaylightClock } from '@/lib/use-daylight-clock';
 
 import { ConditionsChart } from './conditions-chart';
@@ -30,6 +36,7 @@ interface NativeSurfForecastProps {
 
 export function NativeSurfForecast({ outlook, refreshFailed }: NativeSurfForecastProps) {
   const { spot } = outlook;
+  const [selectedDate, setSelectedDate] = useState<string | undefined>();
   useDaylightClock(spot, outlook.loadedAt + MAX_FORECAST_AGE_MS);
   const forecast = surfForecastAt(outlook.forecastHours, spot, outlook.loadedAt, Date.now());
   if (refreshFailed || forecast.status === 'stale') {
@@ -132,30 +139,118 @@ export function NativeSurfForecast({ outlook, refreshFailed }: NativeSurfForecas
       <YStack gap="$4">
         <Eyebrow>Seven days</Eyebrow>
         <Body muted>Highest available wave estimates</Body>
+        <Body muted>Tap a day for its daylight hours.</Body>
         <XStack gap="$2" flexWrap="wrap">
-          {days.map((day) => (
-            <YStack
-              key={day.date}
-              flex={1}
-              minWidth={80}
-              alignItems="center"
-              gap="$2"
-              paddingVertical="$5"
-              borderRadius="$3"
-              backgroundColor="$surfaceRaised"
-            >
-              <Text fontFamily="$body" fontSize="$2" fontWeight="600" color="$color">
-                {formatDayName(`${day.date}T12:00:00Z`, spot.timezone)}
-              </Text>
-              <Text fontFamily="$display" fontSize="$3" fontWeight="600" color="$color">
-                {day.maxWaveHeightM === undefined
-                  ? 'Unavailable'
-                  : `${day.maxWaveHeightM.toFixed(1)} m`}
-              </Text>
-            </YStack>
-          ))}
+          {days.map((day) => {
+            const dayName = formatDayName(`${day.date}T12:00:00Z`, spot.timezone);
+            const waves =
+              day.maxWaveHeightM === undefined
+                ? 'Unavailable'
+                : `${day.maxWaveHeightM.toFixed(1)} m`;
+            const selected = day.date === selectedDate;
+            return (
+              <Pressable
+                key={day.date}
+                style={{ flexGrow: 1, flexBasis: 80 }}
+                accessibilityRole="button"
+                accessibilityLabel={`${dayName}, highest waves ${waves}`}
+                accessibilityHint={selected ? 'Hides this day' : 'Shows this day hour by hour'}
+                accessibilityState={{
+                  expanded: selected,
+                  disabled: day.maxWaveHeightM === undefined,
+                }}
+                disabled={day.maxWaveHeightM === undefined}
+                testID={`surf-day-${day.date}`}
+                onPress={() => {
+                  setSelectedDate(selected ? undefined : day.date);
+                }}
+              >
+                <YStack
+                  alignItems="center"
+                  gap="$2"
+                  paddingVertical="$5"
+                  borderRadius="$3"
+                  borderWidth={2}
+                  borderColor={selected ? '$accent' : 'transparent'}
+                  backgroundColor="$surfaceRaised"
+                >
+                  <Text fontFamily="$body" fontSize="$2" fontWeight="600" color="$color">
+                    {dayName}
+                  </Text>
+                  <Text fontFamily="$display" fontSize="$3" fontWeight="600" color="$color">
+                    {waves}
+                  </Text>
+                </YStack>
+              </Pressable>
+            );
+          })}
         </XStack>
+        {selectedDate === undefined ? null : (
+          <SurfDayPanel
+            detail={surfDayDetail(outlook.forecastHours, spot, selectedDate, Date.now())}
+            timezone={spot.timezone}
+          />
+        )}
       </YStack>
     </>
+  );
+}
+
+interface SurfDayPanelProps {
+  detail: SurfDayDetail;
+  timezone: string;
+}
+
+function SurfDayPanel({ detail, timezone }: SurfDayPanelProps) {
+  const sun = [
+    detail.sunrise === undefined ? undefined : `Sunrise ${formatHour(detail.sunrise, timezone)}`,
+    detail.sunset === undefined ? undefined : `sunset ${formatHour(detail.sunset, timezone)}`,
+  ]
+    .filter((part) => part !== undefined)
+    .join(' · ');
+  return (
+    <YStack
+      testID="surf-day-detail"
+      gap="$3"
+      padding="$6"
+      borderRadius="$4"
+      backgroundColor="$surfaceRaised"
+    >
+      <Text
+        accessibilityRole="header"
+        fontFamily="$display"
+        fontSize="$4"
+        fontWeight="600"
+        color="$color"
+      >
+        {formatDayName(`${detail.date}T12:00:00Z`, timezone)}
+      </Text>
+      {sun === '' ? null : <Body muted>{sun}</Body>}
+      {detail.hours.length === 0 ? (
+        <Body>No forecast for the full daylight hours left on this day.</Body>
+      ) : (
+        detail.hours.map((hour) => (
+          <YStack
+            key={hour.time}
+            gap="$1"
+            accessible
+            accessibilityLabel={`${formatHour(hour.time, timezone)}. ${hour.seaState === undefined ? '' : `${hour.seaState}. `}${hour.facts}`}
+          >
+            <XStack gap="$3" alignItems="baseline">
+              <Text fontFamily="$body" fontSize="$4" fontWeight="600" color="$color">
+                {formatHour(hour.time, timezone)}
+              </Text>
+              {hour.seaState === undefined ? null : (
+                <Text fontFamily="$body" fontSize="$3" fontWeight="600" color="$accent">
+                  {hour.seaState}
+                </Text>
+              )}
+            </XStack>
+            <Body muted>{hour.facts}</Body>
+          </YStack>
+        ))
+      )}
+      <Body muted>Only full daylight hours are listed.</Body>
+    </YStack>
   );
 }
