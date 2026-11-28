@@ -13,3 +13,6 @@ apps/app/android/
 # both want to rewrite. Formatting it only makes the next build dirty the
 # tree again, so leave it exactly as Next writes it.
 apps/web/next-env.d.ts
+
+# Local agent settings and other sessions' worktrees. Not part of this repo.
+.claude/
